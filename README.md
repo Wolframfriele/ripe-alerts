@@ -1,2 +1,2 @@
 # ripe-alerts
-The repo is a part of software build for Ripe.
+This repo is a part of software build for Ripe.
