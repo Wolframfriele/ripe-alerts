@@ -1,0 +1,4 @@
+venv/
+Frontend/node_modules
+Backend/db.sqlite3
+.idea
