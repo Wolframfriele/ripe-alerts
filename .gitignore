@@ -2,3 +2,9 @@ venv/
 Frontend/node_modules
 Backend/db.sqlite3
 .idea
+Backend/venv
+Backend/.env
+Backend/__pycache__/
+Backend/dashboard/__pycache__/
+Backend/Core/__pycache__/
+Backend/dashboard/migrations/__pycache__/
