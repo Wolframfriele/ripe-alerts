@@ -8,8 +8,11 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class RipeUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='ripe_api_token', on_delete=models.CASCADE)
     ripe_api_token = models.UUIDField(null=True)
+
+    def __str__(self):
+        return str(self.ripe_api_token)
 
 
 class Probe(models.Model):
