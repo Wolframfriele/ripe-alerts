@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -85,15 +86,26 @@ WSGI_APPLICATION = 'Core.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'RipeAlerts',
+#         'HOST': 'localhost',
+#         'PORT': 5432,
+#         'USER': 'tientjieit' ,
+#         'PASSWORD': os.getenv('DBWW')
+#
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'RipeAlerts',
-        'HOST': 'localhost',
+        'NAME': 'ripe-alert',
+        'HOST': '145.89.192.152',
         'PORT': 5432,
-        'USER': 'tientjieit' ,
-        'PASSWORD': os.getenv('DBWW')
-
+        'USER': 'postgres',
+        'PASSWORD': 'ripepostgres'
     }
 }
 
@@ -155,6 +167,9 @@ REST_FRAMEWORK = {
     ]
 }
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080/"
