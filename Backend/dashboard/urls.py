@@ -1,7 +1,7 @@
 from os import name
 from django.urls import path
 from .views import AlertConfigurationDetail, AlertConfigurationList, UserDetail, RegistrationService, MyAtlasProbes, \
-    AtlasSearchProbes
+    AtlasSearchProbes, RelevantMeasurements
 
 urlpatterns = [
     path('alert_configuration/ <int:pk>/', AlertConfigurationDetail.as_view(), name="detailcreate"),
@@ -9,5 +9,6 @@ urlpatterns = [
     path('user', UserDetail.as_view(), name='userdetail'),
     path('registration-service', RegistrationService.as_view(), name="registration-service"),
     path('atlas/my-probes', MyAtlasProbes.as_view(), name="atlas-probes"),
-    path('atlas/probes', AtlasSearchProbes.as_view(), name="atlas-search-probes")
+    path('atlas/probes', AtlasSearchProbes.as_view(), name="atlas-search-probes"),
+    path('atlas/measurements', RelevantMeasurements.as_view(), name='atlas-relevant-measurements'),
 ]

@@ -66,3 +66,19 @@ class AlertConfigurationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AlertConfiguration
         fields = '__all__' 
+
+
+class TargetSerializer(serializers.Serializer):
+    ip_v4 = serializers.CharField(required=False)
+    ip_v6 = serializers.CharField(required=False)
+    ip = serializers.CharField(required=False)
+    host = serializers.CharField(required=False)
+
+    def validate(self, data):
+        """
+        Check that at least one ip is given
+        """
+
+        if not data.get('ip_v4') and not data.get('ip_v6') and not data.get('ip') and not data.get('host'):
+            raise serializers.ValidationError("we need at least input for ip_v4, ip_v6, ip or host")
+        return data
