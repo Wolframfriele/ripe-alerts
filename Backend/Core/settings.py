@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'dashboard',
+    'notifications',
+    'ripe_atlas',
+    'users',
+    'alert_configuration',
 ]
 
 MIDDLEWARE = [
@@ -102,10 +106,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ripe-alert',
-        'HOST': '145.89.192.152',
-        'PORT': 5432,
-        'USER': 'postgres',
-        'PASSWORD': 'ripepostgres'
+        'HOST': os.getenv('RHOST'),
+        'PORT': os.getenv('RPORT'),
+        'USER': os.getenv('RUSER'),
+        'PASSWORD': os.getenv('RDBP')
     }
 }
 
@@ -174,3 +178,5 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080/"
 ]
+
+
