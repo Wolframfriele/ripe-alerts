@@ -16,7 +16,7 @@ class MyAtlasProbes(APIView):
     """
 
     def get(self, request):
-        return Response(get_anchors_probes_with_token(request.user.ripe_api_token))
+        return Response(get_anchors_probes_with_token(request.user.ripe_user.ripe_api_token))
 
 
 class AtlasSearchProbes(APIView):

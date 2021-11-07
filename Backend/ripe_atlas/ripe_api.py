@@ -2,8 +2,8 @@ import requests
 
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"
 
-# fields should be comma seperated for the fields query parameter, id and type is allways included
-WANTED_PROBE_FIELDS = "id,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6"
+# fields should be comma seperated for the fields query parameter, id and type is always included
+WANTED_PROBE_FIELDS = "id,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_MEASUREMENT_FIELDS = "id,type,description,target_ip"
 
 
@@ -31,6 +31,7 @@ def get_probe_information(url=None, probe_id=None) -> dict:
         response = requests.get(url).json()
     else:
         response = requests.get(url=RIPE_BASE_URL + f"probes/{probe_id}?fields={WANTED_PROBE_FIELDS}").json()
+
     return response
 
 
