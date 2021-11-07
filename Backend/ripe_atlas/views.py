@@ -12,7 +12,7 @@ from .serializers import TargetSerializer
 
 class MyAtlasProbes(APIView):
     """
-    Get all probes and anchors owned by the user from Ripe Atlas
+    Get all probes and anchors owned by the user from Ripe Atlas with relevant measurments
     """
 
     def get(self, request):
@@ -35,7 +35,7 @@ class AtlasSearchProbes(APIView):
         if filter == "probe_id" and value.isnumeric() is False:
             return Response({"error": "invalid probe_id"}, status.HTTP_400_BAD_REQUEST)
         try:
-            probes = search_probes(filter, value)
+            probes = search_probes(request.user.ripe_user.ripe_api_token, filter, value)
             result = {filter: value}
             result.update(probes)
         except ValueError:
@@ -52,6 +52,7 @@ class RelevantMeasurements(APIView):
 
     def get(self, request):
         serialized_probes = TargetSerializer(data=request.data, many=True)
+        token = request.user.ripe_user.ripe_api_token
         if serialized_probes.is_valid():
             measurements = []
             for probe in serialized_probes.validated_data:
@@ -65,31 +66,31 @@ class RelevantMeasurements(APIView):
                     result = {
                         "ip_v4": ip_v4,
                     }
-                    result.update(get_relevant_measurements(request.user.ripe_api_token.ripe_api_token, ip=ip_v4))
+                    result.update(get_relevant_measurements(token, ip=ip_v4))
                     measurements.append(result)
                 if ip_v6:
                     result = {
                         "ip_v6": ip_v6,
                     }
-                    result.update(get_relevant_measurements(request.user.ripe_api_token.ripe_api_token, ip=ip_v6))
+                    result.update(get_relevant_measurements(token, ip=ip_v6))
                     measurements.append(result)
                 if host:
                     result = {
                         "host": host,
                     }
-                    result.update(get_relevant_measurements(request.user.ripe_api_token.ripe_api_token, host=host))
+                    result.update(get_relevant_measurements(token, host=host))
                     measurements.append(result)
                 if ip:
                     result = {
                         "ip": ip,
                     }
-                    result.update(get_relevant_measurements(request.user.ripe_api_token.ripe_api_token, ip=ip))
+                    result.update(get_relevant_measurements(token, ip=ip))
                     measurements.append(result)
                 if asn:
                     result = {
                         "asn": ip,
                     }
-                    result.update(get_relevant_measurements(request.user.ripe_api_token.ripe_api_token, asn=asn))
+                    result.update(get_relevant_measurements(token, asn=asn))
                     measurements.append(result)
             return Response(measurements, status=status.HTTP_200_OK)
         else:

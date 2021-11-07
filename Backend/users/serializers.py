@@ -6,14 +6,6 @@ from ripe_atlas.exceptions import TokenNotValid
 from ripe_atlas.ripe_api import is_token_valid
 
 
-class UserSerializer(serializers.ModelSerializer):
-    ripe_api_token = serializers.StringRelatedField()
-
-    class Meta:
-        model = User
-        fields = ['username', 'ripe_api_token']
-
-
 class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
@@ -37,3 +29,5 @@ class RegistrationSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
+
+
