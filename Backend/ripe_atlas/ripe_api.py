@@ -31,6 +31,7 @@ def get_probe_information(url=None, probe_id=None) -> dict:
         response = requests.get(url).json()
     else:
         response = requests.get(url=RIPE_BASE_URL + f"probes/{probe_id}?fields={WANTED_PROBE_FIELDS}").json()
+        response['host'] = response.pop('description')
 
     return response
 
@@ -184,7 +185,7 @@ def search_probes(key, filter, value):
                 get_relevant_measurements_for_probe(token=key, ip_v4=probe['address_v4'],
                                                     ip_v6=probe['address_v6'],
                                                     user_defined_measurements=user_defined_measurements, anchor=probe['is_anchor']))
-
+            probe['host'] = probe.pop("description")
             if probe['is_anchor']:
                 anchors_and_probes['anchors'].append(probe)
             else:
