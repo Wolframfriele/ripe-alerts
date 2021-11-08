@@ -5,6 +5,7 @@ Backend/db.sqlite3
 .DS_Store
 node_modules
 /dist
+.yarn
 
 # local env files
 .env.local
