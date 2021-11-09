@@ -29,7 +29,7 @@ class AtlasSearchProbes(APIView):
 
         ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
         filter: str = request.query_params.get('filter')
-        value: str = request.query_params.get('value', '')
+        value: str = request.query_params.get('value')
 
         if filter not in AtlasSearchProbes.valid_filters:
             return Response({"error": "invalid filter, you can filter on asn, probe_id, prefix or host"},

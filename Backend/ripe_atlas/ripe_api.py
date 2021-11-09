@@ -2,10 +2,10 @@ import requests
 
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"
 MEASUREMENTS_URL = RIPE_BASE_URL + "measurements/"
-MY_MEASUREMENTS_URL = MEASUREMENTS_URL + "my"
-CURRENT_PROBES_URL = RIPE_BASE_URL + "credits/income-items"
-ANCHORS_URL = RIPE_BASE_URL + "anchors"
-PROBES_URL = RIPE_BASE_URL + "probes"
+MY_MEASUREMENTS_URL = MEASUREMENTS_URL + "my/"
+CURRENT_PROBES_URL = RIPE_BASE_URL + "credits/income-items/"
+ANCHORS_URL = RIPE_BASE_URL + "anchors/"
+PROBES_URL = RIPE_BASE_URL + "probes/"
 
 # fields should be comma seperated for the fields query parameter, id and type is always included
 WANTED_PROBE_FIELDS = "id,type,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
@@ -32,13 +32,10 @@ class RipeUserData:
     def get_probe_information(self, url=None, probe_id=None) -> dict:
 
         # status: 1, means we are only interested in probes that are connected.
-        params = {"key": self.token,
-                  "fields": WANTED_PROBE_FIELDS,
-                  "status": 1}
+        params = {"key": self.token, "fields": WANTED_PROBE_FIELDS, "status": 1}
 
         if probe_id:
-            url = RIPE_BASE_URL + f"probes/{probe_id}"
-
+            url = PROBES_URL + f"{probe_id}"
         response = requests.get(url, params=params).json()
 
         # probes data dont have a 'host' key, but the description refers to the host in most cases
@@ -46,12 +43,18 @@ class RipeUserData:
         return response
 
     def get_probes_by_host(self, host) -> list:
+
+        params = {'search': host, 'include': 'probe', 'key': self.token}
+
         # probes can be found by host via the anchors api.
-        response = requests.get(url=ANCHORS_URL, params={'search': host, 'include': 'probe', 'key': self.token}).json()
+        response = requests.get(url=ANCHORS_URL, params=params).json()
+
         if response.get('results') is None:
             raise ValueError
+
         results = response['results']
         probes = []
+
         for result in results:
             probe = result['probe']
             probe = {field: probe[field] for field in WANTED_PROBE_FIELDS.split(',')}
@@ -73,6 +76,7 @@ class RipeUserData:
 
         if response.get('results') is None:
             raise ValueError
+
         for probe in response['results']:
             probe['host'] = probe.pop("description")
             probes.append(probe)
@@ -80,10 +84,11 @@ class RipeUserData:
         return probes
 
     def get_probes_by_asn(self, asn) -> list:
+
         probes: list = []
-        response = requests.get(url=RIPE_BASE_URL + "/probes", params={'asn': asn,
-                                                                       'fields': WANTED_PROBE_FIELDS,
-                                                                       'key': self.token}).json()
+        params = {'asn': asn, 'fields': WANTED_PROBE_FIELDS, 'key': self.token}
+        response = requests.get(url=RIPE_BASE_URL + "/probes", params=params).json()
+
         if response.get('results') is None:
             raise ValueError
 
@@ -175,10 +180,11 @@ class RipeUserData:
         return anchors_and_probes
 
     def search_probes(self, filter, value) -> list:
+
         anchors_and_probes: dict = {"anchors": [], "probes": []}
         try:
             if filter == "probe_id":
-                probes = [self.get_probe_information(value)]
+                probes = [self.get_probe_information(probe_id=value)]
             elif filter == "host":
                 probes = self.get_probes_by_host(value)
             elif filter == "prefix":
