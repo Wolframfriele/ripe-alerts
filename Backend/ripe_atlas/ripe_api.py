@@ -1,14 +1,21 @@
 import requests
 
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"
+MEASUREMENTS_URL = RIPE_BASE_URL + "measurements/"
+MY_MEASUREMENTS_URL = MEASUREMENTS_URL + "my"
+CURRENT_PROBES_URL = RIPE_BASE_URL + "credits/income-items"
+ANCHORS_URL = RIPE_BASE_URL + "anchors"
+PROBES_URL = RIPE_BASE_URL + "probes"
 
 # fields should be comma seperated for the fields query parameter, id and type is always included
-WANTED_PROBE_FIELDS = "id,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
+WANTED_PROBE_FIELDS = "id,type,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_MEASUREMENT_FIELDS = "id,type,description,target_ip"
+
+# the type of  measurements that we can put an alert on
+SUPPORTED_TYPE_MEASUREMENTS = ('ping',)
 
 
 def is_token_valid(token: str) -> bool:
-    """check if given api-token is valid"""
     response = requests.get(url=RIPE_BASE_URL + "credits/income-items", params={'key': token})
     if response.status_code == 403:
         if response.json()['error']['detail'] == 'The provided API key does not exist':
@@ -17,230 +24,179 @@ def is_token_valid(token: str) -> bool:
         return True
 
 
-def get_anchor_information(url=None, anchor_id=None) -> dict:
-    if url:
-        response = requests.get(url).json()
-    else:
-        response = requests.get(url=RIPE_BASE_URL + f"anchors/{anchor_id}").json()
-    return response
+class RipeUserData:
+    def __init__(self, token):
+        self.token: str = token
+        self.user_defined_measurements: list = self.get_user_defined_measurements()
 
+    def get_probe_information(self, url=None, probe_id=None) -> dict:
 
-def get_probe_information(url=None, probe_id=None) -> dict:
-    if url:
-        url = url + f"?fields={WANTED_PROBE_FIELDS}"
-        response = requests.get(url).json()
-    else:
-        response = requests.get(url=RIPE_BASE_URL + f"probes/{probe_id}?fields={WANTED_PROBE_FIELDS}").json()
+        # status: 1, means we are only interested in probes that are connected.
+        params = {"key": self.token,
+                  "fields": WANTED_PROBE_FIELDS,
+                  "status": 1}
+
+        if probe_id:
+            url = RIPE_BASE_URL + f"probes/{probe_id}"
+
+        response = requests.get(url, params=params).json()
+
+        # probes data dont have a 'host' key, but the description refers to the host in most cases
         response['host'] = response.pop('description')
+        return response
 
-    return response
-
-
-def get_anchoring_measurements(filters):
-    response = requests.get(RIPE_BASE_URL + "measurements", params=filters).json()
-    return [measurement for measurement in response['results'] if measurement['type'] == "ping"]
-
-
-def get_user_defined_measurements(filters):
-    response = requests.get(RIPE_BASE_URL + "measurements/my", params=filters).json()
-    return [measurement for measurement in response['results'] if measurement['type'] == "ping"]
-
-
-def get_relevant_measurements_for_probe(token: str, ip_v4, ip_v6, user_defined_measurements, anchor=True):
-    """Algemene functie relevante metingen gekoppeld aan een bepaalde target uit ripe-atlas haalt, dit
-    zijn de user defined measurements die als target de probe hebben of
-    de anchoring measurements, de ip adressen representeren de probes"""
-
-    relevant_measurements = {
-        "anchoring_measurements": [],
-        "user_defined_measurements": []
-    }
-
-    if len(user_defined_measurements) > 0:
-        user_defined_measurements = [measurement for measurement in user_defined_measurements if measurement['type'] == "ping"]
-
-
-    if ip_v4:
-        filters = {
-            'key': token,
-            'tags': 'anchoring',
-            'status': 'Ongoing',
-            'target_ip': ip_v4,
-            'fields': WANTED_MEASUREMENT_FIELDS
-        }
-
-        # get anchoring measurements
-        if anchor:
-            relevant_measurements['anchoring_measurements'].extend(get_anchoring_measurements(filters))
-
-        # get user-defined measurements
-        filters.pop('tags')
-        if len(user_defined_measurements) > 0:
-            relevant_measurements['user_defined_measurements'].extend([measurement for measurement in
-                                                                       user_defined_measurements if
-                                                                       measurement['target_ip'] == ip_v4])
-        # relevant_measurements['user_defined_measurements'].extend(get_user_defined_measurements(filters))
-
-    if ip_v6:
-        filters = {
-            'key': token,
-            'tags': 'anchoring',
-            'status': 'Ongoing',
-            'target_ip': ip_v6,
-            'fields': WANTED_MEASUREMENT_FIELDS
-        }
-        # get anchoring measurements
-        if anchor:
-            relevant_measurements['anchoring_measurements'].extend(get_anchoring_measurements(filters))
-        filters.pop('tags')
-        # get user-defined measurements
-        if len(user_defined_measurements) > 0:
-            relevant_measurements['user_defined_measurements'].extend([measurement for measurement in
-                                                                       user_defined_measurements if
-                                                                       measurement['target_ip'] == ip_v6])
-        # relevant_measurements['user_defined_measurements'].extend(get_user_defined_measurements(filters))
-
-    return relevant_measurements
-
-
-def get_anchors_probes_with_token(key) -> dict:
-    """
-    Returns a dictionary with anchors and probes as keys, both contain a list of probes,
-    a probe has two extra fields anchoring_measurements and user_defined_measurents these alerts that can be alerted on
-    """
-
-    anchors_and_probes: dict = {"anchors": [], "probes": []}
-    response = requests.get(url=RIPE_BASE_URL + "credits/income-items", params={'key': key})
-    if response.status_code != 200:
-        return response.json()
-
-    response = response.json()
-
-    income_groups: dict = response['groups']
-    hosted_probes: list = income_groups['hosted_probes']
-    sponsored_probes: list = income_groups['sponsored_probes']
-    ambassador_probes: list = income_groups['ambassador_probes']
-    hosted_anchors: list = income_groups['hosted_anchors']
-    sponsored_anchors: list = income_groups['sponsored_anchors']
-    probes: list = [*hosted_probes, *sponsored_probes, *ambassador_probes, *hosted_anchors, * sponsored_anchors]
-
-    user_defined_measurements = requests.get(RIPE_BASE_URL + "measurements/my",
-                                             params={"key": key, "status": "Ongoing",
-                                                     'fields': WANTED_MEASUREMENT_FIELDS}).json()['results']
-    for probe in probes:
-        probe_information = get_probe_information(url=probe['probe'])
-        probe_information.update(get_relevant_measurements_for_probe(token=key, ip_v4=probe_information['address_v4'],
-                                                                     ip_v6=probe_information['address_v6'],
-                                                                     user_defined_measurements=user_defined_measurements, anchor=probe_information['is_anchor']))
-        if probe_information['is_anchor']:
-            anchors_and_probes['anchors'].append(probe_information)
-        else:
-            anchors_and_probes['probes'].append(probe_information)
-
-    return anchors_and_probes
-
-
-def search_probes(key, filter, value):
-    anchors_and_probes: dict = {"anchors": [], "probes": []}
-
-    if filter == "probe_id":
-        probes = [get_probe_information(probe_id=value)]
-
-    elif filter == "host":
-        response = requests.get(url=RIPE_BASE_URL + "/anchors", params={'search': value, 'include': 'probe'}).json()
+    def get_probes_by_host(self, host) -> list:
+        # probes can be found by host via the anchors api.
+        response = requests.get(url=ANCHORS_URL, params={'search': host, 'include': 'probe', 'key': self.token}).json()
+        if response.get('results') is None:
+            raise ValueError
         results = response['results']
-
-        # keep only the wanted fields of probes
-        probes = [result['probe'] for result in results]
-        probes = [{field: probe[field] for field in WANTED_PROBE_FIELDS.split(',')} for probe in probes]
-
-    elif filter == "prefix":
-        #check prefix_v4
-        response: dict = requests.get(url=RIPE_BASE_URL + "/probes",
-                                      params={'prefix_v4': value, 'fields': WANTED_PROBE_FIELDS}).json()
-        results = response.get('results')
-        if results:
-            if len(response['results']) != 0:
-                probes = response['results']
-        #check prefix_v6
-        else:
-            response = requests.get(url=RIPE_BASE_URL + "/probes", params={'prefix_v6': value,
-                                                                           'fields': WANTED_PROBE_FIELDS}).json()
-            results = response.get('results')
-            if results:
-                probes = results
-            else:
-                raise ValueError
-    else:
-        response = requests.get(url=RIPE_BASE_URL + "/probes", params={filter: value,
-                                                                       'fields': WANTED_PROBE_FIELDS}).json()
-        probes = response.get('results')
-
-    if probes:
-        user_defined_measurements = requests.get(RIPE_BASE_URL + "measurements/my",
-                                                 params={"key": key, "status": "Ongoing",
-                                                         'fields': WANTED_MEASUREMENT_FIELDS}).json()['results']
-        for probe in probes:
-            probe.update(
-                get_relevant_measurements_for_probe(token=key, ip_v4=probe['address_v4'],
-                                                    ip_v6=probe['address_v6'],
-                                                    user_defined_measurements=user_defined_measurements, anchor=probe['is_anchor']))
+        probes = []
+        for result in results:
+            probe = result['probe']
+            probe = {field: probe[field] for field in WANTED_PROBE_FIELDS.split(',')}
             probe['host'] = probe.pop("description")
-            if probe['is_anchor']:
-                anchors_and_probes['anchors'].append(probe)
-            else:
-                anchors_and_probes['probes'].append(probe)
-    else:
-        raise ValueError
-    return anchors_and_probes
+            probes.append(probe)
+        return probes
 
+    def get_probes_by_prefix(self, prefix) -> list:
 
-def get_relevant_measurements(token: str, host: str = None, ip=None, asn=None):
-    """Algemene functie relevante metingen gekoppeld aan een bepaalde target uit ripe-atlas haalt, dit
-    zijn de user defined measurements die als target de probe hebben of
-    de anchoring measurements, de ip adressen representeren de probes"""
+        probes: list = []
+        is_ip_v4: bool = "." in prefix
 
-    relevant_measurements = {
-        "anchoring_measurements": [],
-        "user_defined_measurements": []
-    }
-    if host is None and ip is None and asn is None:
+        if is_ip_v4:
+            params = {'prefix_v4': prefix, 'fields': WANTED_PROBE_FIELDS, 'key': self.token}
+        else:
+            params = {'prefix_v6': prefix, 'fields': WANTED_PROBE_FIELDS, 'key': self.token}
+
+        response: dict = requests.get(url=PROBES_URL, params=params).json()
+
+        if response.get('results') is None:
+            raise ValueError
+        for probe in response['results']:
+            probe['host'] = probe.pop("description")
+            probes.append(probe)
+
+        return probes
+
+    def get_probes_by_asn(self, asn) -> list:
+        probes: list = []
+        response = requests.get(url=RIPE_BASE_URL + "/probes", params={'asn': asn,
+                                                                       'fields': WANTED_PROBE_FIELDS,
+                                                                       'key': self.token}).json()
+        if response.get('results') is None:
+            raise ValueError
+
+        for probe in response['results']:
+            probe['host'] = probe.pop("description")
+            probes.append(probe)
+
+        return probes
+
+    def get_anchoring_measurements(self, target_address: str) -> list:
+
+        params = {
+            'key': self.token,
+            'tags': 'anchoring',
+            'status': 'Ongoing',
+            'target_ip': target_address,
+            'fields': WANTED_MEASUREMENT_FIELDS
+        }
+        response = requests.get(MEASUREMENTS_URL, params=params).json()
+
+        return [measurement for measurement in response['results'] if
+                measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
+
+    def get_user_defined_measurements(self):
+
+        params = {
+                "key": self.token,
+                "status": "Ongoing",
+                "fields": WANTED_MEASUREMENT_FIELDS
+        }
+        response = requests.get(MY_MEASUREMENTS_URL, params=params).json()
+        return [measurement for measurement in response['results'] if
+                measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
+
+    def get_alertable_user_measurements_target(self, ip_address: str) -> list:
+
+        if len(self.user_defined_measurements) > 0:
+            return [measurement for measurement in self.user_defined_measurements
+                    if measurement['target_ip'] == ip_address]
+        else:
+            return []
+
+    def get_alertable_measurements_probe(self, probe: dict) -> dict:
+        """Get alertable measurements that target probe"""
+
+        relevant_measurements = {
+            "anchoring_measurements": [],
+            "user_defined_measurements": []
+        }
+
+        ip_v4 = probe.get("address_v4")
+        ip_v6 = probe.get("address_v6")
+        is_anchor = probe.get("is_anchor")
+
+        if ip_v4:
+            if is_anchor:
+                relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v4))
+            relevant_measurements['user_defined_measurements'].extend(
+                self.get_alertable_user_measurements_target(ip_v4))
+
+        if ip_v6:
+            if is_anchor:
+                relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v6))
+            relevant_measurements['user_defined_measurements'].extend(
+                self.get_alertable_user_measurements_target(ip_v6))
+
         return relevant_measurements
 
-    if host:
-        filters = {
-            'key': token,
-            'tags': 'anchoring',
-            'status': 'Ongoing',
-            'target': host,
-            'fields': WANTED_MEASUREMENT_FIELDS
-        }
-    if ip:
-        filters = {
-            'key': token,
-            'tags': 'anchoring',
-            'status': 'Ongoing',
-            'target_ip': ip,
-            'fields': WANTED_MEASUREMENT_FIELDS
-        }
-    if asn:
-        filters = {
-            'key': token,
-            'tags': 'anchoring',
-            'status': 'Ongoing',
-            'target_asn': asn,
-            'fields': WANTED_MEASUREMENT_FIELDS
-        }
+    def get_owned_anchors_probes(self) -> dict:
 
+        anchors_and_probes: dict = {"anchors": [], "probes": []}
+        response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
+        income_groups: dict = response['groups']
+        income_sources: list = [*income_groups['hosted_probes'], *income_groups['sponsored_probes'],
+                                *income_groups['ambassador_probes'], *income_groups['hosted_anchors'],
+                                *income_groups['sponsored_anchors']]
 
-    # get anchoring measurements
-    response = requests.get(RIPE_BASE_URL + "measurements", params=filters).json()
-    anchoring_measurements = response['results']
-    relevant_measurements['anchoring_measurements'] = [measurement for measurement in anchoring_measurements if measurement['type'] == "ping"]
+        for income in income_sources:
+            probe_information = self.get_probe_information(url=income['probe'])
 
-    # get user-defined measurements
-    filters.pop('tags')
-    response = requests.get(RIPE_BASE_URL + "measurements/my", params=filters).json()
-    user_defined_measurements = response['results']
-    relevant_measurements['user_defined_measurements'] = [measurement for measurement in user_defined_measurements if measurement['type'] == "ping"]
-    return relevant_measurements
+            # add related measurements to probe
+            probe_information.update(self.get_alertable_measurements_probe(probe_information))
+
+            if probe_information['is_anchor']:
+                anchors_and_probes['anchors'].append(probe_information)
+            else:
+                anchors_and_probes['probes'].append(probe_information)
+
+        return anchors_and_probes
+
+    def search_probes(self, filter, value) -> list:
+        anchors_and_probes: dict = {"anchors": [], "probes": []}
+        try:
+            if filter == "probe_id":
+                probes = [self.get_probe_information(value)]
+            elif filter == "host":
+                probes = self.get_probes_by_host(value)
+            elif filter == "prefix":
+                probes = self.get_probes_by_prefix(value)
+            elif filter == "asn":
+                probes = self.get_probes_by_asn(value)
+            else:
+                raise ValueError
+        except ValueError:
+            raise ValueError
+
+        if probes:
+            for probe in probes:
+                probe.update(
+                    self.get_alertable_measurements_probe(probe))
+                if probe['is_anchor']:
+                    anchors_and_probes['anchors'].append(probe)
+                else:
+                    anchors_and_probes['probes'].append(probe)
+
+        return anchors_and_probes

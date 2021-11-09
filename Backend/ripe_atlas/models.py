@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class Target(models.Model):
     class TargetType(models.TextChoices):
         EXTERN = 'Extern'

@@ -5,15 +5,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegistrationSerializer
 from ripe_atlas.exceptions import TokenNotValid
-from alert_configuration.models import AlertConfiguration, Alert
 from ripe_atlas.serializers import MeasurementSerializer, ProbeSerializer
 from .models import RipeUser
 from ripe_atlas.models import Measurement, Target
 from alert_configuration.models import AlertConfiguration
-from django.core.exceptions import ObjectDoesNotExist
-
-
-# Create your views here.
 
 
 def get_tokens_for_user(user):
