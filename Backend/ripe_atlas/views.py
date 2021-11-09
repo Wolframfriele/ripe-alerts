@@ -63,9 +63,10 @@ class RelevantMeasurements(APIView):
         if not address_v6 and not address_v4:
             return False, Response({"error": "we need at least an address_v4 or address_v6 field"},
                                    status=status.HTTP_400_BAD_REQUEST)
-        return True,
+        return True, None
 
     def get(self, request):
+        print(self.is_relevant_measurement_input_valid(request.data))
         valid, error_response = self.is_relevant_measurement_input_valid(request.data)
         if valid:
             ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
