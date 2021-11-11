@@ -21,7 +21,7 @@ class MyAtlasSystems(APIView):
 
 def identify_filter_type(search_value):
 
-    return "ip_address"
+    return "asn"
 
     if ":" in search_value or "." in search_value:
         return "asn"

@@ -11,11 +11,11 @@ class AlertConfiguration(models.Model):
     alert_configuration_type = models.CharField(max_length=100)
     alert_configuration = models.JSONField()
 
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint(fields=['user', 'measurement', 'alert_configuration_type'],
-    #                                 name='unique_user_alert_configuration_on_measurement')
-    #     ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'measurement', 'alert_configuration_type'],
+                                    name='unique_user_alert_configuration_on_measurement')
+        ]
 
 
 class Alert(models.Model):

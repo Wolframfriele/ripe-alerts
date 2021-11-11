@@ -6,7 +6,7 @@ class System(models.Model):
         TARGET = 'target'
         ANCHOR = 'anchor'
 
-    target_id = models.AutoField(primary_key=True)
+    system_ud = models.AutoField(primary_key=True)
     target_type = models.CharField(max_length=10, choices=SystemType.choices, default=SystemType.ANCHOR)
     probe_id = models.IntegerField(unique=True)
     prefix_v4 = models.CharField(max_length=128, null=True, default=None)
@@ -28,5 +28,6 @@ class Measurement(models.Model):
         NTP = 'ntp'
 
     measurement_id = models.IntegerField(primary_key=True)
+    description = models.CharField(max_length=200, null=True)
     type = models.CharField(max_length=10, choices=MeasurementType.choices, null=False)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
