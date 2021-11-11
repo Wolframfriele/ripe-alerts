@@ -8,8 +8,9 @@ ANCHORS_URL = RIPE_BASE_URL + "anchors/"
 PROBES_URL = RIPE_BASE_URL + "probes/"
 
 # fields should be comma seperated for the fields query parameter, id and type is always included
-WANTED_PROBE_FIELDS = "id,type,is_anchor,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
-WANTED_MEASUREMENT_FIELDS = "id,type,description,target_ip"
+WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
+WANTED_ANCHOR_FIELDS = "id,ip_v4,ipv6,as_v4,as_v6,geometry,prefix_v4,prefix_v6,fqdn"
+WANTED_MEASUREMENT_FIELDS = "id,type,description,target_ip,target,target_asn,target_prefix"
 
 # the type of  measurements that we can put an alert on
 SUPPORTED_TYPE_MEASUREMENTS = ('ping',)
@@ -116,7 +117,7 @@ class RipeUserData:
 
         params = {
                 "key": self.token,
-                "status": "Ongoing",
+                # "status": "Ongoing",
                 "fields": WANTED_MEASUREMENT_FIELDS
         }
         response = requests.get(MY_MEASUREMENTS_URL, params=params).json()
@@ -135,27 +136,101 @@ class RipeUserData:
         """Get alertable measurements that target probe"""
 
         relevant_measurements = {
-            "anchoring_measurements": [],
             "user_defined_measurements": []
         }
 
         ip_v4 = probe.get("address_v4")
         ip_v6 = probe.get("address_v6")
-        is_anchor = probe.get("is_anchor")
 
         if ip_v4:
-            if is_anchor:
-                relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v4))
             relevant_measurements['user_defined_measurements'].extend(
                 self.get_alertable_user_measurements_target(ip_v4))
 
         if ip_v6:
-            if is_anchor:
-                relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v6))
             relevant_measurements['user_defined_measurements'].extend(
                 self.get_alertable_user_measurements_target(ip_v6))
 
         return relevant_measurements
+
+    def get_alertable_measurements_anchor(self, anchor: dict) -> dict:
+
+        relevant_measurements = {
+            "anchoring_measurements": [],
+            "user_defined_measurements": []
+        }
+
+        ip_v4 = anchor.get("address_v4")
+        ip_v6 = anchor.get("address_v6")
+
+        if ip_v4:
+            relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v4))
+            relevant_measurements['user_defined_measurements'].extend(
+                self.get_alertable_user_measurements_target(ip_v4))
+
+        if ip_v6:
+            relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v6))
+            relevant_measurements['user_defined_measurements'].extend(
+                self.get_alertable_user_measurements_target(ip_v6))
+
+        return relevant_measurements
+
+    def get_user_targets(self, owned_anchors) -> list:
+
+        targets = []
+        anchor_ip_set = set()
+        for anchor in owned_anchors:
+            anchor_ip_set.add(anchor['address_v4'])
+            anchor_ip_set.add(anchor['address_v6'])
+        for measurement in self.user_defined_measurements:
+            if measurement['target_ip'] not in anchor_ip_set:
+
+                # check if the target is already known
+                unknown = True
+                for target in targets:
+
+                    if measurement['target_ip'] == target['target_ip']:
+                        target['measurements'].append(measurement)
+                        unknown = False
+                        break
+
+                if unknown:
+                    target = {
+                        "target": measurement.pop("target"),
+                        "target_ip": measurement.pop("target_ip"),
+                        "target_asn": measurement.pop("target_asn"),
+                        "target_prefix": measurement.pop("target_prefix"),
+                        "measurements": [measurement]
+                    }
+                    targets.append(target)
+
+        targets.sort(key=lambda target: len(target['measurements']), reverse=True)
+        return targets
+
+    def get_owned_anchors_targets(self) -> dict:
+
+        owned_anchors = self.get_owned_anchors()
+        anchors_and_targets = {
+            'anchors': owned_anchors,
+            'targets': self.get_user_targets(owned_anchors)
+                               }
+
+        return anchors_and_targets
+
+
+
+    def get_owned_anchors(self) -> list:
+
+        owned_anchors = []
+        response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
+        income_groups: dict = response['groups']
+        income_sources: list = [*income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
+
+        for income_source in income_sources:
+            anchor = self.get_probe_information(url=income_source['probe'])
+            anchor.update(self.get_alertable_measurements_anchor(anchor))
+            owned_anchors.append(anchor)
+
+        return owned_anchors
 
     def get_owned_anchors_probes(self) -> dict:
 

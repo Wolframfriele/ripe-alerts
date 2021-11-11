@@ -1,14 +1,14 @@
 from django.db import models
 
 
-class Target(models.Model):
-    class TargetType(models.TextChoices):
-        EXTERN = 'Extern'
-        PROBE = 'Probe'
+class System(models.Model):
+    class SystemType(models.TextChoices):
+        TARGET = 'target'
+        ANCHOR = 'anchor'
 
     target_id = models.AutoField(primary_key=True)
-    target_type = models.CharField(max_length=10, choices=TargetType.choices, default=TargetType.PROBE)
-    probe_id = models.IntegerField(unique=True)
+    target_type = models.CharField(max_length=10, choices=SystemType.choices, default=SystemType.ANCHOR)
+    anchor_id = models.IntegerField(unique=True)
     prefix_v4 = models.CharField(max_length=128, null=True, default=None)
     prefix_v6 = models.CharField(max_length=128, blank=True, null=True, default=None)
     address_v4 = models.CharField(max_length=128, blank=True, null=True, default=None)
@@ -29,4 +29,4 @@ class Measurement(models.Model):
 
     measurement_id = models.IntegerField(primary_key=True)
     type = models.CharField(max_length=10, choices=MeasurementType.choices, null=False)
-    target = models.ForeignKey(Target, on_delete=models.CASCADE)
+    system = models.ForeignKey(System, on_delete=models.CASCADE)

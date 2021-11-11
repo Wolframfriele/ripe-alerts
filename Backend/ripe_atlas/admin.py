@@ -1,6 +1,6 @@
 from django.contrib import admin
 from alert_configuration.admin import AlertConfigurationInline
-from .models import Measurement, Target
+from .models import Measurement, System
 
 # Register your models here.
 
@@ -13,9 +13,9 @@ class MeasurementAdmin(admin.ModelAdmin):
     inlines = [AlertConfigurationInline]
 
 
-class TargetAdmin(admin.ModelAdmin):
+class SystemAdmin(admin.ModelAdmin):
     inlines = [MeasurementInline]
 
 
 admin.site.register(Measurement, MeasurementAdmin)
-admin.site.register(Target, TargetAdmin)
+admin.site.register(System, SystemAdmin)

@@ -15,8 +15,18 @@ class MyAtlasProbes(APIView):
     """
 
     def get(self, request):
+        print(request.user.ripe_user.ripe_api_token)
         ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
         return Response(ripe_user_data.get_owned_anchors_probes())
+
+class MyAtlasSystems(APIView):
+    """
+    Get all anchors and target of the user
+    """
+
+    def get(self, request):
+        ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
+        return Response(ripe_user_data.get_owned_anchors_targets())
 
 
 class AtlasSearchProbes(APIView):
@@ -66,7 +76,6 @@ class RelevantMeasurements(APIView):
         return True, None
 
     def get(self, request):
-        print(self.is_relevant_measurement_input_valid(request.data))
         valid, error_response = self.is_relevant_measurement_input_valid(request.data)
         if valid:
             ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)

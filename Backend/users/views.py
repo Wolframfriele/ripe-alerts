@@ -7,7 +7,7 @@ from .serializers import RegistrationSerializer
 from ripe_atlas.exceptions import TokenNotValid
 from ripe_atlas.serializers import MeasurementSerializer, ProbeSerializer
 from .models import RipeUser
-from ripe_atlas.models import Measurement, Target
+from ripe_atlas.models import Measurement, System
 from alert_configuration.models import AlertConfiguration
 
 
@@ -118,7 +118,7 @@ class InitialSetup(APIView):
                 return Response(measurements_serializer.errors, status=status.HTTP_409_CONFLICT)
 
             # store measurements and probe if they do not exist in the database
-            target = Target.objects.get_or_create(**probe_serializer.validated_data)[0]
+            target = System.objects.get_or_create(**probe_serializer.validated_data)[0]
             for measurement in measurements_serializer.validated_data:
                 try:
                     measurement = Measurement.objects.get_or_create(**measurement, target=target)[0]

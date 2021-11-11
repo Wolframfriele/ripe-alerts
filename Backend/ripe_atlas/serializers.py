@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from .models import Measurement, Target
+from .models import Measurement, System
 
 
 class ProbeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Target
+        model = System
         exclude = ['target_id']
         extra_kwargs = {
             'probe_id': {
