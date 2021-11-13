@@ -7,7 +7,7 @@ from rest_framework import serializers
 from .models import AlertConfiguration
 from users.models import RipeUser
 from ripe_atlas.exceptions import TokenNotValid
-from ripe_atlas.ripe_api import is_token_valid
+from ripe_atlas.interfaces import is_token_valid
 
 
 class AlertConfigurationSerializer(serializers.Serializer):

@@ -1,6 +1,6 @@
 from os import name
 from django.urls import path
-from .views import AlertConfigurationDetail, AlertConfigurationList
+from .apis import AlertConfigurationDetail, AlertConfigurationList
 
 urlpatterns = [
     path('alert_configuration/ <int:pk>/', AlertConfigurationDetail.as_view(), name="detailcreate"),

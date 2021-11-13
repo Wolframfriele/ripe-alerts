@@ -6,7 +6,7 @@ Ripe ATLAS API interaction
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .ripe_api import RipeUserData
+from .interfaces import RipeInterface
 
 
 class MyAtlasSystems(APIView):
@@ -15,13 +15,13 @@ class MyAtlasSystems(APIView):
     """
 
     def get(self, request):
-        ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
-        return Response(ripe_user_data.get_owned_anchors_targets())
+        ripe_user_data = RipeInterface(request.user.ripe_user.ripe_api_token)
+        return Response(ripe_user_data.get_my_anchors_targets())
 
 
 def identify_filter_type(search_value):
 
-    return "asn"
+    return "probe_id"
 
     if ":" in search_value or "." in search_value:
         return "asn"
@@ -41,7 +41,7 @@ class AtlasSearchSystems(APIView):
 
     def get(self, request):
 
-        ripe_user_data = RipeUserData(request.user.ripe_user.ripe_api_token)
+        ripe_user_data = RipeInterface(request.user.ripe_user.ripe_api_token)
         search_value: str = request.query_params.get('search_value')
         if search_value is None:
             return Response({"error": "search_value field is missing or null"}, status=status.HTTP_400_BAD_REQUEST)

@@ -10,22 +10,23 @@ PROBES_URL = RIPE_BASE_URL + "probes/"
 # fields should be comma seperated for the fields query parameter, id and type is always included
 WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_ANCHOR_FIELDS = "id,ip_v4,ipv6,as_v4,as_v6,geometry,prefix_v4,prefix_v6,fqdn"
-WANTED_MEASUREMENT_FIELDS = "id,type,description,target_ip,target,target_asn,target_prefix"
+WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
 
 # the type of  measurements that we can put an alert on
 SUPPORTED_TYPE_MEASUREMENTS = ('ping',)
 
 
-def is_token_valid(token: str) -> bool:
-    response = requests.get(url=RIPE_BASE_URL + "credits/income-items", params={'key': token})
-    if response.status_code == 403:
-        if response.json()['error']['detail'] == 'The provided API key does not exist':
-            return False
-    else:
-        return True
+class RipeInterface:
 
+    @staticmethod
+    def is_token_valid(token: str) -> bool:
+        response = requests.get(url=RIPE_BASE_URL + "credits/income-items", params={'key': token})
+        if response.status_code == 403:
+            if response.json()['error']['detail'] == 'The provided API key does not exist':
+                return False
+        else:
+            return True
 
-class RipeUserData:
     def __init__(self, token):
         self.token: str = token
         self.user_defined_measurements: list = self.get_user_defined_measurements()
@@ -121,7 +122,7 @@ class RipeUserData:
 
         params = {
             "key": self.token,
-            "status": "Ongoing",
+            # "status": "Ongoing",
             "fields": WANTED_MEASUREMENT_FIELDS
         }
         response = requests.get(MY_MEASUREMENTS_URL, params=params).json()
@@ -158,9 +159,10 @@ class RipeUserData:
 
     def get_alertable_measurements_anchor(self, anchor: dict) -> dict:
 
+        # only anchoring measurements are relevant
+
         relevant_measurements = {
             "anchoring_measurements": [],
-            "user_defined_measurements": []
         }
 
         ip_v4 = anchor.get("address_v4")
@@ -168,13 +170,9 @@ class RipeUserData:
 
         if ip_v4:
             relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v4))
-            relevant_measurements['user_defined_measurements'].extend(
-                self.get_alertable_user_measurements_target(ip_v4))
 
         if ip_v6:
             relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v6))
-            relevant_measurements['user_defined_measurements'].extend(
-                self.get_alertable_user_measurements_target(ip_v6))
 
         return relevant_measurements
 
@@ -189,7 +187,7 @@ class RipeUserData:
 
         return self.group_measurements_by_target(measurements)
 
-    def get_owned_anchors_targets(self) -> dict:
+    def get_my_anchors_targets(self) -> dict:
 
         owned_anchors = self.get_owned_anchors()
         anchors_and_targets = {

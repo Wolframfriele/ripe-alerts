@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MyAtlasSystems, AtlasSearchSystems
+from .apis import MyAtlasSystems, AtlasSearchSystems
 
 urlpatterns = [
     path('my-systems', MyAtlasSystems.as_view(), name="atlas-systems"),

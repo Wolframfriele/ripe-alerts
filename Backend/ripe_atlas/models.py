@@ -6,9 +6,9 @@ class System(models.Model):
         TARGET = 'target'
         ANCHOR = 'anchor'
 
-    system_ud = models.AutoField(primary_key=True)
+    system_id = models.AutoField(primary_key=True)
     target_type = models.CharField(max_length=10, choices=SystemType.choices, default=SystemType.ANCHOR)
-    probe_id = models.IntegerField(unique=True)
+    probe_id = models.IntegerField(unique=True, null=True)
     prefix_v4 = models.CharField(max_length=128, null=True, default=None)
     prefix_v6 = models.CharField(max_length=128, blank=True, null=True, default=None)
     address_v4 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
@@ -30,4 +30,5 @@ class Measurement(models.Model):
     measurement_id = models.IntegerField(primary_key=True)
     description = models.CharField(max_length=200, null=True)
     type = models.CharField(max_length=10, choices=MeasurementType.choices, null=False)
+    interval = models.IntegerField(null=False)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
