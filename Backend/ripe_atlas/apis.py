@@ -19,21 +19,6 @@ class MyAtlasSystems(APIView):
         return Response(ripe_user_data.get_my_anchors_targets())
 
 
-def identify_filter_type(search_value):
-
-    return "probe_id"
-
-    if ":" in search_value or "." in search_value:
-        return "asn"
-    if "mm":
-        return "asn"
-    if "host":
-        return "host"
-    if "probe_id":
-        return "probe_id"
-    raise ValueError
-
-
 class AtlasSearchSystems(APIView):
     """
     Search for targets and anchors in ripe atlas: the input could be one of these: asn, probe_id,host, ip_adres
@@ -42,13 +27,12 @@ class AtlasSearchSystems(APIView):
     def get(self, request):
 
         ripe_user_data = RipeInterface(request.user.ripe_user.ripe_api_token)
+        filter_option: str = request.query_params.get('filter')
+        if filter_option not in ['asn', 'host', 'ip_address', 'probe_id']:
+            return Response({"error": "Invalid filter"}, status=status.HTTP_400_BAD_REQUEST)
+
         search_value: str = request.query_params.get('search_value')
         if search_value is None:
             return Response({"error": "search_value field is missing or null"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            filter_type = identify_filter_type(search_value)
-            return Response(ripe_user_data.search_systems(filter_type, search_value), status.HTTP_200_OK)
-        except ValueError:
-            return Response({"error": f"invalid value"}, status.HTTP_400_BAD_REQUEST)
-        return Response(result, status.HTTP_200_OK)
 
+        return Response(ripe_user_data.search_systems(filter_option, search_value), status=status.HTTP_200_OK)

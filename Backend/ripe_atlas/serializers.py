@@ -54,7 +54,7 @@ class TargetSerializer(serializers.Serializer):
 
 
 class AnchorSerializer(serializers.ModelSerializer):
-    measurements = MeasurementSerializer(many=True)
+    anchor_measurements = MeasurementSerializer(many=True)
 
     class Meta:
         model = System

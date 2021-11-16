@@ -42,7 +42,6 @@ class UserDetail(APIView):
     """Returns specific information of authenticated user"""
 
     def get(self, request):
-        # user_serializer = UserSerializer(request.user)
         user_information = {"username": request.user.username,
                             "ripe_api_token": request.user.ripe_user.ripe_api_token,
                             "initial_setup_complete": request.user.ripe_user.initial_setup_complete}

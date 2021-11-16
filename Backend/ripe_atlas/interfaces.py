@@ -10,6 +10,7 @@ PROBES_URL = RIPE_BASE_URL + "probes/"
 # fields should be comma seperated for the fields query parameter, id and type is always included
 WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_ANCHOR_FIELDS = "id,ip_v4,ipv6,as_v4,as_v6,geometry,prefix_v4,prefix_v6,fqdn"
+WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description"
 WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
 
 # the type of  measurements that we can put an alert on
@@ -101,6 +102,7 @@ class RipeInterface:
                 break
 
         measurements_by_target = self.group_measurements_by_target(measurements)
+        print(measurements_by_target)
 
         return measurements_by_target
 
@@ -111,10 +113,9 @@ class RipeInterface:
             'tags': 'anchoring',
             'status': 'Ongoing',
             'target_ip': target_address,
-            'fields': WANTED_MEASUREMENT_FIELDS
+            'fields': WANTED_ANCHOR_MEASUREMENT_FIELDS
         }
         response = requests.get(MEASUREMENTS_URL, params=params).json()
-
         return [measurement for measurement in response['results'] if
                 measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
 
@@ -202,7 +203,7 @@ class RipeInterface:
         owned_anchors = []
         response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
         income_groups: dict = response['groups']
-        income_sources: list = [*income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
+        income_sources: list = [*income_groups['hosted_probes'], *income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
 
         for income_source in income_sources:
             anchor = self.get_probe_information(url=income_source['probe'])
