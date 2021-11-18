@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .interfaces import RipeInterface
+from django.contrib.auth.models import User
 
 
 class MyAtlasSystems(APIView):
@@ -15,7 +16,9 @@ class MyAtlasSystems(APIView):
     """
 
     def get(self, request):
-        ripe_user_data = RipeInterface(request.user.ripe_user.ripe_api_token)
+        user_token = User.objects.get(id=2).ripe_user.ripe_api_token
+        # user_token = request.user.ripe_user.ripe_api_token
+        ripe_user_data = RipeInterface(user_token)
         return Response(ripe_user_data.get_my_anchors_targets())
 
 
@@ -26,7 +29,9 @@ class AtlasSearchSystems(APIView):
 
     def get(self, request):
 
-        ripe_user_data = RipeInterface(request.user.ripe_user.ripe_api_token)
+        user_token = User.objects.get(id=2).ripe_user.ripe_api_token
+        # user_token = request.user.ripe_user.ripe_api_token
+        ripe_user_data = RipeInterface(user_token)
         filter_option: str = request.query_params.get('filter')
         if filter_option not in ['asn', 'host', 'ip_address', 'probe_id']:
             return Response({"error": "Invalid filter"}, status=status.HTTP_400_BAD_REQUEST)
