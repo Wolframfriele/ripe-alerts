@@ -16,9 +16,20 @@
         :header-nav="step > 1"
       >
         Select targets and anchors here.
+		<q-list bordered separator v-for="target in targets" :key="target">
+			<q-item tag="label" clickable v-ripple>
+				<q-item-section side top>
+					<q-checkbox v-model="check1" />
+				</q-item-section>
+				<q-item-section>
+					<q-item-label>{{target.target}}</q-item-label>
+					<q-item-label caption>Caption</q-item-label>
+				</q-item-section>
+			</q-item>
+		</q-list>
 
         <q-stepper-navigation>
-          <q-btn @click="() => { done1 = true; step = 2 }" color="primary" label="Continue" />
+          <q-btn @click="() => { step = 2 }" color="primary" label="Continue" />
         </q-stepper-navigation>
       </q-step>
 
@@ -32,7 +43,7 @@
         Select measurements here.
 
         <q-stepper-navigation>
-          <q-btn @click="() => { done2 = true; step = 3 }" color="primary" label="Continue" />
+          <q-btn @click="() => { step = 3 }" color="primary" label="Continue" />
           <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
@@ -46,7 +57,7 @@
         Alerting method here.
 
         <q-stepper-navigation>
-          <q-btn @click="() => { done3 = true; step = 4 }" color="primary" label="Continue" />
+          <q-btn @click="() => { step = 4 }" color="primary" label="Continue" />
           <q-btn flat @click="step = 2" color="primary" label="Back" class="q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
@@ -59,7 +70,7 @@
         Summary here.
 
         <q-stepper-navigation>
-          <q-btn color="primary" @click="done4 = true" label="Finish" />
+          <q-btn color="primary" label="Finish" />
           <q-btn flat @click="step = 3" color="primary" label="Back" class="q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
@@ -73,7 +84,17 @@ import { ref } from 'vue'
 export default {
   setup () {
     return {
-      step: ref(1)
+      step: ref(1),
+      check1: ref(false)
+    }
+  },
+  data () {
+    return {
+      targets: [
+        { target: "192.168.0.1" },
+		{ target: "netflix.com" },
+		{ target: "8.8.8.8" },
+      ]
     }
   }
 }
