@@ -1,39 +1,26 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="glossy">
+  <q-layout view="lHh LpR lFr">
+    <q-header reveal elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          @click="leftDrawerOpen = !leftDrawerOpen"
-          aria-label="Menu"
-          icon="menu"
-        />
+        <q-btn flat dense round @click="toggleLeftDrawer" aria-label="Menu" icon="menu"/>
 
         <q-toolbar-title>
-          Quasar App
+          Ripe Alerter
         </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-2"
-    >
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
       <q-list>
         <q-item-label header>Essential Links</q-item-label>
-        <q-item clickable tag="a" target="_blank" href="https://quasar.dev">
+        <q-item clickable tag="a" :to="{ name: 'setup'}">
           <q-item-section avatar>
-            <q-icon name="school" />
+            <q-icon name="settings_suggest" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Docs</q-item-label>
-            <q-item-label caption>quasar.dev</q-item-label>
+            <q-item-label>Initial Setup</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable tag="a" target="_blank" href="https://github.com/quasarframework/">
@@ -76,25 +63,23 @@
     </q-drawer>
 
     <q-page-container>
-      <HelloWorld />
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
 import { ref } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
-  name: 'LayoutDefault',
-
-  components: {
-    HelloWorld
-  },
-
   setup () {
+    const leftDrawerOpen = ref(false)
+
     return {
-      leftDrawerOpen: ref(false)
+      leftDrawerOpen,
+      toggleLeftDrawer () {
+        leftDrawerOpen.value = !leftDrawerOpen.value
+      }
     }
   }
 }
