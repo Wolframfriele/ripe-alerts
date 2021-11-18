@@ -1,19 +1,13 @@
 venv/
-Frontend/node_modules
-Backend/db.sqlite3
-.idea
-Backend/venv
-Backend/.env
-Backend/__pycache__/
-Backend/dashboard/__pycache__/
-Backend/Core/__pycache__/
-Backend/dashboard/migrations/__pycache__/
+db.sqlite3
+__pycache__/
 .DS_Store
 node_modules
 /dist
-.yarn
+.yarn/
 
 # local env files
+.env
 .env.local
 .env.*.local
 
