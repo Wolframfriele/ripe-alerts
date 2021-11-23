@@ -52,6 +52,7 @@
         :name="3"
         title="Alerting method"
         icon="notifications"
+		:done="step > 3"
         :header-nav="step > 3"
       >
         Alerting method here.
