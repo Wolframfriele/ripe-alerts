@@ -14,7 +14,7 @@ WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description"
 WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
 
 # the type of  measurements that we can put an alert on
-SUPPORTED_TYPE_MEASUREMENTS = ('ping',)
+SUPPORTED_TYPE_MEASUREMENTS = ('ping', 'traceroute')
 
 
 class RipeInterface:
