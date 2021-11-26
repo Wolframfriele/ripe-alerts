@@ -96,11 +96,11 @@ class TracerouteMonitorStrategy(MonitorStrategy):
                 traceroute_result_raw = result_string[start:end]
                 result_string = result_string[end:]
                 result = self.preprocess(traceroute_result_raw)
-                self.store(collection, result.raw_data)
+                self.store(collection, result)
 
     def preprocess(self, measurement_result):
         """make measurment results consistent, make a dictionory of the object and keep all necessary field"""
-        return TracerouteResult(measurement_result, on_error=TracerouteResult.ACTION_IGNORE )
+        return TracerouteResult(measurement_result, on_error=TracerouteResult.ACTION_IGNORE).raw_data
 
     def store(self, collection, measurement_result):
         """store result in mongo_db"""

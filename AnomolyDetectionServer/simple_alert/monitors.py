@@ -28,7 +28,6 @@ class Monitor:
         Function called every time we receive a new result.
         Store the result in the corresponding Mongodb collection.
         """
-
         measurement_result = self.strategy.preprocess(args[0])
         self.strategy.store(self.collection, measurement_result)
         is_anomality = self.strategy.analyze(measurement_result)
