@@ -70,7 +70,11 @@
 				:done="step > 3"
 				:header-nav="step > 3"
 			>
-				Alerting method here.
+				<q-input v-model="email" filled type="email" label="Email">
+					<template v-slot:append>
+						<q-btn round dense flat icon="add" />
+					</template>
+				</q-input>
 				<q-list v-for="email in emails" :key="email">
 					<q-item tag="label">
 						<q-item-section>
@@ -98,7 +102,12 @@
 					/>
 				</q-stepper-navigation>
 			</q-step>
-			<q-step :name="4" title="Summary" icon="fact_check" :header-nav="step > 4">
+			<q-step
+				:name="4"
+				title="Summary"
+				icon="fact_check"
+				:header-nav="step > 4"
+			>
 				Summary here.
 
 				<q-stepper-navigation>
@@ -124,6 +133,7 @@ export default {
 		return {
 			step: ref(1),
 			check1: ref(false),
+			email: ref(""),
 		};
 	},
 	data() {
