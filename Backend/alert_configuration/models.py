@@ -18,15 +18,10 @@ class AlertConfiguration(models.Model):
         ]
 
 
-class Alert(models.Model):
-    class Severity(models.TextChoices):
-        WARNING = 'Warning'
-        MINOR = 'Minor'
-        MAJOR = 'Major'
-        CRITICAL = 'Critical'
+class Anomaly(models.Model):
 
-    alert_id = models.AutoField(primary_key=True)
+    anomaly_id = models.AutoField(primary_key=True)
     alert_configuration = models.ForeignKey(AlertConfiguration, on_delete=models.CASCADE)
-    severity = models.CharField(max_length=10, choices=Severity.choices, default=Severity.CRITICAL)
     description = models.TextField()
     feedback = models.BooleanField(null=True)
+    is_alert = models.BooleanField(default=False)

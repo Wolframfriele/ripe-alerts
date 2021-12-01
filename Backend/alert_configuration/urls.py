@@ -1,8 +1,8 @@
 from os import name
 from django.urls import path
-from .apis import AlertConfigurationDetail, AlertConfigurationList
+from .apis import  AlertConfigurationList, AlertList
 
 urlpatterns = [
-    path('alert_configuration/ <int:pk>/', AlertConfigurationDetail.as_view(), name="detailcreate"),
     path('alert_configuration', AlertConfigurationList.as_view(), name='listcreate'),
+    path('get_alerts', AlertList.as_view())
 ]

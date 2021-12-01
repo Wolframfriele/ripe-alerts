@@ -1,13 +1,11 @@
-from typing_extensions import ParamSpecKwargs
-from django.db import IntegrityError
-from django.db.models import fields
-from django.contrib.auth.models import User
-from django.db.models.base import Model
 from rest_framework import serializers
-from .models import AlertConfiguration
-from users.models import RipeUser
-from ripe_atlas.exceptions import TokenNotValid
-from ripe_atlas.interfaces import is_token_valid
+from .models import Anomaly
+
+
+class AnomalySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Anomaly
+        exclude = ['alert_configuration']
 
 
 class AlertConfigurationSerializer(serializers.Serializer):

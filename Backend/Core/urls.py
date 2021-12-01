@@ -25,5 +25,6 @@ urlpatterns = [
     path('api/atlas/', include('ripe_atlas.urls')),
     path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/login/refresh', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/user/', include('users.urls'))
+    path('api/user/', include('users.urls')),
+    path('api/alerts/', include('alert_configuration.urls'))
 ]

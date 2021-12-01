@@ -1,8 +1,10 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import AlertConfiguration
+from .models import AlertConfiguration, Anomaly
+from .serializers import AnomalySerializer
 from django.core.exceptions import ObjectDoesNotExist
+
 
 
 class AlertConfigurationList(APIView):
@@ -24,14 +26,18 @@ class AlertConfigurationList(APIView):
         return Response(data=None, status=status.HTTP_201_CREATED)
 
 
-class AlertConfigurationDetail(APIView):
-    def get(self):
-        """ get specific AlertConfiguration """
-
-    def put(self, request):
-        """ Update alert configuration """
-
-
-class AlertingSchemas(APIView):
+class AlertList(APIView):
     def get(self, request):
-        """returns the configuration setting that are necessary for the type of alerts"""
+        all_anomalies = request.query_params.get('all_anomalies')
+        anomalies = Anomaly.objects.raw(
+            """SELECT anomaly_id, is_alert, description, feedback 
+                FROM alert_configuration_anomaly as a
+                JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
+                WHERE b.user_id = %s
+            """, [request.user.id])
+
+        if int(all_anomalies) == 0:
+            anomalies = [anomaly for anomaly in anomalies if anomaly.is_alert]
+        anomalies_serialized = AnomalySerializer(anomalies, many=True)
+        return Response(anomalies_serialized.data, status=status.HTTP_200_OK)
+
