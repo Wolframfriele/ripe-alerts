@@ -28,16 +28,22 @@ class AlertConfigurationList(APIView):
 
 class AlertList(APIView):
     def get(self, request):
-        all_anomalies = request.query_params.get('all_anomalies')
-        anomalies = Anomaly.objects.raw(
-            """SELECT anomaly_id, is_alert, description, feedback 
-                FROM alert_configuration_anomaly as a
-                JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
-                WHERE b.user_id = %s
-            """, [request.user.id])
+        all_anomalies = int(request.query_params.get('all_anomalies', 1))
+        if all_anomalies == 1:
+            anomalies = Anomaly.objects.raw(
+                """SELECT anomaly_id, is_alert, description, feedback 
+                    FROM alert_configuration_anomaly as a
+                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
+                    WHERE b.user_id = %s
+                """, [request.user.id])
+        else:
+            anomalies = Anomaly.objects.raw(
+                """SELECT anomaly_id, is_alert, description, feedback 
+                    FROM alert_configuration_anomaly as a
+                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
+                    WHERE b.user_id = %s AND a.is_alert = true
+                """, [request.user.id])
 
-        if int(all_anomalies) == 0:
-            anomalies = [anomaly for anomaly in anomalies if anomaly.is_alert]
         anomalies_serialized = AnomalySerializer(anomalies, many=True)
         return Response(anomalies_serialized.data, status=status.HTTP_200_OK)
 
