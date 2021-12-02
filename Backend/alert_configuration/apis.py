@@ -57,8 +57,6 @@ class AlertList(APIView):
 class LabelAlert(APIView):
 
     def post(self, request):
-        request.data.get('anomaly_id')
-        request.data.get('label')
         try:
             anomaly = Anomaly.objects.get(pk=request.data.get('anomaly_id'))
         except ObjectDoesNotExist:
