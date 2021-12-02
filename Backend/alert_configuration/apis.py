@@ -53,3 +53,18 @@ class AlertList(APIView):
         anomalies_serialized = AnomalySerializer(anomalies, many=True)
         return Response(anomalies_serialized.data, status=status.HTTP_200_OK)
 
+
+class LabelAlert(APIView):
+
+    def post(self, request):
+        request.data.get('anomaly_id')
+        request.data.get('label')
+        try:
+            anomaly = Anomaly.objects.get(pk=request.data.get('anomaly_id'))
+        except ObjectDoesNotExist:
+            return Response("Anomaly_id does not exist in the database.", status=status.HTTP_404_NOT_FOUND)
+        anomaly.label = request.data.get('label', None)
+        anomaly.save()
+        anomaly_serialized = AnomalySerializer(anomaly)
+        return Response(anomaly_serialized.data, status=status.HTTP_200_OK)
+

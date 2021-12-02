@@ -28,6 +28,6 @@ class Anomaly(models.Model):
     anomaly_id = models.AutoField(primary_key=True)
     alert_configuration = models.ForeignKey(AlertConfiguration, on_delete=models.CASCADE)
     description = models.TextField()
-    feedback = models.BooleanField(null=True)
+    label = models.BooleanField(null=True)
     datetime = models.BigIntegerField(default=current_unixtime)
     is_alert = models.BooleanField(default=False)
