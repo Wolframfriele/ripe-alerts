@@ -1,8 +1,10 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import AlertConfiguration
+from .models import AlertConfiguration, Anomaly
+from .serializers import AnomalySerializer
 from django.core.exceptions import ObjectDoesNotExist
+import time
 
 
 class AlertConfigurationList(APIView):
@@ -24,14 +26,43 @@ class AlertConfigurationList(APIView):
         return Response(data=None, status=status.HTTP_201_CREATED)
 
 
-class AlertConfigurationDetail(APIView):
-    def get(self):
-        """ get specific AlertConfiguration """
-
-    def put(self, request):
-        """ Update alert configuration """
-
-
-class AlertingSchemas(APIView):
+class AlertList(APIView):
     def get(self, request):
-        """returns the configuration setting that are necessary for the type of alerts"""
+        all_anomalies = int(request.query_params.get('all_anomalies', 1))
+        item = int(request.query_params.get('item', 0))
+
+        if all_anomalies == 1:
+            anomalies = Anomaly.objects.raw(
+                """SELECT anomaly_id, is_alert, description, feedback, datetime
+                    FROM alert_configuration_anomaly as a
+                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
+                    WHERE b.user_id = %s
+                    ORDER BY datetime DESC 
+                    LIMIT 20 OFFSET %s
+                """, [request.user.id, item])
+        else:
+            anomalies = Anomaly.objects.raw(
+                """SELECT anomaly_id, is_alert, description, feedback, datetime 
+                    FROM alert_configuration_anomaly as a
+                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
+                    WHERE b.user_id = %s AND a.is_alert = true
+                    ORDER BY datetime DESC 
+                    LIMIT 20 OFFSET %s
+                """, [request.user.id, item])
+
+        anomalies_serialized = AnomalySerializer(anomalies, many=True)
+        return Response(anomalies_serialized.data, status=status.HTTP_200_OK)
+
+
+class LabelAlert(APIView):
+
+    def post(self, request):
+        try:
+            anomaly = Anomaly.objects.get(pk=request.data.get('anomaly_id'))
+        except ObjectDoesNotExist:
+            return Response("Anomaly_id does not exist in the database.", status=status.HTTP_404_NOT_FOUND)
+        anomaly.label = request.data.get('label', None)
+        anomaly.save()
+        anomaly_serialized = AnomalySerializer(anomaly)
+        return Response(anomaly_serialized.data, status=status.HTTP_200_OK)
+
