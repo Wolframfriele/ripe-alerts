@@ -70,15 +70,26 @@
 				:done="step > 3"
 				:header-nav="step > 3"
 			>
-				<q-input v-model="email" filled type="email" label="Email">
+				<q-input
+					ref="emailField"
+					v-model="email"
+					filled
+					type="email"
+					label="Email"
+					@keyup.enter="addEmail()"
+					:rules="[
+						val => !!val || 'Email is missing',
+						isValidEmail || 'Invalid email'
+					]"
+				>
 					<template v-slot:append>
-						<q-btn round dense flat icon="add" />
+						<q-btn round dense flat icon="add" @click="addEmail()" />
 					</template>
 				</q-input>
 				<q-list v-for="email in emails" :key="email">
 					<q-item tag="label">
 						<q-item-section>
-							<q-item-label>{{ email }}</q-item-label>
+							<q-item-section>{{ email }}</q-item-section>
 						</q-item-section>
 					</q-item>
 				</q-list>
@@ -133,7 +144,7 @@ export default {
 		return {
 			step: ref(1),
 			check1: ref(false),
-			email: ref(""),
+			email: ref("")
 		};
 	},
 	data() {
@@ -141,11 +152,23 @@ export default {
 			targets: [
 				{ target: "192.168.0.1" },
 				{ target: "netflix.com" },
-				{ target: "8.8.8.8" },
+				{ target: "8.8.8.8" }
 			],
-			emails: ["webmaster@website.com", "example@example.com", "me@mysite.net"],
+			emails: []
 		};
 	},
+	methods: {
+		addEmail() {
+			if (this.isValidEmail(this.email)) {
+				this.emails.push(this.email);
+				this.email = "";
+			}
+		},
+		isValidEmail(val) {
+			const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+			return emailPattern.test(val);
+		}
+	}
 };
 </script>
 
