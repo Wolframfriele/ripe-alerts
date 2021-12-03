@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from ripe_atlas.models import Measurement
+import time
 # Create your models here.
 
 
@@ -18,15 +19,15 @@ class AlertConfiguration(models.Model):
         ]
 
 
-class Alert(models.Model):
-    class Severity(models.TextChoices):
-        WARNING = 'Warning'
-        MINOR = 'Minor'
-        MAJOR = 'Major'
-        CRITICAL = 'Critical'
+def current_unixtime():
+    return int(time.time())
 
-    alert_id = models.AutoField(primary_key=True)
+
+class Anomaly(models.Model):
+
+    anomaly_id = models.AutoField(primary_key=True)
     alert_configuration = models.ForeignKey(AlertConfiguration, on_delete=models.CASCADE)
-    severity = models.CharField(max_length=10, choices=Severity.choices, default=Severity.CRITICAL)
     description = models.TextField()
-    feedback = models.BooleanField(null=True)
+    label = models.BooleanField(null=True)
+    datetime = models.BigIntegerField(default=current_unixtime)
+    is_alert = models.BooleanField(default=False)

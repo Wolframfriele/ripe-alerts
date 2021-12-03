@@ -1,4 +1,4 @@
-"""RipeUgh URL Configuration
+"""StreamingAnalytics URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -14,18 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.urls.conf import include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/atlas/', include('ripe_atlas.urls')),
-    path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/login/refresh', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/user/', include('users.urls')),
-    path('api/alert/', include('notifications.urls')),
-    path('api/alerts/', include('alert_configuration.urls'))
+    path('monitor', include('simple_alert.urls'))
 ]
