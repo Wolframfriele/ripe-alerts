@@ -213,11 +213,10 @@ class RipeInterface:
         owned_anchors = []
         response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
         income_groups: dict = response['groups']
-        income_sources: list = [*income_groups['hosted_probes'], *income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
+        income_sources: list = [*income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
 
         for income_source in income_sources:
             anchor = self.get_probe_information(url=income_source['probe'])
-            anchor.update(self.get_alertable_measurements_anchor(anchor))
             owned_anchors.append(anchor)
 
         return owned_anchors
@@ -255,4 +254,21 @@ class RipeInterface:
             return probe
         else:
             return self.get_targets(filter, value)
+
+    def my_neighbours(self):
+        anchors = self.get_owned_anchors()
+        # hardcoded because we dont have anchors
+        anchors = [{"asn_v4": 1103, "asn_v6": 1104}]
+        neighbours = []
+        for anchor in anchors:
+            if anchor['asn_v4']:
+                anchor_neighbours = RipeInterface.get_asn_neighbours(anchor['asn_v4'])
+                if anchor_neighbours:
+                    neighbours.append(anchor_neighbours)
+            if anchor['asn_v6'] and not anchor['asn_v6'] == anchor['asn_v4']:
+                anchor_neighbours = RipeInterface.get_asn_neighbours(anchor['asn_v6'])
+                if anchor_neighbours:
+                    neighbours.append(anchor_neighbours)
+
+        return neighbours
 

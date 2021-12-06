@@ -48,6 +48,10 @@ class SearchAsnNeighbours(APIView):
         asn = request.query_params.get("asn")
         return Response(RipeInterface.get_asn_neighbours(asn), status=status.HTTP_200_OK)
 
+
 class UserAsnNeighbours(APIView):
     def get(self, request):
-        pass
+        # token = request.user.ripe_user.ripe_api_token
+        token = User.objects.get(id=2).ripe_user.ripe_api_token
+
+        return Response(RipeInterface(token).my_neighbours())
