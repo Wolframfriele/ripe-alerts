@@ -6,6 +6,8 @@ MY_MEASUREMENTS_URL = MEASUREMENTS_URL + "my/"
 CURRENT_PROBES_URL = RIPE_BASE_URL + "credits/income-items/"
 ANCHORS_URL = RIPE_BASE_URL + "anchors/"
 PROBES_URL = RIPE_BASE_URL + "probes/"
+RIPE_STATS_ASN_NEIGHBOURS = "https://stat.ripe.net/data/asn-neighbours/data.json"
+
 
 # fields should be comma seperated for the fields query parameter, id and type is always included
 WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
@@ -15,6 +17,7 @@ WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,targe
 
 # the type of  measurements that we can put an alert on
 SUPPORTED_TYPE_MEASUREMENTS = ('ping', 'traceroute')
+
 
 
 class RipeInterface:
@@ -28,9 +31,10 @@ class RipeInterface:
         else:
             return True
 
-    def __init__(self, token):
+    def __init__(self, token=None):
         self.token: str = token
-        self.user_defined_measurements: list = self.get_user_defined_measurements()
+        if self.token:
+            self.user_defined_measurements: list = self.get_user_defined_measurements()
 
     def get_probe_information(self, url=None, probe_id=None) -> dict:
 
@@ -44,6 +48,12 @@ class RipeInterface:
         # probes data dont have a 'host' key, but the description refers to the host in most cases
         response['host'] = response.pop('description')
         return response
+
+    @staticmethod
+    def get_asn_neighbours(asn):
+        response = requests.get(RIPE_STATS_ASN_NEIGHBOURS, params={"resource": asn}).json()['data']
+        return response
+
 
     def group_measurements_by_target(self, measurements) -> list:
         measurements_by_target = []

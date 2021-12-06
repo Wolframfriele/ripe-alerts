@@ -41,3 +41,13 @@ class AtlasSearchSystems(APIView):
             return Response({"error": "search_value field is missing or null"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(ripe_user_data.search_systems(filter_option, search_value), status=status.HTTP_200_OK)
+
+
+class SearchAsnNeighbours(APIView):
+    def get(self, request):
+        asn = request.query_params.get("asn")
+        return Response(RipeInterface.get_asn_neighbours(asn), status=status.HTTP_200_OK)
+
+class UserAsnNeighbours(APIView):
+    def get(self, request):
+        pass
