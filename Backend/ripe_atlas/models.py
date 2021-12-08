@@ -1,21 +1,17 @@
 from django.db import models
 
 
-class System(models.Model):
-    class SystemType(models.TextChoices):
-        TARGET = 'target'
-        ANCHOR = 'anchor'
+class Asn(models.Model):
+    asn = models.IntegerField(primary_key=True)
 
-    system_id = models.AutoField(primary_key=True)
-    target_type = models.CharField(max_length=10, choices=SystemType.choices, default=SystemType.ANCHOR)
-    probe_id = models.IntegerField(unique=True, null=True)
-    prefix_v4 = models.CharField(max_length=128, null=True, default=None)
-    prefix_v6 = models.CharField(max_length=128, blank=True, null=True, default=None)
-    address_v4 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
-    address_v6 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
-    asn_v4 = models.CharField(max_length=128, blank=True, null=True, default=None)
-    asn_v6 = models.CharField(max_length=128, blank=True, null=True, default=None)
-    host = models.CharField(max_length=200, blank=True, null=True, default=None)
+
+class Anchor(models.Model):
+
+    anchor_id = models.IntegerField(primary_key=True)
+    ip_v4 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
+    ip_v6 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
+    asn = models.ForeignKey(Asn, on_delete=models.CASCADE)
+    fqdn = models.CharField(max_length=200, blank=True, null=True, default=None)
 
 
 class Measurement(models.Model):
@@ -31,4 +27,4 @@ class Measurement(models.Model):
     description = models.CharField(max_length=200, null=True)
     type = models.CharField(max_length=10, choices=MeasurementType.choices, null=False)
     interval = models.IntegerField(null=False)
-    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    anchor = models.ForeignKey(Anchor, on_delete=models.CASCADE)

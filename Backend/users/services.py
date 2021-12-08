@@ -1,6 +1,7 @@
-from ripe_atlas.models import Measurement, System
+from ripe_atlas.models import Measurement, Asn, Anchor
 from alert_configuration.models import AlertConfiguration
 from .models import RipeUser
+from ripe_atlas.interfaces import RipeInterface
 
 
 def store_measurements(measurements, system, user):
@@ -33,26 +34,37 @@ class InitialSetupService:
     @staticmethod
     def store_initial_setup(validated_data):
         # store targets, anchors, measurements and related alert_configuration in database
-        for target in validated_data['targets']:
-            # store target related measurements and make an alert configuration based on the measurement.
-            target = transform_target(target)
-            target['target_type'] = 'target'
-            measurements = target.pop('measurements')
-            system = System.objects.get_or_create(**target)[0]
-            store_measurements(measurements, system, validated_data['user'])
 
-        for anchor in validated_data['anchors']:
-            measurements = anchor.pop('measurements')
-            system = System.objects.get_or_create(**anchor)[0]
-            store_measurements(measurements, system, validated_data['user'])
+        for asn, anchors in validated_data['anchors_by_asn'].items():
+            asn = Asn.objects.get_or_create(asn=asn)[0]
+            for anchor in anchors:
+                # store anchor
+                anchor: Anchor = Anchor.objects.get_or_create(anchor_id=anchor['id'], ip_v4=anchor['ip_v4'],
+                                                      ip_v6=anchor['ip_v6'], asn=asn, fqdn=anchor['fqdn'])[0]
+                # collect anchoring meaurements ping and traceroute
+                measurements = []
+                if anchor.ip_v4:
+                    measurements.extend(RipeInterface.get_anchoring_measurements(target_address=anchor.ip_v4))
+                if anchor.ip_v6:
+                    measurements.extend(RipeInterface.get_anchoring_measurements(target_address=anchor.ip_v6))
+                # store anchors and related measurements to the database
+                for measurement in measurements:
+                    measurement = Measurement(measurement_id=measurement['id'], type=measurement['type'],
+                                              description=measurement['description'], interval=measurement["interval"],
+                                              anchor=anchor)
+                    measurement.save()
+
+            # tell the ai server to create an alert configuration for the user based on the asn
 
         # store the email
         print("storing the email")
 
-        # set initial_setup_complete to true.
-        ripe_user = RipeUser.objects.filter(user=validated_data['user'])
-        ripe_user.update(initial_setup_complete=True)
+        return True
 
-        return {"username": validated_data['user'].username,
-                "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
-                "initial_setup_complete": True}
+        # # set initial_setup_complete to true.
+        # ripe_user = RipeUser.objects.filter(user=validated_data['user'])
+        # ripe_user.update(initial_setup_complete=True)
+
+        # return {"username": validated_data['user'].username,
+        #         "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
+        #         "initial_setup_complete": True}

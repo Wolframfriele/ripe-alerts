@@ -50,17 +50,15 @@ class UserDetail(APIView):
 
 class InitialSetup(APIView):
     """
-    User chooses his systems: targets and anchors and related measurements to put an alert on.
-    User chooses where to receive alert on: the email.
-    Systems stores the input of the users and creates alert_configurations based on the input.
-
+        INPUT: ASN, Email
+        COLLECT THE ANCHORS AND RELATED MEASUREMENTS NECESSARY TO COLLECT DATA
     """
 
     def post(self, request):
 
-        if request.user.ripe_user.initial_setup_complete:
-            return Response({"message": "user has already completed the initial setup!"},
-                            status=status.HTTP_403_FORBIDDEN)
+        # if request.user.ripe_user.initial_setup_complete:
+        #     return Response({"message": "user has already completed the initial setup!"},
+        #                     status=status.HTTP_403_FORBIDDEN)
 
         initial_setup_serializer = InitialSetupSerializer(data=request.data)
 
@@ -71,7 +69,7 @@ class InitialSetup(APIView):
         user = initial_setup_serializer.save(user=request.user)
         # except Exception:
         #     return Response("OOPS", status=status.HTTP_400_BAD_REQUEST)
-        return Response(user, status=status.HTTP_201_CREATED)
+        return Response(initial_setup_serializer.validated_data, status=status.HTTP_201_CREATED)
 
 
 class SystemList(APIView):

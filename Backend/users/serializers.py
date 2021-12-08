@@ -4,10 +4,7 @@ from rest_framework import serializers
 from .models import RipeUser
 from .services import InitialSetupService
 from ripe_atlas.exceptions import TokenNotValid
-from ripe_atlas.serializers import TargetSerializer, AnchorSerializer
 from ripe_atlas.interfaces import RipeInterface
-from ripe_atlas.models import System, Measurement
-from alert_configuration.models import AlertConfiguration
 
 
 class RegistrationSerializer(serializers.Serializer):
@@ -36,17 +33,21 @@ class RegistrationSerializer(serializers.Serializer):
 
 
 class InitialSetupSerializer(serializers.Serializer):
-    targets = TargetSerializer(many=True)
-    anchors = AnchorSerializer(many=True)
-    email = serializers.CharField(max_length=100)
+    asn = serializers.ListField(child=serializers.CharField(max_length=100, required=True))
+    email = serializers.CharField(max_length=100, required=True)
 
     def validate(self, data):
-        if len(data['targets']) == 0 and len(data['anchors']) == 0:
-            raise serializers.ValidationError("we need at least an target or anchor for the initial setup")
+        anchors_by_asn = RipeInterface.get_anchors(data['asn'])
+        if not anchors_by_asn:
+            raise serializers.ValidationError("No anchors found with ASN")
+        data['anchors_by_asn'] = anchors_by_asn
         return data
 
     def create(self, validated_data):
         return InitialSetupService.store_initial_setup(validated_data)
+
+    def update(self, instance, validated_data):
+        pass
 
 
 

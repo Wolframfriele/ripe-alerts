@@ -1,4 +1,5 @@
 import requests
+from collections import defaultdict
 
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"
 MEASUREMENTS_URL = RIPE_BASE_URL + "measurements/"
@@ -48,6 +49,21 @@ class RipeInterface:
         # probes data dont have a 'host' key, but the description refers to the host in most cases
         response['host'] = response.pop('description')
         return response
+
+    @staticmethod
+    def get_anchors(asn_list):
+        """returns dictionary with as keys the input asn and as value a list of anchors
+        if empty dict then there are no anchors found"""
+        anchors_by_asn = defaultdict(list)
+        for asn in asn_list:
+
+            params = {"as_v4": asn}
+            response = requests.get(url=ANCHORS_URL, params=params).json()
+            results = response.get('results')
+            if results:
+                anchors_by_asn[asn].extend(results)
+        return anchors_by_asn
+
 
     @staticmethod
     def get_asn_neighbours(asn):
@@ -116,10 +132,10 @@ class RipeInterface:
 
         return measurements_by_target
 
-    def get_anchoring_measurements(self, target_address: str) -> list:
+    @staticmethod
+    def get_anchoring_measurements(target_address: str) -> list:
 
         params = {
-            'key': self.token,
             'tags': 'anchoring',
             'status': 'Ongoing',
             'target_ip': target_address,
