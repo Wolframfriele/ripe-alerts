@@ -33,11 +33,11 @@ class RegistrationSerializer(serializers.Serializer):
 
 
 class InitialSetupSerializer(serializers.Serializer):
-    asn = serializers.ListField(child=serializers.CharField(max_length=100, required=True))
+    asns = serializers.ListField(child=serializers.CharField(max_length=100, required=True))
     email = serializers.CharField(max_length=100, required=True)
 
     def validate(self, data):
-        anchors_by_asn = RipeInterface.get_anchors(data['asn'])
+        anchors_by_asn = RipeInterface.get_anchors(data['asns'])
         if not anchors_by_asn:
             raise serializers.ValidationError("No anchors found with ASN")
         data['anchors_by_asn'] = anchors_by_asn
