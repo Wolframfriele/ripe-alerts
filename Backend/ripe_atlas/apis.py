@@ -62,3 +62,5 @@ class Asn(APIView):
         asn = request.query_params.get("asn")
         if asn:
             return Response(RipeInterface.get_asn_host(asn), status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "asn is required"}, status=status.HTTP_400_BAD_REQUEST)
