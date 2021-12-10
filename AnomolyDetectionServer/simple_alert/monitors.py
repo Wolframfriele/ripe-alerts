@@ -1,3 +1,5 @@
+import datetime
+
 from pymongo import MongoClient
 from ripe.atlas.cousteau import *
 import threading
@@ -73,8 +75,9 @@ class Monitor:
 
     def monitor(self):
 
-        # # if we dont have results yet in the collection we start to collect an inititial dataset
-        if self.collection.count_documents({}) == 0:
+        yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
+        count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
+        if count == 0:
             self.strategy.collect_initial_dataset(self.collection, self.measurement.id)
 
         atlas_stream = AtlasStream()

@@ -1,7 +1,9 @@
 import random
 from ripe.atlas.sagan import PingResult, TracerouteResult
 import requests
+from requests.exceptions import ChunkedEncodingError
 from datetime import datetime
+import time
 import re
 from abc import ABC, abstractmethod
 
@@ -37,21 +39,28 @@ class PingMonitorStrategy(MonitorStrategy):
         """creates initial dataset"""
         print(f"collecting initial dataset for measurement: {measurement_id}")
         yesterday = int(datetime.now().timestamp()) - 24 * 60 * 60
-        response = requests.get(
-            f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={yesterday}",
-            stream=True)
-
         result_string = ""
-
-        for i in response.iter_content(decode_unicode=True):
-            result_string += i
-            result = PingMonitorStrategy.result_pattern.search(result_string)
-            if result:
-                start, end = result.span()
-                ping_result_raw = result_string[start:end]
-                result_string = result_string[end:]
-                result = self.preprocess(ping_result_raw)
-                self.store(collection, result)
+        # to keep track of the latest time we received
+        result_time = yesterday
+        while True:
+            try:
+                response = requests.get(
+                    f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}",
+                    stream=True)
+                for i in response.iter_content(decode_unicode=True):
+                    result_string += i
+                    result = PingMonitorStrategy.result_pattern.search(result_string)
+                    if result:
+                        start, end = result.span()
+                        ping_result_raw = result_string[start:end]
+                        result_string = result_string[end:]
+                        result = self.preprocess(ping_result_raw)
+                        result_time = result['created']
+                        self.store(collection, result)
+                break
+            except ChunkedEncodingError:
+                print("Oh no we lost connection, but we will try again")
+                time.sleep(1)
 
     def preprocess(self, measurement_result):
         """make measurment results consistent, make a dictionory of the object and keep all necessary fields"""
@@ -77,30 +86,51 @@ class PingMonitorStrategy(MonitorStrategy):
 
 class TracerouteMonitorStrategy(MonitorStrategy):
     result_pattern = re.compile("{.*(stored_timestamp).*}")
+    UNWANTED_TRACEROUTE_FIELDS = ["raw_data"]
 
     def collect_initial_dataset(self, collection, measurement_id):
         """creates initial dataset"""
         print(f"collecting initial dataset for measurement: {measurement_id}")
         yesterday = int(datetime.now().timestamp()) - 24 * 60 * 60
-        response = requests.get(
-            f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={yesterday}",
-            stream=True)
-
         result_string = ""
+        result_time = yesterday
 
-        for i in response.iter_content(decode_unicode=True):
-            result_string += i
-            result = TracerouteMonitorStrategy.result_pattern.search(result_string)
-            if result:
-                start, end = result.span()
-                traceroute_result_raw = result_string[start:end]
-                result_string = result_string[end:]
-                result = self.preprocess(traceroute_result_raw)
-                self.store(collection, result)
+        while True:
+            try:
+                response = requests.get(
+                    f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}",
+                    stream=True)
+                for i in response.iter_content(decode_unicode=True):
+                    result_string += i
+                    result = TracerouteMonitorStrategy.result_pattern.search(result_string)
+                    if result:
+                        start, end = result.span()
+                        traceroute_result_raw = result_string[start:end]
+                        result_string = result_string[end:]
+                        result = self.preprocess(traceroute_result_raw)
+                        result_time = result['created']
+                        self.store(collection, result)
+                break
+            except ChunkedEncodingError:
+                print("Oh no we lost connection, but we will try again")
+                time.sleep(1)
 
     def preprocess(self, measurement_result):
         """make measurment results consistent, make a dictionory of the object and keep all necessary field"""
-        return TracerouteResult(measurement_result, on_error=TracerouteResult.ACTION_IGNORE).raw_data
+        result = TracerouteResult(measurement_result, on_error=TracerouteResult.ACTION_IGNORE)
+        result_dict = result.__dict__
+        for unwanted_field in TracerouteMonitorStrategy.UNWANTED_TRACEROUTE_FIELDS:
+            result_dict.pop(unwanted_field)
+
+        new_hops = []
+        for hop in result_dict['hops']:
+            hop = hop.__dict__
+            hop['packets'] = [packet.__dict__ for packet in hop['packets']]
+            for packet in hop['packets']:
+                packet.pop("icmp_header")
+            new_hops.append(hop)
+        result_dict['hops'] = new_hops
+        return result_dict
 
     def store(self, collection, measurement_result):
         """store result in mongo_db"""

@@ -55,3 +55,8 @@ class UserAsnNeighbours(APIView):
         token = User.objects.get(id=2).ripe_user.ripe_api_token
 
         return Response(RipeInterface(token).my_neighbours())
+
+
+class Asn(APIView):
+    def get(self, request):
+        asn = request.query_
