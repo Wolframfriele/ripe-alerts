@@ -8,6 +8,7 @@ CURRENT_PROBES_URL = RIPE_BASE_URL + "credits/income-items/"
 ANCHORS_URL = RIPE_BASE_URL + "anchors/"
 PROBES_URL = RIPE_BASE_URL + "probes/"
 RIPE_STATS_ASN_NEIGHBOURS = "https://stat.ripe.net/data/asn-neighbours/data.json"
+RIPE_STATS_ASN = "https://stat.ripe.net/data/as-overview/data.json"
 
 
 # fields should be comma seperated for the fields query parameter, id and type is always included
@@ -287,4 +288,10 @@ class RipeInterface:
                     neighbours.append(anchor_neighbours)
 
         return neighbours
+
+    @staticmethod
+    def get_asn_host(asn):
+        response = requests.get(RIPE_STATS_ASN, params={"resource": asn}).json()
+        return {"holder": response['data']['holder']}
+
 

@@ -59,4 +59,6 @@ class UserAsnNeighbours(APIView):
 
 class Asn(APIView):
     def get(self, request):
-        asn = request.query_
+        asn = request.query_params.get("asn")
+        if asn:
+            return Response(RipeInterface.get_asn_host(asn), status=status.HTTP_200_OK)
