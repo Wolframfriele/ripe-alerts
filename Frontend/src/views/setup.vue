@@ -8,11 +8,29 @@
 				:done="step > 1"
 				:header-nav="step > 1"
 			>
-				Select ASN
-				<q-list v-for="AS in ASN" :key="AS">
+				<q-input
+					ref="ASNField"
+					v-model="ASN"
+					filled
+					type="number"
+					prefix="AS"
+					min= 0
+					max= 65535
+					@keyup.enter="addASN()"
+					error-message="Must be a number between 0 and 65535"
+					:rules="[
+						isValidASN
+					]"
+				>
+					<template v-slot:append>
+						<q-btn round dense flat icon="add" @click="addASN()" />
+					</template>
+				</q-input>
+
+				<q-list v-for="ASN in ASNList" :key="ASN">
 					<q-item tag="label">
 						<q-item-section>
-							<q-item-section>{{ AS.AS }}</q-item-section>
+							<q-item-section>{{ ASN }}</q-item-section>
 						</q-item-section>
 					</q-item>
 				</q-list>
@@ -46,7 +64,7 @@
 					@keyup.enter="addEmail()"
 					:rules="[
 						val => !!val || 'Email is missing',
-						isValidEmail || 'Invalid email'
+						isValidEmail || 'Email is not valid'
 					]"
 				>
 					<template v-slot:append>
@@ -111,16 +129,13 @@ export default {
 		return {
 			step: ref(1),
 			check1: ref(false),
-			email: ref("")
+			email: ref(""),
+			ASN: ref(""),
 		};
 	},
 	data() {
 		return {
-			ASN: [
-				{ AS: "AS1102" },
-				{ AS: "AS1103" },
-				{ AS: "AS1146" }
-			],
+			ASNList: ["AS1102","AS1103","AS1146"],
 			emails: []
 		};
 	},
@@ -134,7 +149,17 @@ export default {
 		isValidEmail(val) {
 			const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
 			return emailPattern.test(val);
-		}
+		},
+		addASN() {
+			if (this.isValidASN(this.ASN)) {
+				this.ASNList.push("AS" + this.ASN);
+				this.ASN = "";
+			}
+		},
+		isValidASN(val) {
+			const ASNPattern = /^[0-9]{1,5}$/;
+			return ASNPattern.test(val);
+		},
 	}
 };
 </script>
