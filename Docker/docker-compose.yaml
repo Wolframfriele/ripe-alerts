@@ -9,7 +9,9 @@ services:
       POSTGRES_DB: ripe_alerting_tool
     networks:
       - backend
-      
+    volumes:
+      - ./data/postgress:/var/lib/postgresql
+
   mongoDB:
     image: mongo
     restart: always
@@ -18,10 +20,24 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
       - mongo
+    volumes:
+      - ./data/mongodb:/data/db
+  
+  ai_server:
+    build: ../AnomolyDetectionServer
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - backend
+      - mongo
+
+  be_server:
+      build: ../Backend
+      command: python manage.py runserver 0.0.0.0:8000
+      networks:
+        - backend
 
 networks:
   backend:
     driver: ipvlan
   mongo:
     driver: ipvlan
-   
