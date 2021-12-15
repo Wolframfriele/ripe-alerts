@@ -3,20 +3,16 @@
 		<q-stepper v-model="step" header-nav ref="stepper" color="primary" animated>
 			<q-step
 				:name="1"
-				title="Select targets and anchors"
+				title="Select AS numbers"
 				icon="settings"
 				:done="step > 1"
 				:header-nav="step > 1"
 			>
-				Select targets and anchors here.
-				<q-list bordered separator v-for="target in targets" :key="target">
-					<q-item tag="label" clickable v-ripple>
-						<q-item-section side top>
-							<q-checkbox v-model="check1" />
-						</q-item-section>
+				Select ASN
+				<q-list v-for="AS in ASN" :key="AS">
+					<q-item tag="label">
 						<q-item-section>
-							<q-item-label>{{ target.target }}</q-item-label>
-							<q-item-label caption>Caption</q-item-label>
+							<q-item-section>{{ AS.AS }}</q-item-section>
 						</q-item-section>
 					</q-item>
 				</q-list>
@@ -36,39 +32,10 @@
 
 			<q-step
 				:name="2"
-				title="Select measurements"
-				icon="auto_graph"
-				:done="step > 2"
-				:header-nav="step > 2"
-			>
-				Select measurements here.
-
-				<q-stepper-navigation>
-					<q-btn
-						@click="
-							() => {
-								step = 3;
-							}
-						"
-						color="primary"
-						label="Continue"
-					/>
-					<q-btn
-						flat
-						@click="step = 1"
-						color="primary"
-						label="Back"
-						class="q-ml-sm"
-					/>
-				</q-stepper-navigation>
-			</q-step>
-
-			<q-step
-				:name="3"
 				title="Alerting method"
 				icon="notifications"
-				:done="step > 3"
-				:header-nav="step > 3"
+				:done="step > 2"
+				:header-nav="step > 2"
 			>
 				<q-input
 					ref="emailField"
@@ -98,7 +65,7 @@
 					<q-btn
 						@click="
 							() => {
-								step = 4;
+								step = 3;
 							}
 						"
 						color="primary"
@@ -106,7 +73,7 @@
 					/>
 					<q-btn
 						flat
-						@click="step = 2"
+						@click="step = 1"
 						color="primary"
 						label="Back"
 						class="q-ml-sm"
@@ -114,10 +81,10 @@
 				</q-stepper-navigation>
 			</q-step>
 			<q-step
-				:name="4"
+				:name="3"
 				title="Summary"
 				icon="fact_check"
-				:header-nav="step > 4"
+				:header-nav="step > 3"
 			>
 				Summary here.
 
@@ -125,7 +92,7 @@
 					<q-btn color="primary" label="Finish" />
 					<q-btn
 						flat
-						@click="step = 3"
+						@click="step = 2"
 						color="primary"
 						label="Back"
 						class="q-ml-sm"
@@ -149,10 +116,10 @@ export default {
 	},
 	data() {
 		return {
-			targets: [
-				{ target: "192.168.0.1" },
-				{ target: "netflix.com" },
-				{ target: "8.8.8.8" }
+			ASN: [
+				{ AS: "AS1102" },
+				{ AS: "AS1103" },
+				{ AS: "AS1146" }
 			],
 			emails: []
 		};
