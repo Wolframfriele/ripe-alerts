@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  postgress:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: ripe_alerting_tool
+    networks:
+      - backend
+      
+  mongoDB:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - mongo
+
+networks:
+  backend:
+    driver: ipvlan
+  mongo:
+    driver: ipvlan
+   
