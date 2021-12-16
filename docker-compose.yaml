@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB: ripe_alerting_tool
+      - POSTGRES_DB=${POSTGRES_DB}
     networks:
       - backend
     volumes:
@@ -24,14 +24,14 @@ services:
       - ./data/mongodb:/data/db
   
   ai_server:
-    build: ../AnomolyDetectionServer
+    build: ./AnomolyDetectionServer
     command: python manage.py runserver 0.0.0.0:8000
     networks:
       - backend
       - mongo
 
   be_server:
-      build: ../Backend
+      build: ./Backend
       command: python manage.py runserver 0.0.0.0:8000
       networks:
         - backend

@@ -12,3 +12,10 @@ Code that's writen for a storie like user storie, have to have to use the name o
 
 # Issues
 We can start using Issues when we launched our MVP.
+
+# Docker
+To start:
+docker-compose -f docker-compose.yaml up
+
+To stop:
+docker-compose -f docker-compose.yaml down
