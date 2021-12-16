@@ -135,7 +135,7 @@ export default {
 	},
 	data() {
 		return {
-			ASNList: ["AS1102","AS1103","AS1146"],
+			ASNList: [],
 			emails: []
 		};
 	},
@@ -163,9 +163,5 @@ export default {
 	}
 };
 </script>
-
 <style>
-.q-page {
-	max-width: 1024px;
-}
 </style>
