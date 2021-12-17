@@ -10,7 +10,9 @@ services:
     networks:
       - backend
     volumes:
-      - ./data/postgress:/var/lib/postgresql
+      - ./data/postgress:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   mongoDB:
     image: mongo
@@ -20,11 +22,14 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - mongo
+    ports:
+      - "27017:27017"
     volumes:
       - ./data/mongodb:/data/db
   
   ai_server:
     build: ./AnomolyDetectionServer
+    restart: always
     command: python manage.py runserver 0.0.0.0:8000
     networks:
       - backend
@@ -32,6 +37,7 @@ services:
 
   be_server:
       build: ./Backend
+      restart: always
       command: python manage.py runserver 0.0.0.0:8000
       networks:
         - backend
