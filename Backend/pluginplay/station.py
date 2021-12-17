@@ -71,7 +71,10 @@ class Station:
                 print(f"{plugin} does not follow the requirements for a plugin, skipping.")
                 continue
             plugin_config = self._database_interface.get_plugin_config(plugin_class.NAME)
-            self._plugins[plugin_class.NAME] = plugin_class(plugin_config)
+            if plugin_config:
+                self._plugins[plugin_class.NAME] = plugin_class(plugin_config)
+            else:
+                self._plugins[plugin_class.NAME] = plugin_class(plugin_class.DEFAULT_CONFIG)
 
     def broadcast(self, data: typing.Any) -> None:
         """
@@ -121,10 +124,7 @@ class Station:
         A list containing dictionary containing the name, description and config of the given plugin
         """
 
-        returns = []
-        for plugin in self._plugins:
-            returns.append(self.get_plugin_config(plugin))
-        return returns
+        return [self.get_plugin_config(plugin) for plugin in self._plugins]
 
     def save_plugin_config(self, name: str, config: typing.Dict[str, typing.Any]) -> None:
         """
