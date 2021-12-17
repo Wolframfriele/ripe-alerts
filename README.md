@@ -13,9 +13,15 @@ Code that's writen for a storie like user storie, have to have to use the name o
 # Issues
 We can start using Issues when we launched our MVP.
 
-# Docker
-To start:
-docker-compose -f docker-compose.yaml up
+# How to launch this project?
+We use docker to host the project. It is meant to host it on a server. Every individual user needs his own setup(later on it will change). To set it up please do the following steps.
 
-To stop:
-docker-compose -f docker-compose.yaml down
+1. Install docker.
+2. Copy the project to the right spot on your disk.
+3. enter $docker up
+
+## Stop docker
+Please do this only for maintainance purpose or when you want to delete the project.
+If there is an anomalie you won't alerted.
+
+$docker down
