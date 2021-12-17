@@ -1,11 +1,15 @@
 import datetime
+import os
 
+from dotenv import load_dotenv
 from pymongo import MongoClient
 from ripe.atlas.cousteau import *
 import threading
 from .monitor_strategies import MonitorStrategy
 
-client = MongoClient('mongodb://admin:password@localhost:27017')
+load_dotenv()
+
+client = MongoClient('mongodb://{}:{}@mongo:27017'.format(os.getenv('MONGO_USERNAME'), os.getenv('MONGO_PASSWORD')))
 database = client['Atlas_Results']
 
 
