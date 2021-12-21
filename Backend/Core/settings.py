@@ -109,7 +109,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB'),
-        'HOST': 'ripe_alerts_postgress_1',
+        'HOST': 'postgres',
         'PORT': '5432',
         'USER': 'postgres',
         'PASSWORD': os.getenv('POSTGRES_PASSWORD')

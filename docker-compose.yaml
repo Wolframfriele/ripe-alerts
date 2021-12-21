@@ -3,6 +3,7 @@ version: '3.4'
 services:
   postgres:
     image: postgres
+    hostname: postgres
     restart: always
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -16,6 +17,7 @@ services:
 
   mongo:
     image: mongo
+    hostname: mongo
     restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
@@ -29,6 +31,7 @@ services:
   
   ai_server:
     build: ./AnomolyDetectionServer
+    hostname: ai_server
     restart: always
     environment:
       - MONGO_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
@@ -40,6 +43,7 @@ services:
 
   be_server:
       build: ./Backend
+      hostname: be_server
       restart: always
       environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
