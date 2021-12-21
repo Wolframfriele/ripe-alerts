@@ -22,6 +22,6 @@ We use docker to host the project. It is meant to host it on a server. Every ind
 
 ## Stop docker
 Please do this only for maintainance purpose or when you want to delete the project.
-If there is an anomalie you won't alerted.
+If there is an anomalie, you won't alerted.
 
 $docker down
