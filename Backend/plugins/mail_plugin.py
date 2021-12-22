@@ -10,10 +10,11 @@ class MailPlugin(plugin.PluginInterface):
     DESCRIPTION = "A plugin which sends an alert to all entered email addresses"
     NAME = "mailplugin"
     DEFAULT_CONFIG = {
-        "alert_addresses": ["lukadejong2002@gmail.com"],
-        "sender_address": "lukadejong2002@gmail.com",
-        "username": "lukadejong2002@gmail.com",
+        "alert_addresses": [],
+        "sender_address": "",
+        "username": "",
         "password": "",
+        # We add the gmail connection as default for simplicity
         "smtp_server": "smtp.gmail.com",
         "port": 587,
         "protocol": "starttls",
@@ -21,7 +22,7 @@ class MailPlugin(plugin.PluginInterface):
     }
 
     def __init__(self, config: dict):
-        print(config)
+        # print(config)
         self.alert_addresses = config.get("alert_addresses")
         self._sender_address = config.get("sender_address")
         self._username = config.get("username")
