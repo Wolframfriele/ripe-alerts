@@ -7,9 +7,11 @@ from ripe.atlas.cousteau import *
 import threading
 from .monitor_strategies import MonitorStrategy
 
-load_dotenv()
-
-client = MongoClient('mongodb://{}:{}@mongo:27017'.format(os.getenv('MONGO_USERNAME'), os.getenv('MONGO_PASSWORD')))
+username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
+password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
+print(f"username: {username}")
+print(f"password: {password}")
+client = MongoClient(f'mongodb://{username}:{password}@mongodb')
 database = client['Atlas_Results']
 
 

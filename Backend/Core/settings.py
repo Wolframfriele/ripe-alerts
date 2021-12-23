@@ -110,11 +110,11 @@ WSGI_APPLICATION = 'Core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'HOST': 'postgres',
-        'PORT': '5432',
-        'USER': 'postgres',
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD')
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -183,6 +183,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080"
+    "0.0.0.0"
 ]
 
 

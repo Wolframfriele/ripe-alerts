@@ -33,7 +33,7 @@ class AlertList(APIView):
         all_anomalies = int(request.query_params.get('all_anomalies', 1))
         item = int(request.query_params.get('item', 0))
         # wanneer gebruikers in het systeem zijn dan hoeft de user object niet gehardcode te worden
-        user = User.objects.get(id=2)
+        user = User.objects.get(id=1)
 
         if all_anomalies == 1:
             anomalies = get_anomalies(user.id, item)

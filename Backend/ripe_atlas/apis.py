@@ -16,7 +16,7 @@ class MyAtlasSystems(APIView):
     """
 
     def get(self, request):
-        user_token = User.objects.get(id=2).ripe_user.ripe_api_token
+        user_token = User.objects.get(id=1).ripe_user.ripe_api_token
         # user_token = request.user.ripe_user.ripe_api_token
         ripe_user_data = RipeInterface(user_token)
         return Response(ripe_user_data.get_my_anchors_targets())
@@ -29,7 +29,7 @@ class AtlasSearchSystems(APIView):
 
     def get(self, request):
 
-        user_token = User.objects.get(id=2).ripe_user.ripe_api_token
+        user_token = User.objects.get(id=1).ripe_user.ripe_api_token
         # user_token = request.user.ripe_user.ripe_api_token
         ripe_user_data = RipeInterface(user_token)
         filter_option: str = request.query_params.get('filter')
@@ -52,7 +52,7 @@ class SearchAsnNeighbours(APIView):
 class UserAsnNeighbours(APIView):
     def get(self, request):
         # token = request.user.ripe_user.ripe_api_token
-        token = User.objects.get(id=2).ripe_user.ripe_api_token
+        token = User.objects.get(id=1).ripe_user.ripe_api_token
 
         return Response(RipeInterface(token).my_neighbours())
 
