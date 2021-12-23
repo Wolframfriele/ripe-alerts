@@ -8,8 +8,6 @@ services:
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    # networks:
-    #   - backend
     volumes:
       - ./data/postgress:/var/lib/postgresql/data
     ports:
@@ -22,8 +20,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    # networks:
-    #   - mongo
     ports:
       - "27017:27017"
     volumes:
@@ -42,12 +38,7 @@ services:
     dns:
       - 8.8.8.8
       - 4.4.4.4
-    # network_mode: "host"
     command: python manage.py runserver 0.0.0.0:8000
-    # networks:
-    #   - backend
-    #   - mongo
-    #   - test-host
 
   be_server:
     build: ./Backend
@@ -62,16 +53,6 @@ services:
     dns:
     - 8.8.8.8
     - 8.8.4.4
-    # network_mode: "host"
     command: python manage.py runserver 0.0.0.0:8000
-    # networks:
-    #   - backend
-    #   - test-host
 
-# networks:
-#   backend:
-#     driver: ipvlan
-#   mongo:
-#     driver: ipvlan
-#   test-host:
-#     driver: host
+
