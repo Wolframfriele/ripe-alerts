@@ -21,7 +21,6 @@ WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,targe
 SUPPORTED_TYPE_MEASUREMENTS = ('ping', 'traceroute')
 
 
-
 class RipeInterface:
 
     @staticmethod

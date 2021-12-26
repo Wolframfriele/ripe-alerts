@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -60,10 +61,12 @@ class Monitor:
         print(args)
         raise ConnectionError("Closed")
 
-    def on_disconnect(*args):
+    def on_disconnect(self, *args):
         print("got in on_disconnect")
         print(args)
-        raise ConnectionError("Disconnection")
+        time.sleep(2)
+        print("reconnecting...")
+        self.monitor()
 
     def on_connect_error(*args):
         print("got in on_connect_error")
