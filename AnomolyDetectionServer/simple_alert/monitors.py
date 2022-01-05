@@ -11,10 +11,6 @@ from .monitor_strategies import MonitorStrategy
 
 username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
 password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
-print(f"username: {username}")
-print(f"password: {password}")
-client = MongoClient(f'mongodb://{username}:{password}@mongodb')
-database = client['Atlas_Results']
 
 
 class Measurement:
@@ -26,10 +22,15 @@ class Measurement:
 class Monitor:
 
     def __init__(self, measurement: Measurement, alert_configurations, strategy: MonitorStrategy):
-        self.collection = database[f'{measurement.type} measurement: {measurement.id}']
+
         self.measurement = measurement
         self.strategy = strategy
+
+        # variables related to mongo db should be initialized when we start a monitoring process
+        self.client: MongoClient = None
+        self.database = None
         self.process: multiprocessing.Process = None
+        self.collection = None
 
     def __str__(self):
         return f"Montitor for {self.measurement.type} measurement: {self.measurement.id}"
@@ -84,7 +85,14 @@ class Monitor:
         print(args)
         raise ConnectionError("Unsubscribed")
 
+    def init_db(self):
+        self.client = MongoClient(f'mongodb://{username}:{password}@mongodb')
+        self.database = self.client['Atlas_Results']
+        self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.id}']
+
     def monitor(self):
+
+        self.init_db()
 
         yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
         count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
