@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from ripe.atlas.cousteau import *
 import threading
+import multiprocessing
 from .monitor_strategies import MonitorStrategy
 
 username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
@@ -28,6 +29,7 @@ class Monitor:
         self.collection = database[f'{measurement.type} measurement: {measurement.id}']
         self.measurement = measurement
         self.strategy = strategy
+        self.process: multiprocessing.Process = None
 
     def __str__(self):
         return f"Montitor for {self.measurement.type} measurement: {self.measurement.id}"
@@ -114,5 +116,23 @@ class Monitor:
         atlas_stream.disconnect()
 
     def start(self):
-        x = threading.Thread(target=self.monitor)
-        x.start()
+        # x = threading.Thread(target=self.monitor)
+        # x.start()
+        print(f"Starting {self}")
+        self.process = multiprocessing.Process(target=self.monitor, name=self)
+        self.process.start()
+
+    def end(self):
+        print(f"Terminating {self}")
+        self.process.terminate()
+
+    def restart(self):
+        self.end()
+        self.start()
+
+    def update_model(self):
+        """this function needs to be called when feedback is given and model needs to be trained again.
+            after training this function should restart the monitoring process
+        """
+        pass
+
