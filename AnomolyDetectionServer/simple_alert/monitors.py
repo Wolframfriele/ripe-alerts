@@ -3,7 +3,7 @@ import os
 import time
 
 from dotenv import load_dotenv
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from ripe.atlas.cousteau import *
 import threading
 import multiprocessing
@@ -89,6 +89,7 @@ class Monitor:
         self.client = MongoClient(f'mongodb://{username}:{password}@mongodb')
         self.database = self.client['Atlas_Results']
         self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.id}']
+        self.collection.create_index([("created", DESCENDING)])
 
     def monitor(self):
 
