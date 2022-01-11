@@ -2,6 +2,7 @@ from ripe_atlas.models import Measurement, Asn, Anchor
 from alert_configuration.models import AlertConfiguration
 from .models import RipeUser
 from ripe_atlas.interfaces import RipeInterface
+import requests
 
 
 def store_measurements(measurements, system, user):
@@ -54,7 +55,8 @@ class InitialSetupService:
                                               anchor=anchor)
                     measurement.save()
 
-            # tell the ai server to create an alert configuration for the user based on the asn
+            # Send singal to ai server to create an alert configuration based on the asn.
+
 
         # store the email
         print("storing the email")
