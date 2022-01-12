@@ -1,6 +1,7 @@
 from django.test import TestCase
 from unittest.mock import Mock, patch
-from ripe_atlas.interfaces import RipeInterface
+from ripe_atlas.interfaces import RipeInterface, CURRENT_PROBES_URL
+import responses
 
 """Integration tests Ripe Atlas"""
 
@@ -30,9 +31,16 @@ class TestRipeInterface(TestCase):
     get a 403 status code and if token is valid we get a 200 status code
     """
 
+    # def test_is_token_valid_when_valid(self):
+    #     self.mock_response.return_value.status_code = 200
+    #     valid = RipeInterface.is_token_valid(self.valid_token)
+    #     self.assertTrue(valid)
+    @responses.activate
     def test_is_token_valid_when_valid(self):
-        self.mock_response.return_value.status_code = 200
+        responses.add(responses.GET, CURRENT_PROBES_URL ,
+                      json={'error': 'not found'}, status=200)
         valid = RipeInterface.is_token_valid(self.valid_token)
+
         self.assertTrue(valid)
 
     def test_is_token_valid_when_invalid(self):
@@ -40,3 +48,8 @@ class TestRipeInterface(TestCase):
         invalid = RipeInterface.is_token_valid(self.invalid_token)
         self.assertFalse(invalid)
 
+    # def test_get_anchoring_measurements_no_results(self):
+    #     self.mock_response.return_value.
+    #
+    # def test_get_anchoring_measurements_ripe_down(self):
+    #     pass
