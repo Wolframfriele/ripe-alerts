@@ -13,6 +13,16 @@ class FirstTest(TestCase):
         self.assertEqual(text, "hello world!")
 
 
+class MockResponse:
+
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+
+    def json(self):
+        return self.json_data
+
+
 class TestRipeInterface(TestCase):
 
     @classmethod
@@ -31,25 +41,28 @@ class TestRipeInterface(TestCase):
     get a 403 status code and if token is valid we get a 200 status code
     """
 
-    # def test_is_token_valid_when_valid(self):
-    #     self.mock_response.return_value.status_code = 200
-    #     valid = RipeInterface.is_token_valid(self.valid_token)
-    #     self.assertTrue(valid)
-    @responses.activate
     def test_is_token_valid_when_valid(self):
-        responses.add(responses.GET, CURRENT_PROBES_URL ,
-                      json={'error': 'not found'}, status=200)
+        self.mock_response.return_value = MockResponse("OK", 200)
         valid = RipeInterface.is_token_valid(self.valid_token)
-
         self.assertTrue(valid)
 
     def test_is_token_valid_when_invalid(self):
-        self.mock_response.return_value.status_code = 403
+        self.mock_response.return_value = MockResponse(
+            {"error": {"detail": "The provided API key does not exist"}}, 403)
         invalid = RipeInterface.is_token_valid(self.invalid_token)
         self.assertFalse(invalid)
 
-    # def test_get_anchoring_measurements_no_results(self):
-    #     self.mock_response.return_value.
-    #
-    # def test_get_anchoring_measurements_ripe_down(self):
-    #     pass
+    def test_get_anchoring_measurements_no_results(self):
+        self.mock_response.return_value = MockResponse({"results": []}, 200)
+        measurements = RipeInterface.get_anchoring_measurements("159.89.173.104")
+        self.assertEqual(measurements, [])
+
+    def test_get_anchoring_measurements_ripe_down(self):
+        pass
+
+    def test_get_anchoring_measurements_bad_request(self):
+        pass
+
+    def test_get_anchoring_measurements_with_results(self):
+        pass
+
