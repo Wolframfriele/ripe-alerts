@@ -107,7 +107,7 @@
 				Summary here.
 
 				<q-stepper-navigation>
-					<q-btn color="primary" label="Finish" />
+					<q-btn color="primary" label="Finish" @click="submit()" />
 					<q-btn
 						flat
 						@click="step = 2"
@@ -123,6 +123,7 @@
 
 <script>
 import { ref } from "vue";
+import Api from "../components/api";
 
 export default {
 	setup() {
@@ -160,6 +161,17 @@ export default {
 			const ASNPattern = /^[0-9]{1,5}$/;
 			return ASNPattern.test(val);
 		},
+		submit() {
+			Api.post(
+				"user/initial-setup",
+				{
+					"asns": this.ASNList,
+					"email": this.emails[0],
+				}
+			).then(() => {
+				this.$router.push({ name: 'home' })
+			});
+		}
 	}
 };
 </script>
