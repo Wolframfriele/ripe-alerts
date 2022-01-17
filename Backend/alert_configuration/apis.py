@@ -5,6 +5,7 @@ from .models import AlertConfiguration, Anomaly
 from .serializers import AnomalySerializer
 from users.models import  User
 from django.core.exceptions import ObjectDoesNotExist
+from .services import get_alerts, get_anomalies
 import time
 
 
@@ -32,26 +33,12 @@ class AlertList(APIView):
         all_anomalies = int(request.query_params.get('all_anomalies', 1))
         item = int(request.query_params.get('item', 0))
         # wanneer gebruikers in het systeem zijn dan hoeft de user object niet gehardcode te worden
-        user = User.objects.get(id=2)
+        user = User.objects.get(id=1)
 
         if all_anomalies == 1:
-            anomalies = Anomaly.objects.raw(
-                """SELECT anomaly_id, is_alert, description, label, datetime
-                    FROM alert_configuration_anomaly as a
-                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
-                    WHERE b.user_id = %s
-                    ORDER BY datetime DESC 
-                    LIMIT 20 OFFSET %s
-                """, [user.id, item])
+            anomalies = get_anomalies(user.id, item)
         else:
-            anomalies = Anomaly.objects.raw(
-                """SELECT anomaly_id, is_alert, description, label, datetime 
-                    FROM alert_configuration_anomaly as a
-                    JOIN alert_configuration_alertconfiguration as b ON b.alert_configuration_id = a.alert_configuration_id
-                    WHERE b.user_id = %s AND a.is_alert = true
-                    ORDER BY datetime DESC 
-                    LIMIT 20 OFFSET %s
-                """, [user.id, item])
+            anomalies = get_alerts(user.id, item)
 
         anomalies_serialized = AnomalySerializer(anomalies, many=True)
         return Response(anomalies_serialized.data, status=status.HTTP_200_OK)

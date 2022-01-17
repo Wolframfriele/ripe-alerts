@@ -9,13 +9,15 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import time
 from pathlib import Path
 import os
+
 from dotenv import load_dotenv
 from datetime import timedelta
 
-load_dotenv()
+
+time.sleep(2)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -106,11 +108,11 @@ WSGI_APPLICATION = 'Core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ripe-alert',
-        'HOST': os.getenv('RHOST'),
-        'PORT': os.getenv('RPORT'),
-        'USER': os.getenv('RUSER'),
-        'PASSWORD': os.getenv('RDBP')
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -179,6 +181,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080"
+    "0.0.0.0"
 ]
 
 

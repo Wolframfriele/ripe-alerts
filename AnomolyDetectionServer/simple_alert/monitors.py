@@ -1,12 +1,16 @@
 import datetime
+import os
+import time
 
-from pymongo import MongoClient
+from dotenv import load_dotenv
+from pymongo import MongoClient, DESCENDING
 from ripe.atlas.cousteau import *
 import threading
+import multiprocessing
 from .monitor_strategies import MonitorStrategy
 
-client = MongoClient('mongodb://admin:password@localhost:27017')
-database = client['Atlas_Results']
+username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
+password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
 
 
 class Measurement:
@@ -18,9 +22,15 @@ class Measurement:
 class Monitor:
 
     def __init__(self, measurement: Measurement, alert_configurations, strategy: MonitorStrategy):
-        self.collection = database[f'{measurement.type} measurement: {measurement.id}']
+
         self.measurement = measurement
         self.strategy = strategy
+
+        # variables related to mongo db should be initialized when we start a monitoring process
+        self.client: MongoClient = None
+        self.database = None
+        self.process: multiprocessing.Process = None
+        self.collection = None
 
     def __str__(self):
         return f"Montitor for {self.measurement.type} measurement: {self.measurement.id}"
@@ -54,10 +64,12 @@ class Monitor:
         print(args)
         raise ConnectionError("Closed")
 
-    def on_disconnect(*args):
+    def on_disconnect(self, *args):
         print("got in on_disconnect")
         print(args)
-        raise ConnectionError("Disconnection")
+        time.sleep(2)
+        print("reconnecting...")
+        self.monitor()
 
     def on_connect_error(*args):
         print("got in on_connect_error")
@@ -73,7 +85,15 @@ class Monitor:
         print(args)
         raise ConnectionError("Unsubscribed")
 
+    def init_db(self):
+        self.client = MongoClient(f'mongodb://{username}:{password}@mongodb')
+        self.database = self.client['Atlas_Results']
+        self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.id}']
+        self.collection.create_index([("created", DESCENDING)])
+
     def monitor(self):
+
+        self.init_db()
 
         yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
         count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
@@ -105,5 +125,23 @@ class Monitor:
         atlas_stream.disconnect()
 
     def start(self):
-        x = threading.Thread(target=self.monitor)
-        x.start()
+        # x = threading.Thread(target=self.monitor)
+        # x.start()
+        print(f"Starting {self}")
+        self.process = multiprocessing.Process(target=self.monitor, name=self)
+        self.process.start()
+
+    def end(self):
+        print(f"Terminating {self}")
+        self.process.terminate()
+
+    def restart(self):
+        self.end()
+        self.start()
+
+    def update_model(self):
+        """this function needs to be called when feedback is given and model needs to be trained again.
+            after training this function should restart the monitoring process
+        """
+        pass
+

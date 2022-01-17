@@ -15,3 +15,13 @@ class CreateMonitor(APIView):
         type = request.data.get('type')
         monitor_manager.create_monitor(Measurement(measurement_id, type))
         return Response(f"Measurement {measurement_id} is being monitored", status=status.HTTP_200_OK)
+
+
+class Feedback(APIView):
+
+    def post(self, request):
+        monitor_id = request.data.get('id')
+        monitor_manager.monitors[monitor_id].restart()
+        return Response("Feedback has been processed", status=status.HTTP_200_OK)
+
+

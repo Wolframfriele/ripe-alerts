@@ -1,0 +1,71 @@
+version: "3.4"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=ripe_alerts
+    ports:
+      - "5432:5432"
+  mongodb:
+    image: mongo
+    hostname: mongodb
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb:/data
+  mongodb-express:
+    image: mongo-express
+    hostname: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+
+
+  web:
+    build: ./Backend
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./Backend:/code
+    environment:
+      - POSTGRES_NAME=ripe_alerts
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    depends_on:
+      - db
+  ai:
+    build: ./AnomolyDetectionServer
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./AnomolyDetectionServer:/code
+    environment:
+      - POSTGRES_NAME=ripe_alerts
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    depends_on:
+      - db
+      - mongodb
+
