@@ -41,7 +41,7 @@ class InitialSetupService:
                 # store anchor
                 anchor: Anchor = Anchor.objects.get_or_create(anchor_id=anchor['id'], ip_v4=anchor['ip_v4'],
                                                               ip_v6=anchor['ip_v6'], asn=asn, fqdn=anchor['fqdn'])[0]
-                # collect anchoring meaurements ping and traceroute
+                # collect anchoring measurements ping and traceroute
                 measurements = []
                 if anchor.ip_v4:
                     measurements.extend(RipeInterface.get_anchoring_measurements(target_address=anchor.ip_v4))
@@ -54,7 +54,7 @@ class InitialSetupService:
                                               anchor=anchor)
                     measurement.save()
 
-            # Send singal to ai server to create an alert configuration based on the asn.
+            # Send signal to ai server to create an alert configuration based on the asn.
 
         # store the email
         print("storing the email")

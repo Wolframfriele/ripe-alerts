@@ -5,6 +5,8 @@ import time
 
 # Create your models here.
 class RipeUser(models.Model):
+    class Meta:
+        db_table = "users_ripeuser"
     user = models.OneToOneField(User, related_name='ripe_user', on_delete=models.CASCADE)
     initial_setup_complete = models.BooleanField(default=False)
     ripe_api_token = models.UUIDField(null=False, blank=False)
@@ -14,10 +16,17 @@ class RipeUser(models.Model):
 
 
 class Asn(models.Model):
+
+    class Meta:
+        db_table = "ripe_atlas_asn"
+
     asn = models.IntegerField(primary_key=True)
 
 
 class Anchor(models.Model):
+
+    class Meta:
+        db_table = "ripe_atlas_anchor"
 
     anchor_id = models.IntegerField(primary_key=True)
     ip_v4 = models.CharField(max_length=128, blank=True, null=True, default=None, unique=True)
@@ -27,6 +36,10 @@ class Anchor(models.Model):
 
 
 class Measurement(models.Model):
+
+    class Meta:
+        db_table = "ripe_atlas_measurement"
+
     class MeasurementType(models.TextChoices):
         PING = 'ping'
         TRACEROUTE = 'traceroute'
@@ -43,6 +56,7 @@ class Measurement(models.Model):
 
 
 class AlertConfiguration(models.Model):
+
     alert_configuration_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE)
@@ -50,6 +64,7 @@ class AlertConfiguration(models.Model):
     alert_configuration = models.JSONField()
 
     class Meta:
+        db_table = "alert_configuration_alertconfiguration"
         constraints = [
             models.UniqueConstraint(fields=['user', 'measurement', 'alert_configuration_type'],
                                     name='unique_user_alert_configuration_on_measurement')
@@ -61,6 +76,9 @@ def current_unixtime():
 
 
 class Anomaly(models.Model):
+
+    class Meta:
+        db_table = "alert_configuration_anomaly"
 
     anomaly_id = models.AutoField(primary_key=True)
     alert_configuration = models.ForeignKey(AlertConfiguration, on_delete=models.CASCADE)

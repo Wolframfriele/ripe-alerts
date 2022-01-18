@@ -71,7 +71,6 @@ class RipeInterface:
         response = requests.get(RIPE_STATS_ASN_NEIGHBOURS, params={"resource": asn}).json()['data']
         return response
 
-
     def group_measurements_by_target(self, measurements) -> list:
         measurements_by_target = []
 
@@ -293,5 +292,4 @@ class RipeInterface:
     def get_asn_host(asn):
         response = requests.get(RIPE_STATS_ASN, params={"resource": asn}).json()
         return {"holder": response['data']['holder']}
-
 

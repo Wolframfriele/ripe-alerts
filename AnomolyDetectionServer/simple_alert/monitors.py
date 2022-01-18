@@ -8,24 +8,19 @@ from ripe.atlas.cousteau import *
 import threading
 import multiprocessing
 from .monitor_strategies import MonitorStrategy
+from .models import Measurement, Anomaly, AlertConfiguration
 
 username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
 password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
 
 
-class Measurement:
-    def __init__(self, id, type):
-        self.id = id
-        self.type = type
-
-
 class Monitor:
 
-    def __init__(self, measurement: Measurement, alert_configurations, strategy: MonitorStrategy):
+    def __init__(self, measurement: Measurement, alert_configuration, strategy: MonitorStrategy):
 
         self.measurement = measurement
         self.strategy = strategy
-
+        self.alert_configuration = alert_configuration
         # variables related to mongo db should be initialized when we start a monitoring process
         self.client: MongoClient = None
         self.database = None
@@ -33,7 +28,7 @@ class Monitor:
         self.collection = None
 
     def __str__(self):
-        return f"Montitor for {self.measurement.type} measurement: {self.measurement.id}"
+        return f"Montitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
 
     def on_result_response(self, *args):
         """
@@ -45,6 +40,10 @@ class Monitor:
         is_anomality = self.strategy.analyze(measurement_result)
         if is_anomality:
             print("oh no, something went wrong, alert is being generated")
+
+            Anomaly.objects.create(alert_configuration=self.alert_configuration,
+                                   description=f"oh no something went wrong with measurement {self.measurement.measurement_id}",
+                                   datetime=int(time.time()))
 
     def on_error(*args):
         "got in on_error"
@@ -88,7 +87,7 @@ class Monitor:
     def init_db(self):
         self.client = MongoClient(f'mongodb://{username}:{password}@mongodb')
         self.database = self.client['Atlas_Results']
-        self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.id}']
+        self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.measurement_id}']
         self.collection.create_index([("created", DESCENDING)])
 
     def monitor(self):
@@ -98,7 +97,7 @@ class Monitor:
         yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
         count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
         if count == 0:
-            self.strategy.collect_initial_dataset(self.collection, self.measurement.id)
+            self.strategy.collect_initial_dataset(self.collection, self.measurement.measurement_id)
 
         atlas_stream = AtlasStream()
         atlas_stream.connect()
@@ -116,7 +115,7 @@ class Monitor:
         # Subscribe to new stream
         atlas_stream.bind_channel(channel, self.on_result_response)
 
-        stream_parameters = {"msm": self.measurement.id}
+        stream_parameters = {"msm": self.measurement.measurement_id}
         atlas_stream.start_stream(stream_type="result", **stream_parameters)
 
         # run forever
