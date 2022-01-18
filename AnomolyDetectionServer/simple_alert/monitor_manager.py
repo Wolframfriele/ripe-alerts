@@ -1,5 +1,5 @@
 from .monitors import Monitor, Measurement
-from .monitor_strategies import PingMonitorStrategy, TracerouteMonitorStrategy
+from .monitor_strategies import PingMonitorStrategy, TracerouteMonitorStrategy, PreEntryASMonitor
 from typing import List
 
 measurements = [Measurement(1042404, 'ping'), Measurement(1402318, 'ping'), Measurement(1423189, 'ping'),
@@ -10,11 +10,12 @@ class MonitorManager:
 
     def __init__(self):
         self.monitors = {
-            1: Monitor(Measurement(1042404, 'ping'), None, PingMonitorStrategy()),
-            2: Monitor(Measurement(1402318, 'ping'), None, PingMonitorStrategy()),
-            3: Monitor(Measurement(1423189, 'ping'), None, PingMonitorStrategy()),
-            4: Monitor(Measurement(1789561, 'traceroute'), None, TracerouteMonitorStrategy()),
-            5: Monitor(Measurement(1790205, 'traceroute'), None, TracerouteMonitorStrategy()),
+            # 1: Monitor(Measurement(1042404, 'ping'), None, PingMonitorStrategy()),
+            # 2: Monitor(Measurement(1402318, 'ping'), None, PingMonitorStrategy()),
+            # 3: Monitor(Measurement(1423189, 'ping'), None, PingMonitorStrategy()),
+            # 4: Monitor(Measurement(1789561, 'traceroute'), None, TracerouteMonitorStrategy()),
+            # 5: Monitor(Measurement(1790205, 'traceroute'), None, TracerouteMonitorStrategy()),
+            6: Monitor(Measurement(34761880, 'traceroute'), None, PreEntryASMonitor())
         }
 
         for monitor in self.monitors.values():
