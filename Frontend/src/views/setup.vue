@@ -8,11 +8,13 @@
 				:done="step > 1"
 				:header-nav="step > 1"
 			>
+				<p>
+					Enter the AS numbers you want to monitor, the system checks the neigboring connections.
+				</p>
 				<q-input
 					ref="ASNField"
 					v-model="ASN"
 					filled
-					type="number"
 					prefix="AS"
 					min= 0
 					max= 65535
@@ -21,19 +23,20 @@
 					:rules="[
 						isValidASN
 					]"
+					lazy-rules
 				>
 					<template v-slot:append>
 						<q-btn round dense flat icon="add" @click="addASN()" />
 					</template>
 				</q-input>
-
-				<q-list v-for="ASN in ASNList" :key="ASN">
-					<q-item tag="label">
-						<q-item-section>
-							<q-item-section>{{ ASN }}</q-item-section>
-						</q-item-section>
-					</q-item>
-				</q-list>
+				<q-markup-table flat>
+					<tbody>
+						<tr v-for="item in ASNList" :key="item">
+							<td class="text-left">{{ item }}</td>
+							<td class="text-right"><q-btn round color="red" icon="delete" size="sm" @click="removeASN(item)"/></td>
+						</tr>
+					</tbody>
+				</q-markup-table>
 
 				<q-stepper-navigation>
 					<q-btn
@@ -55,6 +58,9 @@
 				:done="step > 2"
 				:header-nav="step > 2"
 			>
+				<p>
+					Enter the email that you want to receive alerts on.
+				</p>
 				<q-input
 					ref="emailField"
 					v-model="email"
@@ -66,26 +72,16 @@
 						val => !!val || 'Email is missing',
 						isValidEmail || 'Email is not valid'
 					]"
+					lazy-rules
 				>
-					<template v-slot:append>
+					<!-- <template v-slot:append>
 						<q-btn round dense flat icon="add" @click="addEmail()" />
-					</template>
+					</template> -->
 				</q-input>
-				<q-list v-for="email in emails" :key="email">
-					<q-item tag="label">
-						<q-item-section>
-							<q-item-section>{{ email }}</q-item-section>
-						</q-item-section>
-					</q-item>
-				</q-list>
 
 				<q-stepper-navigation>
 					<q-btn
-						@click="
-							() => {
-								step = 3;
-							}
-						"
+						@click="addEmail()"
 						color="primary"
 						label="Continue"
 					/>
@@ -104,10 +100,34 @@
 				icon="fact_check"
 				:header-nav="step > 3"
 			>
-				Summary here.
+				<q-markup-table>
+					<thead>
+						<tr>
+							<th class="text-left">Monitor the following AS Numbers</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="item in ASNList" :key="item">
+							<td class="text-left">{{ item }}</td>
+						</tr>
+					</tbody>
+				</q-markup-table>
+
+				<q-markup-table>
+					<thead>
+						<tr>
+							<th class="text-left">Alerts will be send to following email</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-left">{{ emails }}</td>
+						</tr>
+					</tbody>
+				</q-markup-table>
 
 				<q-stepper-navigation>
-					<q-btn color="primary" label="Finish" @click="submit()" />
+					<q-btn color="primary" label="Finish" @click="submit()"/>
 					<q-btn
 						flat
 						@click="step = 2"
@@ -137,29 +157,41 @@ export default {
 	data() {
 		return {
 			ASNList: [],
-			emails: []
+			emails: ""
 		};
 	},
 	methods: {
-		addEmail() {
-			if (this.isValidEmail(this.email)) {
-				this.emails.push(this.email);
-				this.email = "";
-			}
-		},
-		isValidEmail(val) {
-			const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
-			return emailPattern.test(val);
-		},
 		addASN() {
 			if (this.isValidASN(this.ASN)) {
 				this.ASNList.push("AS" + this.ASN);
 				this.ASN = "";
 			}
 		},
+		removeASN(item) {
+			const idx = this.ASNList.indexOf(item);
+			if (idx > -1) {
+				this.ASNList.splice(idx, 1);
+		}
+		},
 		isValidASN(val) {
 			const ASNPattern = /^[0-9]{1,5}$/;
 			return ASNPattern.test(val);
+		},
+		addEmail() {
+			if (this.isValidEmail(this.email)) {
+				this.emails = this.email;
+				this.step = 3;
+			}
+		},
+		removeEmail(item) {
+			const idx = this.emails.indexOf(item);
+			if (idx > -1) {
+				this.emails.splice(idx, 1);
+			}
+		},
+		isValidEmail(val) {
+			const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+			return emailPattern.test(val);
 		},
 		submit() {
 			Api.post(
@@ -176,4 +208,7 @@ export default {
 };
 </script>
 <style>
+	.q-table__card{
+		margin-bottom: 20px;
+	}
 </style>
