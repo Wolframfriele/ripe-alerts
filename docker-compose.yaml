@@ -39,6 +39,7 @@ services:
   web:
     build: ./Backend
     restart: always
+    container_name: web-server
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
@@ -54,6 +55,7 @@ services:
   ai:
     build: ./AnomolyDetectionServer
     restart: always
+    container_name: ai-server
     command: python manage.py runserver 0.0.0.0:8001
     ports:
       - "8001:8001"

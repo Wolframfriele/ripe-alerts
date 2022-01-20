@@ -21,11 +21,12 @@ class CreateMonitor(APIView):
 class MonitorProcess(APIView):
 
     def post(self, request):
-        asn: str = request.data.get('asn')
-        measurements = get_measurements(asn)
-        for measurement in measurements:
-            monitor_manager.create_monitor(measurement)
-        return Response(f"Monitoring Process started for asn: {asn}", status=status.HTTP_201_CREATED)
+        asns = request.data.get('asns')
+        for asn in asns:
+            measurements = get_measurements(asn)
+            for measurement in measurements:
+                monitor_manager.create_monitor(measurement)
+        return Response(f"Monitoring Process started for the following asns: {asns}", status=status.HTTP_201_CREATED)
 
 
 class Feedback(APIView):
@@ -35,4 +36,8 @@ class Feedback(APIView):
         monitor_manager.monitors[monitor_id].restart()
         return Response("Feedback has been processed", status=status.HTTP_200_OK)
 
+
+class Measurement(APIView):
+    def get(self, request):
+        return Response([measurement.measurement_id for measurement in get_measurements(208800)], status=status.HTTP_200_OK)
 

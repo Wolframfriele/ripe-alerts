@@ -55,6 +55,8 @@ class InitialSetupService:
                     measurement.save()
 
             # Send signal to ai server to create an alert configuration based on the asn.
+            requests.post(url="http://ai-server:8001/monitor/", json={"asns": validated_data['asns']})
+
 
         # store the email
         print("storing the email")
