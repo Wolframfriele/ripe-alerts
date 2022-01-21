@@ -38,10 +38,8 @@ class Monitor:
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
         self.strategy.store(self.collection, measurement_result)
-        is_anomality = self.strategy.analyze(self.collection, measurement_result)
-        if is_anomality:
-            print("oh no, something went wrong, alert is being generated")
-
+        is_anomaly = self.strategy.analyze(self.collection)
+        if is_anomaly:
             Anomaly.objects.create(alert_configuration=self.alert_configuration,
                                    description=f"oh no something went wrong with measurement {self.measurement.measurement_id}",
                                    datetime=int(time.time()))
@@ -144,4 +142,3 @@ class Monitor:
             after training this function should restart the monitoring process
         """
         pass
-

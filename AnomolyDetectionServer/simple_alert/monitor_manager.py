@@ -17,7 +17,7 @@ class MonitorManager:
             if measurement.type == 'Ping':
                 strategy = PingMonitorStrategy()
             else:
-                strategy = TracerouteMonitorStrategy()
+                strategy = PreEntryASMonitor()
             self.monitors[measurement.measurement_id] = Monitor(measurement, self.temporary_alert_config, strategy)
 
         for monitor in self.monitors.values():
@@ -28,7 +28,7 @@ class MonitorManager:
             if measurement.type == 'Ping':
                 strategy = PingMonitorStrategy()
             else:
-                strategy = TracerouteMonitorStrategy()
+                strategy = PreEntryASMonitor()
             self.monitors[measurement.measurement_id] = Monitor(measurement, self.temporary_alert_config, strategy)
 
             self.monitors[measurement.measurement_id].start()
