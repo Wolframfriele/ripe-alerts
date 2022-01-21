@@ -1,12 +1,14 @@
+from .models import AlertConfiguration, Measurement
 from .monitors import Monitor
-from .monitor_strategies import PingMonitorStrategy, TracerouteMonitorStrategy
-from .models import Measurement, AlertConfiguration
+from .monitor_strategies import PingMonitorStrategy, TracerouteMonitorStrategy, PreEntryASMonitor
+
 from typing import List
 
 
 class MonitorManager:
 
     def __init__(self):
+
         measurements = Measurement.objects.all()
         self.temporary_alert_config = AlertConfiguration.objects.first()
 

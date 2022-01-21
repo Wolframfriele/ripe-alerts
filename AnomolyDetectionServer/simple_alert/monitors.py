@@ -36,8 +36,9 @@ class Monitor:
         Store the result in the corresponding Mongodb collection.
         """
         measurement_result = self.strategy.preprocess(args[0])
+        print('Received result')
         self.strategy.store(self.collection, measurement_result)
-        is_anomality = self.strategy.analyze(measurement_result)
+        is_anomality = self.strategy.analyze(self.collection, measurement_result)
         if is_anomality:
             print("oh no, something went wrong, alert is being generated")
 
