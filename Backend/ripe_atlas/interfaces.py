@@ -26,6 +26,7 @@ class RipeInterface:
 
     @staticmethod
     def is_token_valid(token: str) -> bool:
+        """Checks if the token exists in Ripe"""
         response = requests.get(url=CURRENT_PROBES_URL, params={'key': token})
         if response.status_code == 403:
             if response.json()['error']['detail'] == 'The provided API key does not exist':
@@ -33,26 +34,8 @@ class RipeInterface:
         else:
             return True
 
-    def __init__(self, token=None):
-        self.token: str = token
-        if self.token:
-            self.user_defined_measurements: list = self.get_user_defined_measurements()
-
-    def get_probe_information(self, url=None, probe_id=None) -> dict:
-
-        # status: 1, means we are only interested in probes that are connected.
-        params = {"key": self.token, "fields": WANTED_PROBE_FIELDS, "status": 1}
-
-        if probe_id:
-            url = PROBES_URL + f"{probe_id}"
-        response = requests.get(url, params=params).json()
-
-        # probes data dont have a 'host' key, but the description refers to the host in most cases
-        response['host'] = response.pop('description')
-        return response
-
     @staticmethod
-    def get_anchors(asn_list):
+    def get_anchors(asn_list: list) -> dict:
         """returns dictionary with as keys the input asn and as value a list of anchors
         if empty dict then there are no anchors found"""
         anchors_by_asn = defaultdict(list)
@@ -64,73 +47,6 @@ class RipeInterface:
             if results:
                 anchors_by_asn[asn].extend(results)
         return anchors_by_asn
-
-
-    @staticmethod
-    def get_asn_neighbours(asn):
-        response = requests.get(RIPE_STATS_ASN_NEIGHBOURS, params={"resource": asn}).json()['data']
-        return response
-
-    def group_measurements_by_target(self, measurements) -> list:
-        measurements_by_target = []
-
-        for measurement in measurements:
-
-            # check if the target is already known
-            unknown = True
-            measurement_target = {
-                "target": measurement.pop("target"),
-                "target_ip": measurement.pop("target_ip"),
-                "target_asn": measurement.pop("target_asn"),
-                "target_prefix": measurement.pop("target_prefix")
-            }
-
-            for target in measurements_by_target:
-
-                if measurement_target['target_ip'] == target['target_ip']:
-                    target['measurements'].append(measurement)
-                    unknown = False
-                    break
-
-            if unknown:
-                measurement_target["measurements"] = [measurement]
-                measurements_by_target.append(measurement_target)
-
-        measurements_by_target.sort(key=lambda target: len(target['measurements']), reverse=True)
-
-        return measurements_by_target
-
-    def get_targets(self, filter, value) -> list:
-
-        measurements = []
-        params = {'fields': WANTED_MEASUREMENT_FIELDS, 'key': self.token, 'status': 'Ongoing'}
-        if filter == "host":
-            params['target__startswith'] = value
-        elif filter == "asn":
-            params['target_asn'] = value
-        elif filter == "ip_address":
-            params['target_ip'] = value
-        else:
-            raise ValueError
-
-        response = requests.get(url=MEASUREMENTS_URL, params=params).json()
-
-        while True:
-
-            measurements.extend([measurement for measurement in response['results'] if
-                                 measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS
-                                 and measurement not in self.user_defined_measurements])
-            next_url = response.get('next')
-
-            if next_url:
-                response = requests.get(url=next_url).json()
-            else:
-                break
-
-        measurements_by_target = self.group_measurements_by_target(measurements)
-        print(measurements_by_target)
-
-        return measurements_by_target
 
     @staticmethod
     def get_anchoring_measurements(target_address: str) -> list:
@@ -145,151 +61,8 @@ class RipeInterface:
         return [measurement for measurement in response['results'] if
                 measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
 
-    def get_user_defined_measurements(self):
-
-        params = {
-            "key": self.token,
-            # "status": "Ongoing",
-            "fields": WANTED_MEASUREMENT_FIELDS
-        }
-        response = requests.get(MY_MEASUREMENTS_URL, params=params).json()
-        return [measurement for measurement in response['results'] if
-                measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
-
-    def get_alertable_user_measurements_target(self, ip_address: str) -> list:
-
-        if len(self.user_defined_measurements) > 0:
-            return [measurement for measurement in self.user_defined_measurements
-                    if measurement['target_ip'] == ip_address]
-        else:
-            return []
-
-    def get_alertable_measurements_probe(self, probe: dict) -> dict:
-        """Get alertable measurements that target probe"""
-
-        relevant_measurements = {
-            "user_defined_measurements": []
-        }
-
-        ip_v4 = probe.get("address_v4")
-        ip_v6 = probe.get("address_v6")
-
-        if ip_v4:
-            relevant_measurements['user_defined_measurements'].extend(
-                self.get_alertable_user_measurements_target(ip_v4))
-
-        if ip_v6:
-            relevant_measurements['user_defined_measurements'].extend(
-                self.get_alertable_user_measurements_target(ip_v6))
-
-        return relevant_measurements
-
-    def get_alertable_measurements_anchor(self, anchor: dict) -> dict:
-
-        # only anchoring measurements are relevant
-
-        relevant_measurements = {
-            "anchoring_measurements": [],
-        }
-
-        ip_v4 = anchor.get("address_v4")
-        ip_v6 = anchor.get("address_v6")
-
-        if ip_v4:
-            relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v4))
-
-        if ip_v6:
-            relevant_measurements['anchoring_measurements'].extend(self.get_anchoring_measurements(ip_v6))
-
-        return relevant_measurements
-
-    def get_user_targets(self, owned_anchors) -> list:
-
-        anchor_ip_set = set()
-        for anchor in owned_anchors:
-            anchor_ip_set.add(anchor['address_v4'])
-            anchor_ip_set.add(anchor['address_v6'])
-        measurements = [measurement for measurement in self.user_defined_measurements
-                        if measurement['target_ip'] not in anchor_ip_set]
-
-        return self.group_measurements_by_target(measurements)
-
-    def get_my_anchors_targets(self) -> dict:
-
-        owned_anchors = self.get_owned_anchors()
-        anchors_and_targets = {
-            'anchors': owned_anchors,
-            'targets': self.get_user_targets(owned_anchors)
-        }
-
-        return anchors_and_targets
-
-    def get_owned_anchors(self) -> list:
-
-        owned_anchors = []
-        response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
-        income_groups: dict = response['groups']
-        income_sources: list = [*income_groups['hosted_anchors'], *income_groups['sponsored_anchors']]
-
-        for income_source in income_sources:
-            anchor = self.get_probe_information(url=income_source['probe'])
-            owned_anchors.append(anchor)
-
-        return owned_anchors
-
-    def get_owned_anchors_probes(self) -> dict:
-
-        anchors_and_probes: dict = {"anchors": [], "probes": []}
-        response = requests.get(url=CURRENT_PROBES_URL, params={'key': self.token}).json()
-        income_groups: dict = response['groups']
-        income_sources: list = [*income_groups['hosted_probes'], *income_groups['sponsored_probes'],
-                                *income_groups['ambassador_probes'], *income_groups['hosted_anchors'],
-                                *income_groups['sponsored_anchors']]
-
-        for income in income_sources:
-            probe_information = self.get_probe_information(url=income['probe'])
-
-            # add related measurements to probe
-            probe_information.update(self.get_alertable_measurements_probe(probe_information))
-
-            if probe_information['is_anchor']:
-                anchors_and_probes['anchors'].append(probe_information)
-            else:
-                anchors_and_probes['probes'].append(probe_information)
-
-        return anchors_and_probes
-
-    def search_systems(self, filter, value):
-
-        if filter == "probe_id":
-            probe = self.get_probe_information(probe_id=value)
-            if probe['is_anchor']:
-                probe.update(self.get_alertable_measurements_anchor(probe))
-            else:
-                probe.update(self.get_alertable_measurements_probe(probe))
-            return probe
-        else:
-            return self.get_targets(filter, value)
-
-    def my_neighbours(self):
-        anchors = self.get_owned_anchors()
-        # hardcoded because we dont have anchors
-        anchors = [{"asn_v4": 1103, "asn_v6": 1104}]
-        neighbours = []
-        for anchor in anchors:
-            if anchor['asn_v4']:
-                anchor_neighbours = RipeInterface.get_asn_neighbours(anchor['asn_v4'])
-                if anchor_neighbours:
-                    neighbours.append(anchor_neighbours)
-            if anchor['asn_v6'] and not anchor['asn_v6'] == anchor['asn_v4']:
-                anchor_neighbours = RipeInterface.get_asn_neighbours(anchor['asn_v6'])
-                if anchor_neighbours:
-                    neighbours.append(anchor_neighbours)
-
-        return neighbours
-
     @staticmethod
-    def get_asn_host(asn):
+    def get_asn_host(asn: int):
         response = requests.get(RIPE_STATS_ASN, params={"resource": asn}).json()
         return {"holder": response['data']['holder']}
 
