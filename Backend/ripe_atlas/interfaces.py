@@ -50,7 +50,11 @@ class RipeInterface:
 
     @staticmethod
     def get_anchoring_measurements(target_address: str) -> list:
-
+        """Returns a list of anchoring measurements in the same form as specified by ripe atlas documentation, the
+        type of measurements that are returned are supported by the monitoring system
+        Keyword arguments:
+        target_address: str, can be ip_v4 or ip_v6
+        """
         params = {
             'tags': 'anchoring',
             'status': 'Ongoing',
@@ -64,5 +68,5 @@ class RipeInterface:
     @staticmethod
     def get_asn_host(asn: int):
         response = requests.get(RIPE_STATS_ASN, params={"resource": asn}).json()
-        return {"holder": response['data']['holder']}
+        return {"holder": response['data'].get('holder')}
 

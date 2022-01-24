@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -50,29 +51,25 @@ class UserDetail(APIView):
 
 class InitialSetup(APIView):
     """
-        INPUT: ASN, Email
-        COLLECT THE ANCHORS AND RELATED MEASUREMENTS NECESSARY TO COLLECT DATA
+        INPUT: asns, email
+        OUTPUT: user data
     """
 
     def post(self, request):
 
+        temporary_user = User.objects.get(pk=1)
         # if request.user.ripe_user.initial_setup_complete:
-        #     return Response({"message": "user has already completed the initial setup!"},
-        #                     status=status.HTTP_403_FORBIDDEN)
+        if temporary_user.ripe_user.initial_setup_complete:
+            return Response({"message": "user has already completed the initial setup!"},
+                            status=status.HTTP_403_FORBIDDEN)
 
         initial_setup_serializer = InitialSetupSerializer(data=request.data)
 
         if not initial_setup_serializer.is_valid():
             return Response(initial_setup_serializer.errors, status=status.HTTP_409_CONFLICT)
 
-        # try:
-        user = initial_setup_serializer.save(user=request.user)
-        # except Exception:
-        #     return Response("OOPS", status=status.HTTP_400_BAD_REQUEST)
-        return Response(initial_setup_serializer.validated_data, status=status.HTTP_201_CREATED)
-
-
-class SystemList(APIView):
-    def get(self, request):
-        """returns all systems that the user has an alert on, systems is categorized by """
-        pass
+        try:
+            user = initial_setup_serializer.save(user=temporary_user)
+        except Exception:
+                    return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(user, status=status.HTTP_201_CREATED)

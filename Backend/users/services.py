@@ -1,39 +1,19 @@
 from ripe_atlas.models import Measurement, Asn, Anchor
+from django.db import IntegrityError
 from alert_configuration.models import AlertConfiguration
 from .models import RipeUser
 from ripe_atlas.interfaces import RipeInterface
 import requests
 
-
-def store_measurements(measurements, system, user):
-    for measurement in measurements:
-        measurement = Measurement.objects.get_or_create(**measurement, system=system)[0]
-        print(f"storing alert configuration for measurement: {measurement.measurement_id} ")
-        alert_config = {"max_packet_loss": 75}
-        AlertConfiguration.objects.get_or_create(user=user,
-                                                 measurement=measurement,
-                                                 alert_configuration_type=measurement.type,
-                                                 alert_configuration=alert_config)
-
-
-def transform_target(target):
-    target['host'] = target.pop('target')
-    if '.' in target['target_ip']:
-        target['address_v4'] = target.pop('target_ip')
-        target['asn_v4'] = target.pop('target_asn')
-        target['prefix_v4'] = target.pop('target_prefix')
-    else:
-        target['address_v6'] = target.pop('target_ip')
-        target['asn_v6'] = target.pop('target_asn')
-        target['prefix_v6'] = target.pop('target_prefix')
-    return target
+AI_SERVER_MONITOR_URL = "http://ai-server:8001/monitor/"
 
 
 class InitialSetupService:
 
     @staticmethod
     def store_initial_setup(validated_data):
-        # store targets, anchors, measurements and related alert_configuration in database
+        """store targets, anchors, measurements and related alert_configuration in database, if succeeded we send a
+        signal to thje ai-server to start monitoring the asns"""
 
         for asn, anchors in validated_data['anchors_by_asn'].items():
             asn = Asn.objects.get_or_create(asn=asn)[0]
@@ -53,20 +33,25 @@ class InitialSetupService:
                                               description=measurement['description'], interval=measurement["interval"],
                                               anchor=anchor)
                     measurement.save()
+                    try:
+                        AlertConfiguration(user=validated_data['user'], measurement=measurement,
+                                           alert_configuration_type="default", alert_configuration=
+                                           {"default":"wordt later geimplementeerd"}).save()
+                    except IntegrityError:
+                        continue
 
-            # Send signal to ai server to create an alert configuration based on the asn.
-            requests.post(url="http://ai-server:8001/monitor/", json={"asns": validated_data['asns']})
+            # Send signal to ai server to start monitoring the asns
+            requests.post(url=AI_SERVER_MONITOR_URL, json={"asns": validated_data['asns']})
 
 
         # store the email
         print("storing the email")
 
-        return True
 
-        # # set initial_setup_complete to true.
-        # ripe_user = RipeUser.objects.filter(user=validated_data['user'])
-        # ripe_user.update(initial_setup_complete=True)
+        # set initial_setup_complete to true.
+        ripe_user = RipeUser.objects.filter(user=validated_data['user'])
+        ripe_user.update(initial_setup_complete=True)
 
-        # return {"username": validated_data['user'].username,
-        #         "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
-        #         "initial_setup_complete": True}
+        return {"username": validated_data['user'].username,
+                "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
+                "initial_setup_complete": True}
