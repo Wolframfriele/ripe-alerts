@@ -57,7 +57,7 @@ class InitialSetup(APIView):
 
     def post(self, request):
 
-        temporary_user = User.objects.get(pk=1)
+        temporary_user = User.objects.first()
         # if request.user.ripe_user.initial_setup_complete:
         if temporary_user.ripe_user.initial_setup_complete:
             return Response({"message": "user has already completed the initial setup!"},
