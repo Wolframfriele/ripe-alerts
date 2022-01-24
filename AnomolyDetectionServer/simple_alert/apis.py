@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .monitor_manager import MonitorManager
-from .services import get_measurements
+from .services import get_measurements, get_alert_configurations_by_asn
 
 monitor_manager = MonitorManager()
 
@@ -12,9 +12,9 @@ class MonitorProcess(APIView):
     def post(self, request):
         asns = request.data.get('asns')
         for asn in asns:
-            measurements = get_measurements(asn)
-            for measurement in measurements:
-                monitor_manager.create_monitor(measurement)
+            alert_configurations = get_alert_configurations_by_asn(asn)
+            for alert_configuration in alert_configurations:
+                monitor_manager.create_monitor(alert_configuration)
         return Response(f"Monitoring Process started for the following asns: {asns}", status=status.HTTP_201_CREATED)
 
 
