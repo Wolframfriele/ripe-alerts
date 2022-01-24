@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .monitor_manager import MonitorManager
-from .services import get_measurements, get_alert_configurations_by_asn
+from .services import get_alert_configurations_by_asn
 
 monitor_manager = MonitorManager()
 
