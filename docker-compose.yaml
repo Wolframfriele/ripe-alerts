@@ -70,4 +70,13 @@ services:
     depends_on:
       - db
       - mongodb
-
+  fe:
+    build: ./Frontend
+    restart: always
+    container_name: fe-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Frontend:/code
+    depends_on:
+      - web

@@ -38,11 +38,12 @@ class Monitor:
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
         self.strategy.store(self.collection, measurement_result)
-        is_anomaly = self.strategy.analyze(self.collection)
-        if is_anomaly:
-            Anomaly.objects.create(alert_configuration=self.alert_configuration,
-                                   description=f"oh no something went wrong with measurement {self.measurement.measurement_id}",
-                                   datetime=int(time.time()))
+        anomalies = self.strategy.analyze(self.collection)
+        if len(anomalies) > 0:
+            for anomaly in anomalies:
+                Anomaly.objects.create(alert_configuration=self.alert_configuration,
+                                       description=anomaly['description'],
+                                       datetime=anomaly['alert_time'])
 
     def on_error(*args):
         "got in on_error"

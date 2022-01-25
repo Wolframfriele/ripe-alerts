@@ -13,11 +13,37 @@
 
 			<q-card-section>
 				Latest results
+
+				Hallo
 			</q-card-section>
 		</q-card>
 	</div>
 </template>
 
+<script>
+
+import axios from 'axios'
+export default {
+	setup() {
+		
+	},
+	created () {
+		this.get_asn()
+	},
+	methods: {
+		get_asn() {
+			axios ({
+				method: 'get',
+				url: 'http://localhost:8000/api/user/monitored-asns',
+			}).then((response) => {
+				if (response.data.lenght == 0) {
+
+				}
+			})
+		}
+	}
+}
+</script>
 <style scoped>
 	.as-status-card {
 		width: 50%;

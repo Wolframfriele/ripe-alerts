@@ -19,7 +19,7 @@ WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description"
 WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
 
 """SUPPORTED MEASUREMENTS"""
-SUPPORTED_TYPE_MEASUREMENTS = ('ping', 'traceroute')
+SUPPORTED_TYPE_MEASUREMENTS = ('traceroute')
 
 
 class RipeInterface:

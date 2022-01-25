@@ -176,12 +176,13 @@ class PreEntryASMonitor(MonitorStrategy):
         hops.reverse()
         for idx, hop in enumerate(hops):
             # Check if ip in as number, use the first one thats different AS
-            if not ASLookUp.ip_in_as(hop['from'], as_ip):
+            as_look_up = ASLookUp()
+            if not as_look_up.ip_in_as(hop['from'], as_ip):
                 pre_entry_hop_ip = hop['from']
                 pre_entry_hop_min_rtt = hops[idx - 1]['min_rtt']
                 if idx - 1 == -1:
                     pre_entry_hop_min_rtt = float('inf')
-                pre_entry_as = ASLookUp.get_as(pre_entry_hop_ip)
+                pre_entry_as = as_look_up.get_as(pre_entry_hop_ip)
                 break
     
         clean_result = {

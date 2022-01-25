@@ -164,7 +164,7 @@ export default {
 	methods: {
 		addASN() {
 			if (this.isValidASN(this.ASN)) {
-				this.ASNList.push("AS" + this.ASN);
+				this.ASNList.push(this.ASN);
 				this.ASN = "";
 			}
 		},
