@@ -43,9 +43,13 @@ class UserDetail(APIView):
     """Returns specific information of authenticated user"""
 
     def get(self, request):
-        user_information = {"username": request.user.username,
-                            "ripe_api_token": request.user.ripe_user.ripe_api_token,
-                            "initial_setup_complete": request.user.ripe_user.initial_setup_complete}
+        temporary_user = User.objects.first()
+        # user_information = {"username": request.user.username,
+        #                     "ripe_api_token": request.user.ripe_user.ripe_api_token,
+        #                     "initial_setup_complete": request.user.ripe_user.initial_setup_complete}
+        user_information = {"username": temporary_user.username,
+                            "ripe_api_token": temporary_user.ripe_user.ripe_api_token,
+                            "initial_setup_complete": temporary_user.ripe_user.initial_setup_complete}
         return Response(user_information)
 
 
@@ -54,7 +58,6 @@ class InitialSetup(APIView):
         INPUT: asns, email
         OUTPUT: user data
     """
-
     def post(self, request):
 
         temporary_user = User.objects.first()
@@ -71,5 +74,5 @@ class InitialSetup(APIView):
         try:
             user = initial_setup_serializer.save(user=temporary_user)
         except Exception:
-                    return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(user, status=status.HTTP_201_CREATED)
