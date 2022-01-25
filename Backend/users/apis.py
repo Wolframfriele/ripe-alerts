@@ -1,10 +1,12 @@
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegistrationSerializer, InitialSetupSerializer
+from .serializers import RegistrationSerializer, InitialSetupSerializer, AsnSerializer
 from ripe_atlas.exceptions import TokenNotValid
+from .services import get_monitored_asns
 
 
 def get_tokens_for_user(user):
@@ -42,23 +44,28 @@ class UserDetail(APIView):
     """Returns specific information of authenticated user"""
 
     def get(self, request):
-        user_information = {"username": request.user.username,
-                            "ripe_api_token": request.user.ripe_user.ripe_api_token,
-                            "initial_setup_complete": request.user.ripe_user.initial_setup_complete}
+        temporary_user = User.objects.first()
+        # user_information = {"username": request.user.username,
+        #                     "ripe_api_token": request.user.ripe_user.ripe_api_token,
+        #                     "initial_setup_complete": request.user.ripe_user.initial_setup_complete}
+        user_information = {"username": temporary_user.username,
+                            "ripe_api_token": temporary_user.ripe_user.ripe_api_token,
+                            "initial_setup_complete": temporary_user.ripe_user.initial_setup_complete}
         return Response(user_information)
 
 
 class InitialSetup(APIView):
     """
-        INPUT: ASN, Email
-        COLLECT THE ANCHORS AND RELATED MEASUREMENTS NECESSARY TO COLLECT DATA
+        INPUT: asns, email
+        OUTPUT: user data
     """
-
     def post(self, request):
 
+        temporary_user = User.objects.first()
         # if request.user.ripe_user.initial_setup_complete:
-        #     return Response({"message": "user has already completed the initial setup!"},
-        #                     status=status.HTTP_403_FORBIDDEN)
+        if temporary_user.ripe_user.initial_setup_complete:
+            return Response({"message": "user has already completed the initial setup!"},
+                            status=status.HTTP_403_FORBIDDEN)
 
         initial_setup_serializer = InitialSetupSerializer(data=request.data)
 
@@ -66,13 +73,16 @@ class InitialSetup(APIView):
             return Response(initial_setup_serializer.errors, status=status.HTTP_409_CONFLICT)
 
         # try:
-        user = initial_setup_serializer.save(user=request.user)
+        user = initial_setup_serializer.save(user=temporary_user)
         # except Exception:
-        #     return Response("OOPS", status=status.HTTP_400_BAD_REQUEST)
-        return Response(initial_setup_serializer.validated_data, status=status.HTTP_201_CREATED)
+        #     return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(user, status=status.HTTP_201_CREATED)
 
 
-class SystemList(APIView):
+class ASNList(APIView):
     def get(self, request):
-        """returns all systems that the user has an alert on, systems is categorized by """
-        pass
+        temporary_user = User.objects.first()
+        monitored_asns = get_monitored_asns(temporary_user.id)
+        monitored_asns = [monitored_asn.asn for monitored_asn in monitored_asns]
+        # monitored_asns_serialized = AsnSerializer(monitored_asns, many=True)
+        return Response(monitored_asns, status=status.HTTP_200_OK)

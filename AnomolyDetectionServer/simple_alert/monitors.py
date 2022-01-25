@@ -16,9 +16,9 @@ password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
 
 class Monitor:
 
-    def __init__(self, measurement: Measurement, alert_configuration, strategy: MonitorStrategy):
+    def __init__(self, alert_configuration: AlertConfiguration, strategy: MonitorStrategy):
 
-        self.measurement = measurement
+        self.measurement = alert_configuration.measurement
         self.strategy = strategy
         self.alert_configuration = alert_configuration
         # variables related to mongo db should be initialized when we start a monitoring process

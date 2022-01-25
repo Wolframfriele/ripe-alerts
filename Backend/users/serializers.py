@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import RipeUser
+from ripe_atlas.models import Asn
 from .services import InitialSetupService
 from ripe_atlas.exceptions import TokenNotValid
 from ripe_atlas.interfaces import RipeInterface
@@ -15,6 +16,7 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data: dict):
         """
         Create a new user and associated api-token record, given the validated data.
+
         """
         ripe_api_token = validated_data['ripe_api_token']
         if RipeInterface.is_token_valid(ripe_api_token) is False:
@@ -50,5 +52,9 @@ class InitialSetupSerializer(serializers.Serializer):
         pass
 
 
+class AsnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asn
+        fields = '__all__'
 
 

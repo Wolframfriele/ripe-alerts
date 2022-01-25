@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from ripe_atlas.models import Measurement
 import time
-# Create your models here.
 
 
 class AlertConfiguration(models.Model):
