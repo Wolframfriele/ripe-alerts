@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Measurement, Anchor
+from .models import Measurement, Anchor, Asn
 
 # Register your models here.
 
@@ -14,3 +14,4 @@ class SystemAdmin(admin.ModelAdmin):
 
 admin.site.register(Measurement)
 admin.site.register(Anchor, SystemAdmin)
+admin.site.register(Asn)

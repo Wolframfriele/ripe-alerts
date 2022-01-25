@@ -4,6 +4,7 @@ cffi==1.15.0
 charset-normalizer==2.0.7
 cryptography==35.0.0
 Django==3.2.9
+django-cors-headers==3.10.1
 djangorestframework==3.12.4
 idna==3.3
 psycopg2==2.9.1
