@@ -1,5 +1,8 @@
 <template>
 	<q-page class="q-pa-md q-mx-auto">
+		<h4>Initial Setup</h4>
+		<p>Before you can start monitoring you need atleast one AS number to track neighbors from.</p>
+		
 		<q-stepper v-model="step" header-nav ref="stepper" color="primary" animated>
 			<q-step
 				:name="1"

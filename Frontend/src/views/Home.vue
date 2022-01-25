@@ -1,52 +1,114 @@
 <template>
 	<div id="q-app">
-		<q-card flat bordered class="as-status-card">
+		<q-card
+			flat
+			bordered
+			class="as-status-card"
+			v-for="as_num in ASNList"
+			:key="as_num"
+		>
 			<q-card-section>
-				<div class="text-h6">AS13245</div>
+				<div class="text-h6">AS{{ as_num }}</div>
 			</q-card-section>
 
-			<q-card-section class="q-pt-none">
-				Current status: Oke
-			</q-card-section>
-
-			<q-separator inset />
-
 			<q-card-section>
-				Latest results
-
-				Hallo
+				<q-table
+					title="Latest Alerts"
+					:rows="data"
+					:columns="columns"
+					row-key="timestamp"
+					dense
+					flat
+					:rows-per-page-options="[0]" 
+					:pagination="pagination"
+					hide-header
+					hide-bottom
+				>
+				</q-table>
 			</q-card-section>
 		</q-card>
 	</div>
 </template>
 
 <script>
-
-import axios from 'axios'
+import axios from "axios";
 export default {
-	setup() {
-		
+	data() {
+		return {
+			pagination: {
+				page: 1,    
+				rowsPerPage: 0 // 0 means all rows    
+			},
+			ASNList: [],
+			columns: [
+				{
+					name: "timestamp",
+					required: true,
+					label: "Timestamp",
+					align: "left",
+					field: row => row.datetime,
+					format: val => this.convertDate(val),
+					sortable: true
+				},
+				{
+					name: "description",
+					align: "left",
+					label: "Alert Description",
+					field: "description"
+				}
+			],
+			data: []
+		};
 	},
-	created () {
-		this.get_asn()
+	created() {
+		this.get_asn();
+		this.get_alerts();
 	},
 	methods: {
 		get_asn() {
-			axios ({
-				method: 'get',
-				url: 'http://localhost:8000/api/user/monitored-asns',
-			}).then((response) => {
+			axios({
+				method: "get",
+				url: "http://localhost:8000/api/user/monitored-asns"
+			}).then(response => {
 				if (response.data.lenght == 0) {
-
+					this.$router.push({ name: "setup" });
+				} else {
+					this.ASNList = response.data;
 				}
-			})
+			});
+		},
+		get_alerts() {
+			axios({
+				method: "get",
+				url: "http://localhost:8000/api/alerts/get_alerts"
+			}).then(response => {
+				this.data = response.data;
+			});
+		},
+		convertDate(input) {
+			let date = new Date(input * 1000);
+			let year = date.getFullYear();
+			let month = (date.getMonth() + 1).toString().padStart(2, "0");
+			let day = date
+				.getDate()
+				.toString()
+				.padStart(2, "0");
+			let hours = date
+				.getHours()
+				.toString()
+				.padStart(2, "0");
+			let minutes = date
+				.getMinutes()
+				.toString()
+				.padStart(2, "0");
+			return `${hours}:${minutes} | ${year}-${month}-${day}`;
 		}
 	}
-}
+};
 </script>
 <style scoped>
-	.as-status-card {
-		width: 50%;
-		margin: 2em;
-	}
+.as-status-card {
+	width: 50%;
+	margin: 2em;
+}
 </style>
