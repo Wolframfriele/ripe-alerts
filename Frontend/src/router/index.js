@@ -1,11 +1,14 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "../views/home.vue";
-import Setup from "../views/setup.vue";
+import Home from "../views/Home.vue";
+import Setup from "../views/Setup.vue";
+import ManageAlerts from "../views/ManageAlerts.vue";
+import Documentation from "../views/Documentation.vue";
 
 const routes = [
 	{ path: "/", name: "home", component: Home },
 	{ path: "/setup", name: "setup", component: Setup },
-	{ path: "/manage-alerts", name: "managealerts", component: () => import(/* webpackChunkName: "manage-alerts" */ '../views/manage_alerts.vue') },
+	{ path: "/manage-alerts", name: "managealerts", component: ManageAlerts },
+	{ path: "/documentation", name: "documentation", component: Documentation  },
 ];
 
 const router = createRouter({

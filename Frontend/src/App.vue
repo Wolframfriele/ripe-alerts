@@ -10,7 +10,6 @@
 					aria-label="Menu"
 					icon="menu"
 				/>
-
 				<q-toolbar-title>
 					Ripe Alerter
 				</q-toolbar-title>
@@ -21,7 +20,24 @@
 
 		<q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
 			<q-list>
-				<q-item-label header>Menu</q-item-label>
+				<q-item-label header>Navigation</q-item-label>
+				<q-item clickable tag="a" :to="{ name: 'home' }">
+					<q-item-section avatar>
+						<q-icon name="space_dashboard" />
+					</q-item-section>
+					<q-item-section>
+						<q-item-label>Dashboard</q-item-label>
+					</q-item-section>
+				</q-item>
+				
+				<q-item clickable tag="a" :to="{ name: 'managealerts' }">
+					<q-item-section avatar>
+						<q-icon name="format_list_bulleted" />
+					</q-item-section>
+					<q-item-section>
+						<q-item-label>Alerts Feedback</q-item-label>
+					</q-item-section>
+				</q-item>
 				<q-item clickable tag="a" :to="{ name: 'setup' }">
 					<q-item-section avatar>
 						<q-icon name="settings_suggest" />
@@ -30,12 +46,13 @@
 						<q-item-label>Setup Monitoring</q-item-label>
 					</q-item-section>
 				</q-item>
-				<q-item clickable tag="a" :to="{ name: 'managealerts' }">
+				<q-separator />
+				<q-item clickable tag="a" :to="{ name: 'documentation' }">
 					<q-item-section avatar>
-						<q-icon name="format_list_bulleted" />
+						<q-icon name="article" />
 					</q-item-section>
 					<q-item-section>
-						<q-item-label>Alerts Overview</q-item-label>
+						<q-item-label>Documentation</q-item-label>
 					</q-item-section>
 				</q-item>
 			</q-list>

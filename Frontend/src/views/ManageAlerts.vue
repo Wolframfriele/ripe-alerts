@@ -4,7 +4,7 @@
       <div class="row q-col-gutter-sm">
         <div class="col">
           <q-table
-            title="Alerts Overview"
+            title="Alerts Overview and Feedback"
             :rows="data"
             :columns="columns"
             row-key="timestamp"
@@ -74,3 +74,8 @@ export default {
 }
 </script>
 
+<style scoped>
+  .q-pa-md {
+    margin: 1em;
+  }
+</style>

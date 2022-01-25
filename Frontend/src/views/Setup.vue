@@ -143,7 +143,8 @@
 
 <script>
 import { ref } from "vue";
-import Api from "../components/api";
+// import Api from "../components/api";
+import axios from 'axios'
 
 export default {
 	setup() {
@@ -194,15 +195,17 @@ export default {
 			return emailPattern.test(val);
 		},
 		submit() {
-			Api.post(
-				"user/initial-setup",
-				{
+			axios({
+				method: 'post',
+				url: 'http://localhost:8000/api/user/initial-setup',
+				data: {
 					"asns": this.ASNList,
-					"email": this.emails[0],
+					"email": this.emails,
 				}
-			).then(() => {
+			}).then((response) => {
+				console.log(response)
 				this.$router.push({ name: 'home' })
-			});
+			})
 		}
 	}
 };
