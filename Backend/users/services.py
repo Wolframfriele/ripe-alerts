@@ -55,3 +55,14 @@ class InitialSetupService:
         return {"username": validated_data['user'].username,
                 "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
                 "initial_setup_complete": True}
+
+
+def get_monitored_asns(user_id: int):
+    return Asn.objects.raw(
+        """SELECT DISTINCT asn
+            FROM  ripe_atlas_asn as a
+            JOIN ripe_atlas_anchor as b ON b.asn_id = a.asn
+            JOIN ripe_atlas_measurement as c ON c.anchor_id = b.anchor_id 
+            JOIN alert_configuration_alertconfiguration as d ON d.measurement_id = c.measurement_id
+            WHERE d.user_id = %s
+        """, [user_id])

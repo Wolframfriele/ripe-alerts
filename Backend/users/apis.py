@@ -4,8 +4,9 @@ from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegistrationSerializer, InitialSetupSerializer
+from .serializers import RegistrationSerializer, InitialSetupSerializer, AsnSerializer
 from ripe_atlas.exceptions import TokenNotValid
+from .services import get_monitored_asns
 
 
 def get_tokens_for_user(user):
@@ -71,8 +72,17 @@ class InitialSetup(APIView):
         if not initial_setup_serializer.is_valid():
             return Response(initial_setup_serializer.errors, status=status.HTTP_409_CONFLICT)
 
-        try:
-            user = initial_setup_serializer.save(user=temporary_user)
-        except Exception:
-            return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # try:
+        user = initial_setup_serializer.save(user=temporary_user)
+        # except Exception:
+        #     return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(user, status=status.HTTP_201_CREATED)
+
+
+class ASNList(APIView):
+    def get(self, request):
+        temporary_user = User.objects.first()
+        monitored_asns = get_monitored_asns(temporary_user.id)
+        monitored_asns = [monitored_asn.asn for monitored_asn in monitored_asns]
+        # monitored_asns_serialized = AsnSerializer(monitored_asns, many=True)
+        return Response(monitored_asns, status=status.HTTP_200_OK)
