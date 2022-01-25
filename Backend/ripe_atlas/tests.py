@@ -2,6 +2,8 @@ from django.test import TestCase
 from unittest.mock import patch
 from ripe_atlas.interfaces import RipeInterface
 from collections import defaultdict
+from django.urls import reverse
+from rest_framework import status
 
 """Integration tests Ripe Atlas"""
 
@@ -212,3 +214,25 @@ class TestRipeInterface(TestCase):
         result = RipeInterface.get_anchors(asn_list)
         self.assertEqual(expected_result, result)
         self.mock_response.side_effect = None
+
+
+class ASNTestCase(TestCase):
+
+    def test_api_unknown_holder(self):
+        url = reverse("asn-holder")
+        data = {'asn': "a" }
+        response = self.client.get(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['holder'], None)
+
+    def test_api_known_holder(self):
+        url = reverse("asn-holder")
+        data = {'asn': 1}
+        response = self.client.get(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data['holder'])
+
+
+
+
+

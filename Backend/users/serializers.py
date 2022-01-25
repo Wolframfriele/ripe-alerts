@@ -15,6 +15,7 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data: dict):
         """
         Create a new user and associated api-token record, given the validated data.
+
         """
         ripe_api_token = validated_data['ripe_api_token']
         if RipeInterface.is_token_valid(ripe_api_token) is False:

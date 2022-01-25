@@ -8,7 +8,6 @@ class AnomalySerializer(serializers.ModelSerializer):
         exclude = ['alert_configuration']
 
 
-class AlertConfigurationSerializer(serializers.Serializer):
-    pass
+
 
 
