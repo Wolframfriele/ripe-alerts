@@ -1,46 +1,40 @@
 from .models import AlertConfiguration, Measurement
 from .monitors import Monitor
 from .monitor_strategies import PingMonitorStrategy, TracerouteMonitorStrategy, PreEntryASMonitor
-
 from typing import List
+from .models import AlertConfiguration
+from django import db
 
 
 class MonitorManager:
 
     def __init__(self):
 
-        measurements = Measurement.objects.all()
-        self.temporary_alert_config = AlertConfiguration.objects.first()
-
+        self.alert_configurations = AlertConfiguration.objects.all()
+        db.connections.close_all()
         self.monitors = dict()
-        for measurement in measurements:
-            if measurement.type == 'Ping':
+        for alert_configuration in self.alert_configurations:
+            if alert_configuration.measurement.type == 'Ping':
                 strategy = PingMonitorStrategy()
             else:
                 strategy = TracerouteMonitorStrategy()
-            self.monitors[measurement.measurement_id] = Monitor(measurement, self.temporary_alert_config, strategy)
+            self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
 
         for monitor in self.monitors.values():
             monitor.start()
 
-    def create_monitor(self, measurement: Measurement, alert_configurations=None):
-        if self.monitors.get(measurement.measurement_id) is None:
-            if measurement.type == 'Ping':
+    def create_monitor(self, alert_configuration: AlertConfiguration):
+        db.connections.close_all()
+        if self.monitors.get(alert_configuration.alert_configuration_id) is None:
+            if alert_configuration.measurement.type == 'Ping':
                 strategy = PingMonitorStrategy()
             else:
                 strategy = TracerouteMonitorStrategy()
-            self.monitors[measurement.measurement_id] = Monitor(measurement, self.temporary_alert_config, strategy)
-
-            self.monitors[measurement.measurement_id].start()
+            self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
+            self.monitors[alert_configuration.alert_configuration_id].start()
 
     def restart_monitor(self, monitor_id):
-
         pass
 
     def train_monitor_model(self, monitor_id):
         pass
-
-
-
-
-

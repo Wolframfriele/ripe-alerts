@@ -1,38 +1,21 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import AlertConfiguration, Anomaly
+from .models import Anomaly
 from .serializers import AnomalySerializer
-from users.models import  User
+from users.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from .services import get_alerts, get_anomalies
-import time
-
-
-class AlertConfigurationList(APIView):
-    """List of alert configurations"""
-
-    def get(self, request):
-        """ get all AlertConfigurations belonging to user"""
-        user = request.user
-        try:
-            print(user.ripe_api_token.ripe_api_token)
-        except ObjectDoesNotExist:
-            print("has no ripe token")
-
-        return AlertConfiguration.objects.all()
-
-    def post(self, request):
-        """ Add new alert configurations"""
-
-        return Response(data=None, status=status.HTTP_201_CREATED)
 
 
 class AlertList(APIView):
+    """Returns a list of all alerts or anomalies that have been detected"""
+
     def get(self, request):
         all_anomalies = int(request.query_params.get('all_anomalies', 1))
         item = int(request.query_params.get('item', 0))
-        # wanneer gebruikers in het systeem zijn dan hoeft de user object niet gehardcode te worden
+
+        # since we dont have an authentication system on the frontend we use a default user
         user = User.objects.get(id=1)
 
         if all_anomalies == 1:
@@ -45,6 +28,7 @@ class AlertList(APIView):
 
 
 class LabelAlert(APIView):
+    """Label the alerts and anomalies that have been detected"""
 
     def post(self, request):
         try:

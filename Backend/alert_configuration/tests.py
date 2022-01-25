@@ -1,12 +1,13 @@
 from django.test import TestCase
-from unittest.mock import Mock, patch
+from django.urls import reverse
+from rest_framework import status
 from .models import User, AlertConfiguration, Anomaly
 from ripe_atlas.models import Measurement, Asn, Anchor
 from .services import get_alerts, get_anomalies
 import time
 
 
-class TestAlertServices(TestCase):
+class TestAnomalies(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -40,3 +41,22 @@ class TestAlertServices(TestCase):
         """alerts should be in descending order"""
         alerts = get_alerts(self.user.id, 0)
         self.assertQuerysetEqual(alerts, [self.anomaly_3, self.anomaly_2])
+
+    def test_pagination(self):
+        anomalies = get_anomalies(self.user.id, 1)
+        self.assertEqual(len(anomalies), 2)
+        self.assertQuerysetEqual(anomalies, [self.anomaly_2, self.anomaly_1])
+
+    def test_label_api_non_existing_anomaly(self):
+        url = reverse("label-alert")
+        data = {'anomaly_id': 9, 'label': True}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_label_api_existing_anomaly(self):
+        url = reverse("label-alert")
+        data = {'anomaly_id': 1, 'label': True}
+        response = self.client.post(url, data, format='json')
+        updated_anomaly = Anomaly.objects.get(pk=1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(updated_anomaly.label, True)
