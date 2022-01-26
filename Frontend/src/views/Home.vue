@@ -68,7 +68,7 @@ export default {
 		get_asn() {
 			axios({
 				method: "get",
-				url: "http://localhost:8000/api/user/monitored-asns"
+				url: "user/monitored-asns"
 			}).then(response => {
 				if (response.data.lenght == 0) {
 					this.$router.push({ name: "setup" });
@@ -80,7 +80,7 @@ export default {
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "http://localhost:8000/api/alerts/get_alerts"
+				url: "alerts/get_alerts"
 			}).then(response => {
 				this.data = response.data;
 			});

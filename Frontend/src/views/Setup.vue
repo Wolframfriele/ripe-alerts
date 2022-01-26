@@ -1,8 +1,11 @@
 <template>
-	<q-page class="q-pa-md q-mx-auto">
-		<h4>Initial Setup</h4>
-		<p>Before you can start monitoring you need atleast one AS number to track neighbors from.</p>
-		
+	<q-page v-if="init_setup" class="q-pa-md q-mx-auto">
+		<div class="text-h4">Initial Setup</div>
+		<p>
+			Before you can start monitoring you need atleast one AS number to track
+			neighbors from.
+		</p>
+
 		<q-stepper v-model="step" header-nav ref="stepper" color="primary" animated>
 			<q-step
 				:name="1"
@@ -12,20 +15,19 @@
 				:header-nav="step > 1"
 			>
 				<p>
-					Enter the AS numbers you want to monitor, the system checks the neigboring connections.
+					Enter the AS numbers you want to monitor, the system checks the
+					neigboring connections.
 				</p>
 				<q-input
 					ref="ASNField"
 					v-model="ASN"
 					filled
 					prefix="AS"
-					min= 0
-					max= 65535
+					min="0"
+					max="4294967295"
 					@keyup.enter="addASN()"
-					error-message="Must be a number between 0 and 65535"
-					:rules="[
-						isValidASN
-					]"
+					error-message="Must be a number between 0 and 4294967295"
+					:rules="[isValidASN]"
 					lazy-rules
 				>
 					<template v-slot:append>
@@ -36,7 +38,15 @@
 					<tbody>
 						<tr v-for="item in ASNList" :key="item">
 							<td class="text-left">{{ item }}</td>
-							<td class="text-right"><q-btn round color="red" icon="delete" size="sm" @click="removeASN(item)"/></td>
+							<td class="text-right">
+								<q-btn
+									round
+									color="red"
+									icon="delete"
+									size="sm"
+									@click="removeASN(item)"
+								/>
+							</td>
 						</tr>
 					</tbody>
 				</q-markup-table>
@@ -83,11 +93,7 @@
 				</q-input>
 
 				<q-stepper-navigation>
-					<q-btn
-						@click="addEmail()"
-						color="primary"
-						label="Continue"
-					/>
+					<q-btn @click="addEmail()" color="primary" label="Continue" />
 					<q-btn
 						flat
 						@click="step = 1"
@@ -130,7 +136,7 @@
 				</q-markup-table>
 
 				<q-stepper-navigation>
-					<q-btn color="primary" label="Finish" @click="submit()"/>
+					<q-btn color="primary" label="Finish" @click="submit()" />
 					<q-btn
 						flat
 						@click="step = 2"
@@ -142,12 +148,48 @@
 			</q-step>
 		</q-stepper>
 	</q-page>
+	<q-page v-else class="q-pa-md q-mx-auto">
+		<q-card flat bordered class="as-status-card">
+			<q-card-section>
+				<div class="text-h4">Setup already completed</div>
+			</q-card-section>
+
+			<q-card-section class="q-pt-none">
+				The initial setup has already been completed. To change the as or Email
+				reinstall the docker container. This is very unconvient, and will be 
+				fixed in future releases.
+			</q-card-section>
+
+			<q-card-section class="q-pt-none">
+				<q-btn @click="init_setup=true">Bypass block</q-btn>
+			</q-card-section>
+
+			<q-card-section class="q-pt-none">
+				For demo purposus it is possible to still view the initial setup, 
+				clicking finish on the setup is unfortunatly broken.
+			</q-card-section>
+
+			<q-separator inset />
+
+			<q-card-section>
+				<div class="text-h6">Currently monitored AS numbers</div>
+			</q-card-section>
+
+			<q-card-section class="q-pt-none">
+				<ul>
+					<li v-for="num in ASNList" :key="num">AS{{num}}</li>
+				</ul>
+			</q-card-section>
+
+
+		</q-card>
+	</q-page>
 </template>
 
 <script>
 import { ref } from "vue";
 // import Api from "../components/api";
-import axios from 'axios'
+import axios from "axios";
 
 export default {
 	setup() {
@@ -155,16 +197,32 @@ export default {
 			step: ref(1),
 			check1: ref(false),
 			email: ref(""),
-			ASN: ref(""),
+			ASN: ref("")
 		};
 	},
 	data() {
 		return {
+			init_setup: true,
 			ASNList: [],
 			emails: ""
 		};
 	},
+	created() {
+		this.get_asn()
+	},
 	methods: {
+		get_asn() {
+			axios({
+				method: "get",
+				url: "user/monitored-asns"
+			}).then(response => {
+				console.log(response.data.length)
+				if (response.data.length > 0) {
+					this.init_setup = false
+					this.ASNList = response.data
+				}
+			});
+		},
 		addASN() {
 			if (this.isValidASN(this.ASN)) {
 				this.ASNList.push(this.ASN);
@@ -175,10 +233,10 @@ export default {
 			const idx = this.ASNList.indexOf(item);
 			if (idx > -1) {
 				this.ASNList.splice(idx, 1);
-		}
+			}
 		},
 		isValidASN(val) {
-			const ASNPattern = /^[0-9]{1,5}$/;
+			const ASNPattern = /^[0-9]{1,6}$/;
 			return ASNPattern.test(val);
 		},
 		addEmail() {
@@ -199,22 +257,22 @@ export default {
 		},
 		submit() {
 			axios({
-				method: 'post',
-				url: 'http://localhost:8000/api/user/initial-setup',
+				method: "post",
+				url: "user/initial-setup",
 				data: {
-					"asns": this.ASNList,
-					"email": this.emails,
+					asns: this.ASNList,
+					email: this.emails
 				}
-			}).then((response) => {
-				console.log(response)
-				this.$router.push({ name: 'home' })
-			})
+			}).then(response => {
+				console.log(response);
+				this.$router.push({ name: "home" });
+			});
 		}
 	}
 };
 </script>
 <style>
-	.q-table__card{
-		margin-bottom: 20px;
-	}
+.q-table__card {
+	margin-bottom: 20px;
+}
 </style>

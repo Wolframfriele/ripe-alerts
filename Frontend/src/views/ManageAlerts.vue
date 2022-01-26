@@ -10,6 +10,14 @@
 						row-key="timestamp"
 						dense
 					>
+                        <template v-slot:body-cell="props">
+                            <q-td
+                            :props="props"
+                            :class="(props.row.label==1)?'bg-green text-white':'bg-white text-black'"
+                            >
+                            {{props.value}}
+                            </q-td>
+                        </template>
 						<template v-slot:body-cell-actions="props">
 							<q-td :props="props">
 								<q-btn
@@ -17,7 +25,7 @@
 									round
 									flat
 									color="green"
-									@click="positiveFeedback(props)"
+									@click="positiveFeedback(props.row)"
 									icon="thumb_up"
 								></q-btn>
 								<q-btn
@@ -25,7 +33,7 @@
 									round
 									flat
 									color="red"
-									@click="negativeFeedback(props)"
+									@click="negativeFeedback(props.row)"
 									icon="thumb_down"
 								></q-btn>
 							</q-td>
@@ -75,16 +83,30 @@ export default {
 		this.get_alerts();
 	},
 	methods: {
-		positiveFeedback(props) {
-			console.log(props);
+		positiveFeedback(row) {
+            axios({
+                method: "post",
+                url: "alerts/label_alert",
+                data: {
+                    anomaly_id: row.anomaly_id,
+                    label: true
+                }
+            }).then(row.label = true)
 		},
-		negativeFeedback(props) {
-			console.log(props);
+		negativeFeedback(row) {
+            axios({
+                method: "post",
+                url: "alerts/label_alert",
+                data: {
+                    anomaly_id: row.anomaly_id,
+                    label: false
+                }
+            }).then(row.label = false)
 		},
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "http://localhost:8000/api/alerts/get_alerts"
+				url: "alerts/get_alerts"
 			}).then(response => {
 				this.data = response.data;
 			});
