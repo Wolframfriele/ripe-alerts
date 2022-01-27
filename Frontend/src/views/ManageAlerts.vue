@@ -63,7 +63,18 @@ export default {
 					label: "Alert Description",
 					field: "description"
 				},
-				{ name: "actions", label: "Feedback", field: "", align: "center" }
+				{
+					name: "predicted",
+					align: "left",
+					label: "Predicion",
+					format: val => this.format_prediction(val),
+					field: "is_alert"
+				},
+				{ 
+					name: "actions",
+					label: "Feedback",
+					field: "",
+					align: "center" }
 			],
 			data: [],
 			noti: () => {},
@@ -125,6 +136,13 @@ export default {
 				.toString()
 				.padStart(2, "0");
 			return `${year}-${month}-${day}  |  ${hours}:${minutes}`;
+		},
+		format_prediction(input) {
+			let format = "No Alert"
+			if (input == true) {
+				format = "Alert"
+			}
+			return format
 		}
 	}
 };
