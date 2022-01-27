@@ -3,19 +3,17 @@
 		<div class="alert-wrapper">
 			<q-card-section>
 				<h1>Alerts Overview and Feedback</h1>
-				<q-table
-					:rows="data"
-					:columns="columns"
-					row-key="timestamp"
-					dense
-					flat
-				>
+				<q-table :rows="data" :columns="columns" row-key="timestamp" dense flat>
 					<template v-slot:body-cell="props">
 						<q-td
-						:props="props"
-						:class="(props.row.label==1)?'bg-green text-white':'bg-white text-black'"
+							:props="props"
+							:class="
+								props.row.label == 1
+									? 'bg-green text-white'
+									: 'bg-white text-black'
+							"
 						>
-						{{props.value}}
+							{{ props.value }}
 						</q-td>
 					</template>
 					<template v-slot:body-cell-actions="props">
@@ -83,24 +81,24 @@ export default {
 	},
 	methods: {
 		positiveFeedback(row) {
-            axios({
-                method: "post",
-                url: "alerts/label_alert",
-                data: {
-                    anomaly_id: row.anomaly_id,
-                    label: true
-                }
-            }).then(row.label = true)
+			axios({
+				method: "post",
+				url: "alerts/label_alert",
+				data: {
+					anomaly_id: row.anomaly_id,
+					label: true
+				}
+			}).then((row.label = true));
 		},
 		negativeFeedback(row) {
-            axios({
-                method: "post",
-                url: "alerts/label_alert",
-                data: {
-                    anomaly_id: row.anomaly_id,
-                    label: false
-                }
-            }).then(row.label = false)
+			axios({
+				method: "post",
+				url: "alerts/label_alert",
+				data: {
+					anomaly_id: row.anomaly_id,
+					label: false
+				}
+			}).then((row.label = false));
 		},
 		get_alerts() {
 			axios({
@@ -137,5 +135,4 @@ export default {
 	max-width: 1024px;
 	margin: 0 auto;
 }
-
 </style>

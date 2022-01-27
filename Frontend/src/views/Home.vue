@@ -16,7 +16,7 @@
 					row-key="timestamp"
 					dense
 					flat
-					:rows-per-page-options="[0]" 
+					:rows-per-page-options="[0]"
 					:pagination="pagination"
 					hide-header
 					hide-bottom
@@ -33,8 +33,8 @@ export default {
 	data() {
 		return {
 			pagination: {
-				page: 1,    
-				rowsPerPage: 0 // 0 means all rows    
+				page: 1,
+				rowsPerPage: 0 // 0 means all rows
 			},
 			ASNList: [],
 			columns: [
