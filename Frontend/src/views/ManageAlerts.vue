@@ -2,7 +2,7 @@
 	<q-card flat bordered class="page-card">
 		<div class="alert-wrapper">
 			<q-card-section>
-				<h1>Alerts Overview and Feedback</h1>
+				<h1>Anomaly Overview and Feedback</h1>
 				<q-table :rows="data" :columns="columns" row-key="timestamp" dense flat>
 					<template v-slot:body-cell="props">
 						<q-td

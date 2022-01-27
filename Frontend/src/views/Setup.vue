@@ -225,7 +225,6 @@
 
 <script>
 import { ref } from "vue";
-// import Api from "../components/api";
 import axios from "axios";
 
 export default {
@@ -254,7 +253,6 @@ export default {
 				method: "get",
 				url: "user/monitored-asns"
 			}).then(response => {
-				console.log(response.data.length);
 				if (response.data.length > 0) {
 					this.init_setup = true;
 					this.ASNList = response.data;
@@ -278,6 +276,9 @@ export default {
 			return ASNPattern.test(val);
 		},
 		step2() {
+			if (this.ASN.length > 0) {
+				this.addASN()
+			}
 			if (this.ASNList > 0) {
 				this.step = 2;
 			}
