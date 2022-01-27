@@ -1,48 +1,47 @@
 <template>
-	<div id="q-app">
-		<div class="q-pa-md">
-			<div class="row q-col-gutter-sm">
-				<div class="col">
-					<q-table
-						title="Alerts Overview and Feedback"
-						:rows="data"
-						:columns="columns"
-						row-key="timestamp"
-						dense
-					>
-                        <template v-slot:body-cell="props">
-                            <q-td
-                            :props="props"
-                            :class="(props.row.label==1)?'bg-green text-white':'bg-white text-black'"
-                            >
-                            {{props.value}}
-                            </q-td>
-                        </template>
-						<template v-slot:body-cell-actions="props">
-							<q-td :props="props">
-								<q-btn
-									dense
-									round
-									flat
-									color="green"
-									@click="positiveFeedback(props.row)"
-									icon="thumb_up"
-								></q-btn>
-								<q-btn
-									dense
-									round
-									flat
-									color="red"
-									@click="negativeFeedback(props.row)"
-									icon="thumb_down"
-								></q-btn>
-							</q-td>
-						</template>
-					</q-table>
-				</div>
-			</div>
+	<q-card flat bordered class="page-card">
+		<div class="alert-wrapper">
+			<q-card-section>
+				<h1>Alerts Overview and Feedback</h1>
+				<q-table
+					:rows="data"
+					:columns="columns"
+					row-key="timestamp"
+					dense
+					flat
+				>
+					<template v-slot:body-cell="props">
+						<q-td
+						:props="props"
+						:class="(props.row.label==1)?'bg-green text-white':'bg-white text-black'"
+						>
+						{{props.value}}
+						</q-td>
+					</template>
+					<template v-slot:body-cell-actions="props">
+						<q-td :props="props">
+							<q-btn
+								dense
+								round
+								flat
+								color="green"
+								@click="positiveFeedback(props.row)"
+								icon="thumb_up"
+							></q-btn>
+							<q-btn
+								dense
+								round
+								flat
+								color="red"
+								@click="negativeFeedback(props.row)"
+								icon="thumb_down"
+							></q-btn>
+						</q-td>
+					</template>
+				</q-table>
+			</q-card-section>
 		</div>
-	</div>
+	</q-card>
 </template>
 
 <script>
@@ -134,7 +133,9 @@ export default {
 </script>
 
 <style scoped>
-.q-pa-md {
-	margin: 1em;
+.alert-wrapper {
+	max-width: 1024px;
+	margin: 0 auto;
 }
+
 </style>
