@@ -44,14 +44,17 @@ class UserDetail(APIView):
     """Returns specific information of authenticated user"""
 
     def get(self, request):
-        temporary_user = User.objects.first()
-        # user_information = {"username": request.user.username,
-        #                     "ripe_api_token": request.user.ripe_user.ripe_api_token,
-        #                     "initial_setup_complete": request.user.ripe_user.initial_setup_complete}
-        user_information = {"username": temporary_user.username,
-                            "ripe_api_token": temporary_user.ripe_user.ripe_api_token,
-                            "initial_setup_complete": temporary_user.ripe_user.initial_setup_complete}
-        return Response(user_information)
+        # user = request.user
+        user = User.objects.first()
+        if hasattr(user, 'ripe_user'):
+            user_information = {"username": user.username,
+                                "ripe_api_token": user.ripe_user.ripe_api_token,
+                                "initial_setup_complete": user.ripe_user.initial_setup_complete}
+        else:
+            user_information = {"username": user.username,
+                                "ripe_api_token": None,
+                                "initial_setup_complete": False}
+        return Response(user_information, status=status.HTTP_200_OK)
 
 
 class InitialSetup(APIView):
@@ -60,12 +63,8 @@ class InitialSetup(APIView):
         OUTPUT: user data
     """
     def post(self, request):
-
-        temporary_user = User.objects.first()
-        # if request.user.ripe_user.initial_setup_complete:
-        if temporary_user.ripe_user.initial_setup_complete:
-            return Response({"message": "user has already completed the initial setup!"},
-                            status=status.HTTP_403_FORBIDDEN)
+        # user = request.user
+        user = User.objects.first()
 
         initial_setup_serializer = InitialSetupSerializer(data=request.data)
 
@@ -73,7 +72,7 @@ class InitialSetup(APIView):
             return Response(initial_setup_serializer.errors, status=status.HTTP_409_CONFLICT)
 
         # try:
-        user = initial_setup_serializer.save(user=temporary_user)
+        user = initial_setup_serializer.save(user=user)
         # except Exception:
         #     return Response("OOPS something went wrong :(", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(user, status=status.HTTP_201_CREATED)
