@@ -24,3 +24,4 @@ python-dotenv==0.19.1
 numpy
 adtk
 ijson
+itsdangerous

@@ -1,6 +1,7 @@
 import random
 import re
 import time
+from itsdangerous import exc
 import requests
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ from abc import ABC, abstractmethod
 from ripe.atlas.sagan import PingResult, TracerouteResult
 from adtk.detector import LevelShiftAD
 from adtk.data import validate_series
+from adtk.visualization import plot
 
 
 class MonitorStrategy(ABC):
@@ -210,14 +212,16 @@ class PreEntryASMonitor(MonitorStrategy):
                     'score': The score; the percentage of probes with anomalie in as.
                 }
         """
-        min_score = 30 # minimum percentage of anomalies before alert
+        pd.options.mode.chained_assignment = None  # default='warn'
+        min_score_alert = 30 # minimum percentage of anomalies before alert
+        min_score_anomalie = 10
         anomalies = []
         all_measurements = []
 
         for measurement in collection.find():
             all_measurements.append(measurement)
 
-        df: pd.DataFrame = pd.DataFrame(all_measurements)
+        df = pd.DataFrame(all_measurements)
         df_outlier = pd.DataFrame()
 
         level_shift = LevelShiftAD(c=10.0, side='positive', window=3)
@@ -230,28 +234,42 @@ class PreEntryASMonitor(MonitorStrategy):
             ts = validate_series(ts)
 
             try:
-                single_probe["level_shift"] = level_shift.fit_detect(ts)
-                df_outlier = df_outlier.append(single_probe)
+                level_anomalies = level_shift.fit_detect(ts)
+                single_probe["level_shift"] = level_anomalies
+                plot(ts, anomaly=level_anomalies, anomaly_color='red')
+
+                df_outlier = pd.concat([df_outlier, single_probe])
             except RuntimeError:
                 pass
 
-        for as_num in df_outlier['pre_entry_as'].unique():
-            single_as_df = df_outlier[df_outlier['pre_entry_as'] == as_num]
-            probes_in_as = len(single_as_df['probe_id'].unique())
-            alert_time = single_as_df.index.max()
-            if probes_in_as > 5:
-                as_anomalies = single_as_df.groupby(pd.Grouper(freq="32T"))["level_shift"].agg("sum")
-                # look at last sum (current moment)
-                score = round((as_anomalies[-1] / probes_in_as) * 100, 2)
-                if score > min_score:
-                    description = f'Oh no, there seems to be an increase in RTT in neighboring AS: {as_num}'
-                    print(description)
-                    anomalies.append({
-                        'as-number': as_num,
-                        'time': alert_time,
-                        'description': description,
-                        'score': score
-                    })
+        try:
+            unique_as_nums = df_outlier['pre_entry_as'].unique()
+            for as_num in unique_as_nums:
+                single_as_df = df_outlier[df_outlier['pre_entry_as'] == as_num]
+                probes_in_as = len(single_as_df['probe_id'].unique())
+                alert_time = single_as_df.index.max()
+                if probes_in_as > 5:
+                    as_anomalies = single_as_df.groupby(pd.Grouper(freq="32T"))["level_shift"].agg("sum")
+                    # look at last sum (latest moment)
+                    score = round((as_anomalies[-1] / probes_in_as) * 100, 2)
+                    print(f'Current anomaly Score AS{as_num}: {score}')
+                    if score > min_score_anomalie:
+                        alert = False
+                        if score > min_score_alert:
+                            alert = True
+                        description = f'Oh no, there seems to be an increase in RTT in neighboring AS: {as_num}'
+                        print(description)
+                        anomalies.append({
+                            'as-number': as_num,
+                            'time': alert_time,
+                            'description': description,
+                            'score': score,
+                            'alert': alert
+                        })
+        except KeyError:
+            print("Error with getting information from Mongo, DF looks like:")
+            print(df_outlier)
+            print("No anomalies added")
 
         return anomalies
 
