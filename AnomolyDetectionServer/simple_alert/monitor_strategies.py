@@ -57,7 +57,8 @@ class PingMonitorStrategy(MonitorStrategy):
                     stream=True)
                 for i in response.iter_content(decode_unicode=True):
                     result_string += i
-                    result = PingMonitorStrategy.result_pattern.search(result_string)
+                    result = PingMonitorStrategy.result_pattern.search(
+                        result_string)
                     if result:
                         start, end = result.span()
                         ping_result_raw = result_string[start:end]
@@ -74,7 +75,8 @@ class PingMonitorStrategy(MonitorStrategy):
         """make measurment results consistent, make a dictionory of the object and keep all necessary fields"""
         result = PingResult(measurement_result)
         result_dict = result.__dict__
-        result_dict["dropped_packets"] = result_dict["packets_sent"] - result_dict["packets_received"]
+        result_dict["dropped_packets"] = result_dict["packets_sent"] - \
+            result_dict["packets_received"]
         for unwanted_field in PingMonitorStrategy.UNWANTED_PING_FIELDS:
             result_dict.pop(unwanted_field)
 
@@ -95,6 +97,7 @@ class PingMonitorStrategy(MonitorStrategy):
 class PreEntryASMonitor(MonitorStrategy):
     def __init__(self) -> None:
         self.own_as = None
+        self.as_look_up = ASLookUp()
 
     def collect_initial_dataset(self, collection, measurement_id) -> None:
         """
@@ -112,7 +115,8 @@ class PreEntryASMonitor(MonitorStrategy):
 
         while True:
             try:
-                f = urlopen(f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}")
+                f = urlopen(
+                    f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}")
                 parser = ijson.items(f, 'item')
                 for measurement_data in parser:
                     result = self.preprocess(measurement_data)
@@ -123,11 +127,11 @@ class PreEntryASMonitor(MonitorStrategy):
                 print("Oh no we lost connection, but we will try again")
                 time.sleep(1)
 
-    def store(self, collection, measurement_result:dict) -> None:
+    def store(self, collection, measurement_result: dict) -> None:
         """store result in mongo_db"""
-        collection.insert_one(measurement_result)        
+        collection.insert_one(measurement_result)
 
-    def preprocess(self, single_result_raw:dict):
+    def preprocess(self, single_result_raw: dict):
         """
         Pre-processes json measurement data to only send out the relevant data.
 
@@ -140,62 +144,84 @@ class PreEntryASMonitor(MonitorStrategy):
         """
         measurement_result = TracerouteResult(single_result_raw,
                                               on_error=TracerouteResult.ACTION_IGNORE)
-        hops = []
-        for hop_object in measurement_result.hops:
-            hop_number = hop_object.raw_data['hop']
+
+        user_ip = measurement_result.destination_address
+        
+        hops = self.clean_hops(measurement_result.hops)
+
+        entry_rtt, entry_ip, entry_as = self.find_network_entry_hop(hops, user_ip)
+
+        clean_result = {
+            'probe_id': measurement_result.probe_id,
+            'created': measurement_result.created,
+            'entry_rtt': entry_rtt,
+            'entry_ip': entry_ip,
+            'entry_as': entry_as
+        }
+        return clean_result
+
+    def clean_hops(self, hops):
+        """
+        Takes the raw hops from Sagan Traceroute object, and processes the data.
+
+        Parameters:
+                hops (list): A list with raw hop data.
+
+        Returns:
+                cleanend_hops (list): contains dict objects with {hop(id), ip, min_rtt}  
+        """
+        
+        cleaned_hops = []
+        for hop_object in hops:
             if 'error' in hop_object.raw_data:
-                hops.append({
-                    'hop': None,
+                cleaned_hops.append({
+                    'hop': hop_object.raw_data['hop'],
                     'from': None,
                     'min_rtt': None,
                 })
             else:
-                try:
-                    hop_pings = hop_object.raw_data['result']
-                except KeyError:
-                    print(hop_object.raw_data)
-
+                hop_packets = hop_object.raw_data['result']
                 hop_ip = None
                 min_hop_rtt = float('inf')
-                for ping in hop_pings:
-                    if 'rtt' in ping:
-                        if hop_ip == None:
-                            hop_ip = ping['from']
-                        if ping['rtt'] < min_hop_rtt:
-                            min_hop_rtt = ping['rtt']
+                for packet in hop_packets:
+                    if 'rtt' in packet:
+                        if packet['rtt'] < min_hop_rtt:
+                            hop_ip = packet['from']
+                            min_hop_rtt = packet['rtt']
 
                 min_hop_rtt = float(min_hop_rtt)
-                hops.append({
-                    'hop': hop_number,
-                    'from': hop_ip,
+                cleaned_hops.append({
+                    'hop': hop_object.raw_data['hop'],
+                    'ip': hop_ip,
                     'min_rtt': min_hop_rtt,
                 })
+        return cleaned_hops
 
-        pre_entry_hop_min_rtt, pre_entry_hop_ip, pre_entry_as = np.nan, np.nan, np.nan
+    def find_network_entry_hop(self, hops: list, user_ip):
+        """
+        Takes a list of cleaned hops and returns the values of the hop at the edge 
+        of the users network.
 
-        as_ip = measurement_result.destination_address
+        Parameters:
+                hops (list): A list with cleaned hop data.
 
+        Returns:
+                entry_rtt (float): min round trip time at network entry hop.
+                entry_ip (str): ip adress of the router before entering your network.
+                entry_as (str): as number of the neighboring network connection.
+        """        
+        entry_rtt, entry_ip, entry_as = [np.nan] * 3
         hops.reverse()
         for idx, hop in enumerate(hops):
-            # Check if ip in as number, use the first one thats different AS
-            as_look_up = ASLookUp()
-            if not as_look_up.ip_in_as(hop['from'], as_ip):
-                pre_entry_hop_ip = hop['from']
-                pre_entry_hop_min_rtt = hops[idx - 1]['min_rtt']
+            if not self.as_look_up.ip_in_as(hop['ip'], user_ip):
+                entry_ip = hop['ip']
+                entry_rtt = hops[idx - 1]['min_rtt']
                 if idx - 1 == -1:
-                    pre_entry_hop_min_rtt = float('inf')
-                pre_entry_as = as_look_up.get_as(pre_entry_hop_ip)
+                    entry_rtt = float('inf')
                 break
-    
-        clean_result = {
-            'probe_id': measurement_result.probe_id,
-            'created': measurement_result.created,
-            'total_hops': measurement_result.total_hops,
-            'pre_entry_hop_min_rtt': pre_entry_hop_min_rtt,
-            'pre_entry_hop_ip': pre_entry_hop_ip,
-            'pre_entry_as': pre_entry_as
-        }
-        return clean_result
+        if isinstance(entry_ip, str):
+            entry_as = self.as_look_up.get_as(entry_ip)
+        return entry_rtt, entry_ip, entry_as
 
     def analyze(self, collection):
         """
@@ -213,7 +239,7 @@ class PreEntryASMonitor(MonitorStrategy):
                 }
         """
         pd.options.mode.chained_assignment = None  # default='warn'
-        min_score_alert = 30 # minimum percentage of anomalies before alert
+        min_score_alert = 30  # minimum percentage of anomalies before alert
         min_score_anomalie = 10
         anomalies = []
         all_measurements = []
@@ -249,7 +275,8 @@ class PreEntryASMonitor(MonitorStrategy):
                 probes_in_as = len(single_as_df['probe_id'].unique())
                 alert_time = single_as_df.index.max()
                 if probes_in_as > 5:
-                    as_anomalies = single_as_df.groupby(pd.Grouper(freq="32T"))["level_shift"].agg("sum")
+                    as_anomalies = single_as_df.groupby(pd.Grouper(freq="32T"))[
+                        "level_shift"].agg("sum")
                     # look at last sum (latest moment)
                     score = round((as_anomalies[-1] / probes_in_as) * 100, 2)
                     print(f'Current anomaly Score AS{as_num}: {score}')
@@ -276,6 +303,7 @@ class PreEntryASMonitor(MonitorStrategy):
 
 class ASLookUp:
     """Set of methods that help with converting ip adresses to as numbers."""
+
     def __init__(self) -> None:
         self.known_ip = {}
         self.own_as = None
@@ -295,7 +323,8 @@ class ASLookUp:
             if ip in self.known_ip:
                 as_num = self.known_ip[ip]
             else:
-                r = requests.get(f"https://stat.ripe.net/data/network-info/data.json?resource={ip}").json()['data']['asns']
+                r = requests.get(
+                    f"https://stat.ripe.net/data/network-info/data.json?resource={ip}").json()['data']['asns']
                 if len(r) > 0:
                     as_num = r[0]
                 else:
