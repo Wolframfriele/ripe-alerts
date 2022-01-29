@@ -25,3 +25,4 @@ numpy
 adtk
 ijson
 itsdangerous
+py-radix

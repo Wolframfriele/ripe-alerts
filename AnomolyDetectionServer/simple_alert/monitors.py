@@ -38,7 +38,8 @@ class Monitor:
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
         self.strategy.store(self.collection, measurement_result)
-        anomalies = self.strategy.analyze(self.collection)
+        analyzed = self.strategy.analyze(self.collection)
+        anomalies = self.strategy.filter(analyzed)
         if len(anomalies) > 0:
             for anomaly in anomalies:
                 Anomaly.objects.create(alert_configuration=self.alert_configuration,

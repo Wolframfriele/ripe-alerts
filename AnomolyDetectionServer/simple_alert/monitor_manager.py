@@ -1,6 +1,6 @@
 from .models import AlertConfiguration
 from .monitors import Monitor
-from .monitor_strategies import PingMonitorStrategy, PreEntryASMonitor
+from .monitor_strategies import PreEntryASMonitor
 from .models import AlertConfiguration
 from django import db
 
