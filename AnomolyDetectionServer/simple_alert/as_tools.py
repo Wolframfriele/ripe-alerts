@@ -21,7 +21,7 @@ class ASLookUp:
                 self.rtree = radix.Radix()
                 self.get_ris
             else:
-                with open('rtree.pickle', 'rb') as f:
+                with open('simple_alert/rtree.pickle', 'rb') as f:
                     self.rtree = pickle.load(f)
         else:
             self.rtree = radix.Radix()

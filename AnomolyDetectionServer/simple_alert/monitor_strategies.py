@@ -10,6 +10,7 @@ from ripe.atlas.sagan import TracerouteResult
 from adtk.detector import LevelShiftAD
 from adtk.data import validate_series
 from .as_tools import ASLookUp
+from datetime import datetime, timedelta
 
 class MonitorStrategy(ABC):
 
@@ -182,7 +183,8 @@ class PreEntryASMonitor(MonitorStrategy):
         """
         all_measurements = []
 
-        for measurement in collection.find():
+        qdate = datetime.now() - timedelta(days=1)
+        for measurement in collection.find({"created": {"$lt": qdate}}):
             all_measurements.append(measurement)
 
         df = pd.DataFrame(all_measurements)
