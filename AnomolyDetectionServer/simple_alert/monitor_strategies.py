@@ -13,9 +13,8 @@ from .as_tools import ASLookUp
 from datetime import datetime, timedelta
 
 class MonitorStrategy(ABC):
-
     @abstractmethod
-    def collect_initial_dataset(self, collection, measurement_id):
+    def collect_initial_dataset(self, collection, measurement_id: str) -> None:
         pass
 
     @abstractmethod
@@ -23,7 +22,7 @@ class MonitorStrategy(ABC):
         pass
 
     @abstractmethod
-    def store(self, collection, measurement_result):
+    def store(self, collection, measurement_result) -> None:
         pass
 
     @abstractmethod
@@ -40,7 +39,7 @@ class PreEntryASMonitor(MonitorStrategy):
         self.own_as = None
         self.as_look_up = ASLookUp()
 
-    def collect_initial_dataset(self, collection, measurement_id) -> None:
+    def collect_initial_dataset(self, collection, measurement_id: str) -> None:
         """
         Collect data from the last day as a baseline.
 
@@ -73,7 +72,7 @@ class PreEntryASMonitor(MonitorStrategy):
         """store result in mongo_db"""
         collection.insert_one(measurement_result)
 
-    def preprocess(self, single_result_raw: dict):
+    def preprocess(self, single_result_raw: dict) -> dict:
         """
         Pre-processes json measurement data to only send out the relevant data.
 
@@ -101,7 +100,7 @@ class PreEntryASMonitor(MonitorStrategy):
         }
         return clean_result
 
-    def clean_hops(self, hops):
+    def clean_hops(self, hops: list) -> list:
         """
         Takes the raw hops from Sagan Traceroute object, and processes the data.
 
@@ -137,7 +136,7 @@ class PreEntryASMonitor(MonitorStrategy):
                 })
         return cleaned_hops
 
-    def find_network_entry_hop(self, hops: list, user_ip):
+    def find_network_entry_hop(self, hops: list, user_ip: str):
         """
         Takes a list of cleaned hops and returns the values of the hop at the edge 
         of the users network.
@@ -168,7 +167,7 @@ class PreEntryASMonitor(MonitorStrategy):
             entry_ip = np.nan
         return entry_rtt, entry_ip, entry_as
 
-    def analyze(self, collection):
+    def analyze(self, collection) -> pd.DataFrame:
         """
         Analyzes a series of measurements for anomalies.
 
@@ -208,7 +207,7 @@ class PreEntryASMonitor(MonitorStrategy):
 
         return df_outlier
 
-    def filter(self, df_outlier: pd.DataFrame, plot_results=False):
+    def filter(self, df_outlier: pd.DataFrame, plot_results=False) -> list:
         """
         Filters through anomalies and returns the alerts.
 

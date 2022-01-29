@@ -54,7 +54,7 @@ class ASLookUp:
         with open('rtree.pickle', 'wb') as f:
             pickle.dump(self.rtree, f)
 
-    def get_as(self, ip: str):
+    def get_as(self, ip: str) -> str:
         """
         Finds AS for a given IP, returns NaN when AS is not found.
 
