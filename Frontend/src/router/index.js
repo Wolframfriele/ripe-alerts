@@ -4,6 +4,8 @@ import Setup from "../views/Setup.vue";
 import ManageAlerts from "../views/ManageAlerts.vue";
 import Documentation from "../views/Documentation.vue";
 
+
+
 const routes = [
 	{ path: "/", name: "home", component: Home },
 	{ path: "/setup", name: "setup", component: Setup },

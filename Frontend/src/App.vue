@@ -77,6 +77,9 @@ export default {
 				leftDrawerOpen.value = !leftDrawerOpen.value;
 			}
 		};
+	},
+	created () {
+		document.title = "Ripe Alerter"
 	}
 };
 </script>

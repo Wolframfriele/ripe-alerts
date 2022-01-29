@@ -1,17 +1,14 @@
 <template>
-	<div id="q-app">
-		<q-card
-			flat
-			bordered
-			class="as-status-card"
-			v-for="as_num in ASNList"
-			:key="as_num"
-		>
+	<q-card
+		flat
+		bordered
+		class="page-card"
+		v-for="as_num in ASNList"
+		:key="as_num"
+	>
+		<div class="wrapper">
 			<q-card-section>
-				<div class="text-h6">AS{{ as_num }}</div>
-			</q-card-section>
-
-			<q-card-section>
+				<h1 class="card-title">AS{{ as_num }}</h1>
 				<q-table
 					title="Latest Alerts"
 					:rows="data"
@@ -19,15 +16,15 @@
 					row-key="timestamp"
 					dense
 					flat
-					:rows-per-page-options="[0]" 
+					:rows-per-page-options="[0]"
 					:pagination="pagination"
 					hide-header
 					hide-bottom
 				>
 				</q-table>
 			</q-card-section>
-		</q-card>
-	</div>
+		</div>
+	</q-card>
 </template>
 
 <script>
@@ -36,8 +33,8 @@ export default {
 	data() {
 		return {
 			pagination: {
-				page: 1,    
-				rowsPerPage: 0 // 0 means all rows    
+				page: 1,
+				rowsPerPage: 0 // 0 means all rows
 			},
 			ASNList: [],
 			columns: [
@@ -107,8 +104,7 @@ export default {
 };
 </script>
 <style scoped>
-.as-status-card {
-	width: 50%;
-	margin: 2em;
+.card-title {
+	margin-left: 0.5em;
 }
 </style>

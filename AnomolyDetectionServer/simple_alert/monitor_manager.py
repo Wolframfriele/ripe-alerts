@@ -18,7 +18,7 @@ class MonitorManager:
             
             if alert_configuration.measurement.type == 'traceroute':
                 strategy = PreEntryASMonitor()
-                self.monitors[alert_configuration.measurement.measurement_id] = Monitor(alert_configuration, strategy)
+                self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
 
         for monitor in self.monitors.values():
             monitor.start()
@@ -26,9 +26,10 @@ class MonitorManager:
     def create_monitor(self, alert_configuration: AlertConfiguration):
         db.connections.close_all()
         if self.monitors.get(alert_configuration.alert_configuration_id) is None:
-            if alert_configuration.measurement.type == 'Traceroute':
+            if alert_configuration.measurement.type == 'traceroute':
                 strategy = PreEntryASMonitor()
-                self.monitors[alert_configuration.measurement.measurement_id] = Monitor(alert_configuration, strategy)
+                self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
+                self.monitors[alert_configuration.alert_configuration_id].start()
 
     def restart_monitor(self, monitor_id):
         pass

@@ -36,7 +36,7 @@ class InitialSetupService:
                     try:
                         AlertConfiguration(user=validated_data['user'], measurement=measurement,
                                            alert_configuration_type="default", alert_configuration=
-                                           {"default":"wordt later geimplementeerd"}).save()
+                                           {"default": "wordt later geimplementeerd"}).save()
                     except IntegrityError:
                         continue
 
@@ -49,8 +49,12 @@ class InitialSetupService:
 
 
         # set initial_setup_complete to true.
+
         ripe_user = RipeUser.objects.filter(user=validated_data['user'])
-        ripe_user.update(initial_setup_complete=True)
+        if len(ripe_user) == 0:
+            RipeUser.objects.create(user=validated_data['user'], initial_setup_complete=True)
+        else:
+            ripe_user.update(initial_setup_complete=True)
 
         return {"username": validated_data['user'].username,
                 "ripe_api_token": validated_data['user'].ripe_user.ripe_api_token,
