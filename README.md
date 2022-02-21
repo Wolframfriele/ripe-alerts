@@ -15,6 +15,7 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
+        <li><a href="#goal">Our goal</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
@@ -43,19 +44,21 @@
 
 This is project is made by 5 IT-students of Hogeschool Utrecht and is commissioned by [RIPE NCC](https://www.ripe.net/).
 
-Our main goal of this project is to find anomalies in the ATLAS network and report to the user. We currently report anomalies 
-to the user by using a web server, but in the future we will also support webhooks and much more! 
+Our main goal of this project is to find anomalies in the RIPE ATLAS network and report this to the user. We do this through various ways, including the following:
 
+* Web server 
+* Webhooks** (unsupported, still in development)
+* Email 
+* API
 
-* Request data from the atlas network
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
 
 Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
 
 Use the `BLANK_README.md` to get started.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+### Goal
 
 ### Features
 
@@ -160,6 +163,8 @@ Don't forget to give the project a star! Thanks again!
 ## License
 
 Distributed under the GNU License. See `LICENSE.txt` for more information.
+
+Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
