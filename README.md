@@ -1,10 +1,12 @@
 <div id="top"></div>
 
 <!-- PROJECT SHIELDS -->
-# ⚠ RIPE Alerts [![Contributors][contributors-shield]][contributors-url] [![Issues][issues-shield]][issues-url] [![Last Commits][last-commit-shield]][last-commit-url] [![Pull Request][pull-request-shield]][pull-request-url] [![MIT License][license-shield]][license-url]
-
-
-
+[![Contributors][contributors-shield]][contributors-url] 
+[![Issues][issues-shield]][issues-url] 
+[![Last Commits][last-commit-shield]][last-commit-url] 
+[![Pull Request][pull-request-shield]][pull-request-url] 
+[![MIT License][license-shield]][license-url]
+# ⚠ RIPE Alerts
 > Monitoring and anomaly detection based on RIPE Atlas data.
 <!-- TABLE OF CONTENTS -->
 <details>
