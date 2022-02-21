@@ -1,12 +1,10 @@
 <div id="top"></div>
 
 <!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Issues][issues-shield]][issues-url]
-[![Last Commits][last-commit-shield]][last-commit-url]
-[![Pull Request][pull-request-shield]][pull-request-url]
-[![MIT License][license-shield]][license-url]
-# ⚠ RIPE Alerts
+# ⚠ RIPE Alerts [![Contributors][contributors-shield]][contributors-url] [![Issues][issues-shield]][issues-url] [![Last Commits][last-commit-shield]][last-commit-url] [![Pull Request][pull-request-shield]][pull-request-url] [![MIT License][license-shield]][license-url]
+
+
+
 > Monitoring and anomaly detection based on RIPE Atlas data.
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -41,12 +39,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+This is project is made by 5 IT-students of Hogeschool Utrecht and is commissioned by [RIPE NCC](https://www.ripe.net/).
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+Our main goal of this project is to find anomalies in the ATLAS network and report to the user. We currently report anomalies 
+to the user by using a web server, but in the future we will also support webhooks and much more! 
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
+
+* Request data from the atlas network
 * You shouldn't be doing the same tasks over and over like creating a README from scratch
 * You should implement DRY principles to the rest of your life :smile:
 
@@ -56,7 +55,12 @@ Use the `BLANK_README.md` to get started.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### Features
 
+* Automatically analyze measurements from Ripe Atlas.
+* View anomalies in a human-readable format
+* Easily extend functionality with plugins
+* Receive alerts via Email.
 
 ### Built With
 
@@ -200,5 +204,3 @@ Use this space to list resources you find helpful and would like to give credit 
 [pull-request-url]: https://github.com/Wolframfriele/ripe-alerts/pulls
 [license-shield]: https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge
 [license-url]: https://www.gnu.org/licenses/gpl-3.0.nl.html
-
-[product-screenshot]: images/screenshot.png
