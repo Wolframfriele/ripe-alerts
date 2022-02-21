@@ -1,43 +1,28 @@
+"""
+Plugin File for the Entry Connection detection method. 
+"""
 import time
+import ijson
 import numpy as np
 import pandas as pd
-import ijson
 from urllib.request import urlopen
 from requests.exceptions import ChunkedEncodingError
 from datetime import datetime
-from abc import ABC, abstractmethod
 from ripe.atlas.sagan import TracerouteResult
 from adtk.detector import LevelShiftAD
 from adtk.data import validate_series
-from .as_tools import ASLookUp
+from ..as_tools import ASLookUp
 from datetime import datetime, timedelta
-
-class MonitorStrategy(ABC):
-    @abstractmethod
-    def collect_initial_dataset(self, collection, measurement_id: str) -> None:
-        pass
-
-    @abstractmethod
-    def preprocess(self, measurement_result):
-        pass
-
-    @abstractmethod
-    def store(self, collection, measurement_result) -> None:
-        pass
-
-    @abstractmethod
-    def analyze(self, collection):
-        pass
-
-    @abstractmethod
-    def filter(self, df):
-        pass
+from ..monitor_strategy_base import MonitorStrategy
 
 
-class PreEntryASMonitor(MonitorStrategy):
+class DetectionMethod(MonitorStrategy):
     def __init__(self) -> None:
         self.own_as = None
         self.as_look_up = ASLookUp()
+
+    def measurement_type(self) -> str:
+        return 'traceroute'
 
     def collect_initial_dataset(self, collection, measurement_id: str) -> None:
         """

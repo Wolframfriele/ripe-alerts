@@ -1,35 +1,45 @@
+import os
+import importlib
 from .models import AlertConfiguration
 from .monitors import Monitor
-from .monitor_strategies import PreEntryASMonitor
 from .models import AlertConfiguration
 from django import db
 
 
 class MonitorManager:
-
     def __init__(self):
-
         self.alert_configurations = AlertConfiguration.objects.all()
         db.connections.close_all()
         self.monitors = dict()
-        for alert_configuration in self.alert_configurations:
-            # for i in range(10):
-            #     print(alert_configuration.measurement.type)
-            
-            if alert_configuration.measurement.type == 'traceroute':
-                strategy = PreEntryASMonitor()
-                self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
+        
+        plugins = os.listdir('simple_alert/DetectionMethods')
+        plugin_list = []
+        for plugin in plugins:
+            if plugin.endswith(".py") and plugin != '__init__.py':
+                plugin_list.append(plugin[:-3])
+
+        self._plugins = [
+            importlib.import_module(f'simple_alert.DetectionMethods.{plugin}').DetectionMethod() for plugin in plugin_list
+        ]
+
+        for plugin in self._plugins:
+            for alert_configuration in self.alert_configurations:
+                if alert_configuration.measurement.type == plugin.measurement_type():
+                    print(alert_configuration)
+                    self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, plugin)
 
         for monitor in self.monitors.values():
             monitor.start()
 
-    def create_monitor(self, alert_configuration: AlertConfiguration):
+    def create_monitors(self, alert_configurations: list):
         db.connections.close_all()
-        if self.monitors.get(alert_configuration.alert_configuration_id) is None:
-            if alert_configuration.measurement.type == 'traceroute':
-                strategy = PreEntryASMonitor()
-                self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, strategy)
-                self.monitors[alert_configuration.alert_configuration_id].start()
+        for plugin in self._plugins:
+            for alert_configuration in alert_configurations:
+                configuration_in_system = self.monitors.get(alert_configuration.alert_configuration_id) is None
+                plugin_type_is_measurement_type = alert_configuration.measurement.type == plugin.measurement_type()
+                if configuration_in_system and plugin_type_is_measurement_type:
+                    self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, plugin)
+                    self.monitors[alert_configuration.alert_configuration_id].start()
 
     def restart_monitor(self, monitor_id):
         pass
