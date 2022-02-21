@@ -1,6 +1,3 @@
-# ⚠ RIPE Alerts
-
-> Monitoring and anomaly detection based on RIPE Atlas data.
 <div id="top"></div>
 
 <!-- PROJECT SHIELDS -->
@@ -9,7 +6,8 @@
 [![Last Commits][last-commit-shield]][last-commit-url]
 [![Pull Request][pull-request-shield]][pull-request-url]
 [![MIT License][license-shield]][license-url]
-
+# ⚠ RIPE Alerts
+> Monitoring and anomaly detection based on RIPE Atlas data.
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
