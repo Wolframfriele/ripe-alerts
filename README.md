@@ -1,29 +1,72 @@
-# ripe-alerts
-This repo is a part of software build for Ripe.
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+![License](https://img.shields.io/github/license/Wolframfriele/ripe-alerts)
+![Commit Activity](https://img.shields.io/github/commit-activity/m/Wolframfriele/ripe-alerts)
+![Contributors](https://img.shields.io/github/contributors/Wolframfriele/ripe-alerts)
+![Last Commit](https://img.shields.io/github/last-commit/Wolframfriele/ripe-alerts)
 
-# Security
-This Repo is private, we don't want to share this project yet.
+⚠ RIPE Alerts
+==============
 
-# How to use branches
-Our main branche is litteraly the main branche. In this branche we have only the tested code, the code in the main branche is ready to go in production.
-README.md, gitignore and other project wide files may be commited directly to the main branche.
+Monitoring and anomaly detection based on RIPE Atlas data.
 
-Code that's writen for a storie like user storie, have to have to use the name of the devops story. SO US + number, US65413 or when it is an enabler storie please use ES and the front.
 
-# Issues
-We can start using Issues when we launched our MVP.
+## Features
+* Automatically analyze measurements from Ripe Atlas.
+* View anomalies in a human-readable format
+* Easily extend functionality with plugins
+* Receive alerts via Email.
 
-# How to launch this project?
-We use docker to host the project. It is meant to host it on a server. Every individual user needs his own setup. To set it up please do the following steps.
 
-1. Install docker.
-2. Copy the project to the right spot on your disk.
-3. Navigate to the folder and run docker-compose build
-4. Run docker-compose up
-5. Navigate to http://localhost:8080/
+## Roadmap
+- [ ] Improve docker installation
+- [ ] Add additional alerting methods like Webhooks, API
+- [ ] Personalize alerts by giving feedback to anomalies
+- [ ] Better API documentation
 
-## Stop docker
-Please do this only for maintainance purpose or when you want to delete the project.
-If there is an anomalie, you won't be alerted.
 
-$docker down
+## Installation
+The easiest way to install is to use Docker:
+Make sure you have docker installed and running and have cloned the repository.
+
+Remove line 11 from the `Backend/notifications/apis.py` file.
+```python
+  station = Station(PostgresInterface())
+```
+
+Run the docker-compose file.
+```bash
+  docker-compose up
+```
+
+Open a new terminal and ssh into the container.
+```bash
+  docker exec -it web-server bash
+```
+
+Migrate the database.
+```bash
+  python manage.py migrate
+```
+
+Create a superuser to access the database. (optional)
+```bash
+  python manage.py createsuperuser
+```
+
+Stop the container and uncomment line 11 in the `Backend/notifications/apis.py` file and build the container again.
+```bash
+  docker-compose down
+  docker-compose build
+  docker-compose up
+```
+It should be running now. you can access the site at `http://localhost:8080/`.
+
+
+## Contributing
+Contributions are always welcome!
+
+
+## Acknowledgements
+[Emile Aben](https://github.com/emileaben) - Guiding the development of this project
+
+[Ripe Atlas](https://atlas.ripe.net/) - Data source
