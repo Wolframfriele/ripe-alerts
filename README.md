@@ -99,7 +99,7 @@ It will look like the example below.
 ```bash
   python manage.py migrate
 ```
-6. To manage access to the database we need a superuser, so let's create one! <br/>
+6. To manage access to the database we need a superuser. So let's create one! <br/>
 To create a superuser, use the command:
 ```bash
   python manage.py createsuperuser
