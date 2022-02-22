@@ -114,7 +114,7 @@ So it will look like the code below.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- API -->
-## API reference
+## API Reference
 
 To check out live examples and docs, visit [our wiki.](https://github.com/Wolframfriele/ripe-alerts/wiki)
 
