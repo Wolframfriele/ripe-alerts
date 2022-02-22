@@ -29,11 +29,11 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#api">API docs</a></li>
+    <li><a href="#api">API Reference</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -113,12 +113,10 @@ So it will look like the code below.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- USAGE EXAMPLES -->
-## Usage
-#TODO: ADD API DOCS 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+<!-- API -->
+## API reference
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+To check out live examples and docs, visit [our wiki.](https://github.com/Wolframfriele/ripe-alerts/wiki)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
