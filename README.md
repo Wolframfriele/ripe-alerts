@@ -155,21 +155,21 @@ Don't forget to give the project a star! Thanks again!
 
 
 
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.ripe.net/). 
-For now, that's all folks!
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 <!-- LICENSE -->
 ## License
 
 Distributed under the GNU License. See [here](https://github.com/Wolframfriele/ripe-alerts/blob/main/LICENSE)
  for more information.
 
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.ripe.net/). 
+For now, that's all folks!
+
 Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
