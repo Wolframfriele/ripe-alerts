@@ -40,25 +40,21 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+
+## The Project
 
 This is project is made by 5 IT-students of Hogeschool Utrecht and is commissioned by [RIPE NCC](https://www.ripe.net/).
 
+### Goal
 Our main goal of this project is to find anomalies in the RIPE ATLAS network and report this to the user. We do this through various ways, including the following:
 
 * Web server 
-* Webhooks** (unsupported, still in development)
+* ~~Webhooks~~ (still in development)
 * Email 
 * API
 
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
-
+Currently, most of this is still in development. We will be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue.
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-### Goal
 
 ### Features
 
@@ -66,6 +62,7 @@ Use the `BLANK_README.md` to get started.
 * View anomalies in a human-readable format
 * Easily extend functionality with plugins
 * Receive alerts via Email.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
