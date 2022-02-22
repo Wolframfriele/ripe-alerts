@@ -106,7 +106,7 @@ To create a superuser, use the command:
 ```
 7. After succesfully creating the superuser, stop the Docker container.
 8. Now go back to the project and uncomment line #11 from the `Backend/notifications/apis.py` file. <br/>
-So it will looks like the code below.
+So it will look like the code below.
 ```python
   station = Station(PostgresInterface())
 ```
