@@ -131,7 +131,6 @@ To check out live examples and docs, visit [our wiki.](https://github.com/Wolfra
 - [ ] Personalize alerts by giving feedback to anomalies
 - [ ] Better API documentation
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
