@@ -15,9 +15,9 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#about-the-project">Intro</a>
       <ul>
-        <li><a href="#goal">Our goal</a></li>
+        <li><a href="#goal">Goal</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
