@@ -12,7 +12,7 @@
 This is project is made by 5 IT-students of Hogeschool Utrecht and is commissioned by [RIPE NCC](https://www.ripe.net/).
 <!-- TABLE OF CONTENTS -->
 <details>
-  <summary>Table of Contents</summary>
+  <summary><b>Table of Contents</b></summary>
   <ol>
     <li>
       <a href="#about-the-project">Intro</a>
