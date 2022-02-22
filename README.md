@@ -85,7 +85,7 @@ To run this application, you'll need the latest version of Docker and Python ins
 ### Installation
 
 1. After you've cloned the repository. Comment line #11 from the `Backend/notifications/apis.py` file. 
-It will looks like the example below.
+It will look like the example below.
 ```python
 #  station = Station(PostgresInterface())
 ```
@@ -99,7 +99,7 @@ It will looks like the example below.
 ```bash
   python manage.py migrate
 ```
-6. To manage access to the database we need a superuser. let's create one! <br/>
+6. To manage access to the database we need a superuser, so let's create one! <br/>
 To create a superuser, use the command:
 ```bash
   python manage.py createsuperuser
@@ -112,24 +112,8 @@ So it will looks like the code below.
 ```
 9. Repeat step 2 and start the application.
 10. Congratulations! It should be running now. You can access the site at [http://localhost:8080/](http://localhost:8080/).
-  
-
-6. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-7. Install NPM packages
-   ```sh
-   npm install
-   ```
-8. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
