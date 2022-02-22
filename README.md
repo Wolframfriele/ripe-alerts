@@ -75,31 +75,54 @@ We're currently using the following frameworks.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get a local server up and running follow these steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+To run this application, you'll need the latest version of Docker and Python installed on your computer. 
+
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. After you've cloned the repository. Comment line #11 from the `Backend/notifications/apis.py` file. 
+It will looks like the example below.
+```python
+#  station = Station(PostgresInterface())
+```
+2. Build all component images with Docker, using the command:
+```bash
+  docker-compose
+```
+3. Open Docker.
+4. Start the application, and go to the Webserver-container and open the Command Line Interface (CLI).
+5. Migrate the database, using the following command:
+```bash
+  python manage.py migrate
+```
+6. To manage access to the database we need a superuser. let's create one! <br/>
+To create a superuser, use the command:
+```bash
+  python manage.py createsuperuser
+```
+7. After succesfully creating the superuser, stop the Docker container.
+8. Now, go back to the project and uncomment line #11 from the `Backend/notifications/apis.py` file. <br/>
+So it will looks like the code below.
+```python
+  station = Station(PostgresInterface())
+```
+9. Repeat step 2 and start the application.
+10. Congratulations! It should be running now. You can access the site at [http://localhost:8080/](http://localhost:8080/).
+  
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+6. Clone the repo
    ```sh
    git clone https://github.com/your_username_/Project-Name.git
    ```
-3. Install NPM packages
+7. Install NPM packages
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
+8. Enter your API in `config.js`
    ```js
    const API_KEY = 'ENTER YOUR API';
    ```
