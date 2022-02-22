@@ -75,7 +75,7 @@ We're currently using the following frameworks.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local server up and running follow these steps.
+To get a local server up and running, follow these steps.
 
 ### Prerequisites
 
@@ -89,13 +89,13 @@ It will look like the example below.
 ```python
 #  station = Station(PostgresInterface())
 ```
-2. Build all component images with Docker, using the command:
+2. Build all component images with Docker, by using the command:
 ```bash
   docker-compose
 ```
 3. Open Docker.
-4. Start the application, and go to the Webserver-container and open the Command Line Interface (CLI).
-5. Migrate the database, using the following command:
+4. Start the application and go to the Webserver-container to open the Command Line Interface (CLI).
+5. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
 ```
