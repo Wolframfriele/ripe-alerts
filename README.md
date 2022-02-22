@@ -29,7 +29,7 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#api">API Reference</a></li>
+    <li><a href="#api-reference">API Reference</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -113,7 +113,7 @@ So it will look like the code below.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- API -->
+<!-- API REFERENCE -->
 ## API Reference
 
 To check out live examples and docs, visit [our wiki.](https://github.com/Wolframfriele/ripe-alerts/wiki)
