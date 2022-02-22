@@ -32,8 +32,8 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
     <li><a href="#api">API docs</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#license">License</a></li>
   </ol>
 </details>
 
@@ -153,15 +153,6 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- LICENSE -->
-## License
-
-Distributed under the GNU License. See [here](https://github.com/Wolframfriele/ripe-alerts/blob/main/LICENSE)
- for more information.
-
-Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- ACKNOWLEDGMENTS -->
@@ -169,6 +160,16 @@ Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
 
 We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.ripe.net/). 
 For now, that's all folks!
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the GNU License. See [here](https://github.com/Wolframfriele/ripe-alerts/blob/main/LICENSE)
+ for more information.
+
+Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
