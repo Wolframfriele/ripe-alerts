@@ -163,12 +163,13 @@ Distributed under the GNU License. See [here](https://github.com/Wolframfriele/r
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.ripe.net/). 
-For now, that's all folks!
-
-Copyright (c) 2021 by Floris, Wolfram, Maarten, Sybren and Koen
+For now, that's all folks!<br/>
+<br/>
+Copyright (c) 2022 by Floris, Wolfram, Maarten, Sybren and Koen
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
