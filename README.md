@@ -164,8 +164,9 @@ Distributed under the GNU License. See [here](https://github.com/Wolframfriele/r
 ## Acknowledgments
 
 We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.ripe.net/). 
-For now, that's all folks!<br/>
-<br/>
+
+Also, we are grateful for having [Emile Aben](https://github.com/emileaben) for guiding the development of this project.
+
 Copyright (c) 2022 by Floris, Wolfram, Maarten, Sybren and Koen
 
 
