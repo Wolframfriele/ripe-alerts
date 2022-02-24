@@ -24,7 +24,7 @@ class Monitor:
         self.collection = None
 
     def __str__(self):
-        return f"Montitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
+        return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
 
     def on_result_response(self, *args):
         """
