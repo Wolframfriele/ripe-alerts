@@ -223,7 +223,7 @@ class DetectionMethod(MonitorStrategy):
                         pass
                 score = round((as_anomalies[-3] / probes_in_as) * 100, 2)
                 alert_time = as_anomalies.index[-3]
-                print(f'Anomaly score for {as_num}: {score}')
+                print(f'Entry connection anomaly score for {as_num}: {score}')
                 if score > MIN_ANOMALY_SCORE:
                     alert = False
                     if score > MIN_ALERT_SCORE:

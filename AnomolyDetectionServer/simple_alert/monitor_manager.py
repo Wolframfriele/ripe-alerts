@@ -1,5 +1,6 @@
 import os
 import importlib
+from .monitor_strategy_base import MonitorStrategy
 from .models import AlertConfiguration
 from .monitors import Monitor
 from .models import AlertConfiguration
@@ -23,10 +24,13 @@ class MonitorManager:
         ]
 
         for plugin in self._plugins:
-            for alert_configuration in self.alert_configurations:
-                if alert_configuration.measurement.type == plugin.measurement_type():
-                    print(alert_configuration)
-                    self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, plugin)
+            if isinstance(plugin, MonitorStrategy):
+                for alert_configuration in self.alert_configurations:
+                    if alert_configuration.measurement.type == plugin.measurement_type():
+                        print(alert_configuration)
+                        self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, plugin)
+            else:
+                raise TypeError("Plugin does not follow MonitorStrategy")
 
         for monitor in self.monitors.values():
             monitor.start()
