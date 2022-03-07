@@ -76,14 +76,13 @@ class DetectionMethod(MonitorStrategy):
         entry_rtt, entry_ip, entry_as = self.find_network_entry_hop(
             hops, user_ip)
 
-        clean_result = {
+        return {
             'probe_id': measurement_result.probe_id,
             'created': measurement_result.created,
             'entry_rtt': entry_rtt,
             'entry_ip': entry_ip,
             'entry_as': entry_as
         }
-        return clean_result
 
     def clean_hops(self, hops: list) -> list:
         """
@@ -225,9 +224,7 @@ class DetectionMethod(MonitorStrategy):
                 alert_time = as_anomalies.index[-3]
                 print(f'Entry connection anomaly score for {as_num}: {score}')
                 if score > MIN_ANOMALY_SCORE:
-                    alert = False
-                    if score > MIN_ALERT_SCORE:
-                        alert = True
+                    alert = score > MIN_ALERT_SCORE
                     print(f'Anomaly at {alert_time.strftime("%d/%m/%Y, %H:%M:%S")} \
                         in AS{as_num}. Problem with {as_anomalies[-3]} probes. \
                             Percentage of AS: {score}')
