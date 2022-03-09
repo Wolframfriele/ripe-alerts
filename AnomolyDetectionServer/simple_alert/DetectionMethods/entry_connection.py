@@ -1,43 +1,28 @@
+"""
+Plugin File for the Entry Connection detection method. 
+"""
 import time
+import ijson
 import numpy as np
 import pandas as pd
-import ijson
 from urllib.request import urlopen
 from requests.exceptions import ChunkedEncodingError
 from datetime import datetime
-from abc import ABC, abstractmethod
 from ripe.atlas.sagan import TracerouteResult
 from adtk.detector import LevelShiftAD
 from adtk.data import validate_series
-from .as_tools import ASLookUp
+from ..as_tools import ASLookUp
 from datetime import datetime, timedelta
-
-class MonitorStrategy(ABC):
-    @abstractmethod
-    def collect_initial_dataset(self, collection, measurement_id: str) -> None:
-        pass
-
-    @abstractmethod
-    def preprocess(self, measurement_result):
-        pass
-
-    @abstractmethod
-    def store(self, collection, measurement_result) -> None:
-        pass
-
-    @abstractmethod
-    def analyze(self, collection):
-        pass
-
-    @abstractmethod
-    def filter(self, df):
-        pass
+from ..monitor_strategy_base import MonitorStrategy
 
 
-class PreEntryASMonitor(MonitorStrategy):
+class DetectionMethod(MonitorStrategy):
     def __init__(self) -> None:
         self.own_as = None
         self.as_look_up = ASLookUp()
+
+    def measurement_type(self) -> str:
+        return 'traceroute'
 
     def collect_initial_dataset(self, collection, measurement_id: str) -> None:
         """
@@ -91,14 +76,13 @@ class PreEntryASMonitor(MonitorStrategy):
         entry_rtt, entry_ip, entry_as = self.find_network_entry_hop(
             hops, user_ip)
 
-        clean_result = {
+        return {
             'probe_id': measurement_result.probe_id,
             'created': measurement_result.created,
             'entry_rtt': entry_rtt,
             'entry_ip': entry_ip,
             'entry_as': entry_as
         }
-        return clean_result
 
     def clean_hops(self, hops: list) -> list:
         """
@@ -238,10 +222,9 @@ class PreEntryASMonitor(MonitorStrategy):
                         pass
                 score = round((as_anomalies[-3] / probes_in_as) * 100, 2)
                 alert_time = as_anomalies.index[-3]
+                print(f'Entry connection anomaly score for {as_num}: {score}')
                 if score > MIN_ANOMALY_SCORE:
-                    alert = False
-                    if score > MIN_ALERT_SCORE:
-                        alert = True
+                    alert = score > MIN_ALERT_SCORE
                     print(f'Anomaly at {alert_time.strftime("%d/%m/%Y, %H:%M:%S")} \
                         in AS{as_num}. Problem with {as_anomalies[-3]} probes. \
                             Percentage of AS: {score}')

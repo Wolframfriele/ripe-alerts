@@ -1,21 +1,17 @@
 import datetime
 import os
 import time
-
-from dotenv import load_dotenv
 from pymongo import MongoClient, DESCENDING
 from ripe.atlas.cousteau import *
-import threading
 import multiprocessing
-from .monitor_strategies import MonitorStrategy
-from .models import Measurement, Anomaly, AlertConfiguration
+from .monitor_strategy_base import MonitorStrategy
+from .models import Anomaly, AlertConfiguration
 
 username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
 password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
 
 
 class Monitor:
-
     def __init__(self, alert_configuration: AlertConfiguration, strategy: MonitorStrategy):
 
         self.measurement = alert_configuration.measurement
@@ -28,7 +24,7 @@ class Monitor:
         self.collection = None
 
     def __str__(self):
-        return f"Montitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
+        return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
 
     def on_result_response(self, *args):
         """

@@ -13,9 +13,7 @@ class MonitorProcess(APIView):
         asns = request.data.get('asns')
         for asn in asns:
             alert_configurations = get_alert_configurations_by_asn(asn)
-            for alert_configuration in alert_configurations:
-                print(alert_configuration)
-                monitor_manager.create_monitor(alert_configuration)
+            monitor_manager.create_monitors(alert_configurations)
         return Response(f"Monitoring Process started for the following asns: {asns}", status=status.HTTP_201_CREATED)
 
 

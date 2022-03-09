@@ -11,6 +11,7 @@ const routes = [
 	{ path: "/setup", name: "setup", component: Setup },
 	{ path: "/manage-alerts", name: "managealerts", component: ManageAlerts },
 	{ path: "/documentation", name: "documentation", component: Documentation  },
+	{ path: "/feedback", name: "feedback", component: () => import(/* webpackChunkName: "feedback" */ '../views/Feedback.vue') },
 ];
 
 const router = createRouter({

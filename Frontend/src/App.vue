@@ -47,6 +47,14 @@
 					</q-item-section>
 				</q-item>
 				<q-separator />
+				<q-item clickable tag="a" :to="{ name: 'feedback' }">
+					<q-item-section avatar>
+						<q-icon name="feedback" />
+					</q-item-section>
+					<q-item-section>
+						<q-item-label>Feedback</q-item-label>
+					</q-item-section>
+				</q-item>
 				<q-item clickable tag="a" :to="{ name: 'documentation' }">
 					<q-item-section avatar>
 						<q-icon name="article" />
