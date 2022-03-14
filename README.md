@@ -28,6 +28,7 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
         <li><a href="#how-to-use-the-database?">How to use the database?</a></li>
+        <li><a href="#how-to-use-the-database">How to use the database?2</a></li>
       </ul>
     </li>
     <li><a href="#api-reference">API Reference</a></li>
@@ -112,6 +113,7 @@ So it will look like the code below.
 9. Repeat step 2 and start the application.
 10. Congratulations! It should be running now. You can access the site at [http://localhost:8080/](http://localhost:8080/).
 
+<!-- HOW TO USE THE DATABASE? -->
 ### How to use the database?
 
 To access the database you'll need go to the Django admin page. This can be found at [http://localhost:8000/admin](http://localhost:8000/admin). 
