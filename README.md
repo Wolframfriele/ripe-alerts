@@ -116,26 +116,14 @@ So it will look like the code below.
 To access the database you'll need go to the Django admin page. This can be found at [http://localhost:8000/admin](http://localhost:8000/admin). 
 
 After, opening the link. You can log in with the default user:
-- username: admin
-- email: admin@myproject.com
-- password: password
 
-| username | admin |
-|----------|------:|
-| username | $1600 |
-| email    |   $12 |
-| password |    $1 |
+| Info     |              Values |
+|----------|--------------------:|
+| username |               admin |
+| email    | admin@myproject.com |
+| password |            password |
 
-<table>
-  <tr>
-    <th>Fruit</th>
-    <td>Banana</td>
-  </tr>
-  <tr>
-    <th>Vegetable</th>
-    <td>Carrot</td>
-  </tr>
-</table>
+
 
 We highly recommend changing your password after logging in. This can be done in by navigating to the top right of the Django admin page.
 <p align="right">(<a href="#top">back to top</a>)</p>
