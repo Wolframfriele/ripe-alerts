@@ -27,8 +27,7 @@ This is project is made by 5 IT-students of Hogeschool Utrecht and is commission
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
-        <li><a href="#how-to-use-the-database?">How to use the database?</a></li>
-        <li><a href="#how-to-use-the-database">How to use the database?2</a></li>
+        <li><a href="#how-to-use-the-database">How to use the database?</a></li>
       </ul>
     </li>
     <li><a href="#api-reference">API Reference</a></li>
@@ -120,11 +119,11 @@ To access the database you'll need go to the Django admin page. This can be foun
 
 After, opening the link. You can log in with the default user:
 
-| Info     |              Values |
-|----------|--------------------:|
-| username |               admin |
-| email    | admin@myproject.com |
-| password |            password |
+| Info     |                 Value |
+|----------|----------------------:|
+| username |                 admin |
+| email    | `admin@myproject.com` |
+| password |              password |
 
 
 
