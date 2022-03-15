@@ -3,6 +3,13 @@
 		<div class="wrapper">
 			<q-card-section>
 				<h1>Adjust Monitoring settings</h1>
+				<InfoButton
+					info="The AS number (Autonomous System number),
+					is the starting point for anomaly detection.
+					This is used to find Anchors that are located in your AS.
+					For each Anchor the system finds the relevant measurements
+					and sends those to the anomaly detection."
+				/>
 				<h2>AS Numbers</h2>
 				<p>Remove or add AS numbers that you want to monitor.</p>
 				<q-input
@@ -42,6 +49,9 @@
 			<q-separator inset />
 
 			<q-card-section>
+				<InfoButton
+					info="Email will be used as the place where alerts will be sent."
+				/>
 				<h2>Email</h2>
 				<p>Change the email where you want to receive alerts.</p>
 				<q-input
@@ -226,8 +236,12 @@
 <script>
 import { ref } from "vue";
 import axios from "axios";
+import InfoButton from "../components/InfoButton.vue";
 
 export default {
+	components: {
+		InfoButton
+	},
 	setup() {
 		return {
 			step: ref(1),
@@ -277,7 +291,7 @@ export default {
 		},
 		step2() {
 			if (this.ASN.length > 0) {
-				this.addASN()
+				this.addASN();
 			}
 			if (this.ASNList > 0) {
 				this.step = 2;

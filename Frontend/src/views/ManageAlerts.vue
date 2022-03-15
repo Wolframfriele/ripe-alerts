@@ -2,6 +2,12 @@
 	<q-card flat bordered class="page-card">
 		<div class="alert-wrapper">
 			<q-card-section>
+				<InfoButton
+					info="If you are happy with the alerts you can give positive feedback,
+					if you thought an anomaly was not alert worthy you can give negative feedback.
+					The system will use this feedback to predict if future anomalies are alert worthy.
+					To give the feedback you can use the thumbs."
+				/>
 				<h1>Anomaly Overview and Feedback</h1>
 				<q-table :rows="data" :columns="columns" row-key="timestamp" dense flat>
 					<template v-slot:body-cell="props">
@@ -44,7 +50,12 @@
 
 <script>
 import axios from "axios";
+import InfoButton from "../components/InfoButton.vue";
+
 export default {
+	components: {
+		InfoButton
+	},
 	data() {
 		return {
 			columns: [
@@ -70,11 +81,12 @@ export default {
 					format: val => this.format_prediction(val),
 					field: "is_alert"
 				},
-				{ 
+				{
 					name: "actions",
 					label: "Feedback",
 					field: "",
-					align: "center" }
+					align: "center"
+				}
 			],
 			data: [],
 			noti: () => {},
@@ -138,11 +150,11 @@ export default {
 			return `${year}-${month}-${day}  |  ${hours}:${minutes}`;
 		},
 		format_prediction(input) {
-			let format = "No Alert"
+			let format = "No Alert";
 			if (input == true) {
-				format = "Alert"
+				format = "Alert";
 			}
-			return format
+			return format;
 		}
 	}
 };
