@@ -14,8 +14,8 @@
 						<q-td
 							:props="props"
 							:class="
-								props.row.label == 1
-									? 'bg-green text-white'
+								props.row.label == null
+									? 'bg-grey-3 text-black'
 									: 'bg-white text-black'
 							"
 						>
@@ -28,7 +28,7 @@
 								dense
 								round
 								flat
-								color="green"
+								:color="getUpThumbColor(props.row)"
 								@click="positiveFeedback(props.row)"
 								icon="thumb_up"
 							></q-btn>
@@ -36,7 +36,7 @@
 								dense
 								round
 								flat
-								color="red"
+								:color="getDownThumbColor(props.row)"
 								@click="negativeFeedback(props.row)"
 								icon="thumb_down"
 							></q-btn>
@@ -154,7 +154,23 @@ export default {
 			if (input == true) {
 				format = "Alert";
 			}
-			return format;
+			return format
+		},
+		getUpThumbColor(row) {
+			if (row.label == 1) {
+				return 'green'
+			}
+			else{
+				return 'grey'
+			}
+		},
+		getDownThumbColor(row) {
+			if (row.label == 0) {
+				return 'red'
+			}
+			else{
+				return 'grey'
+			}
 		}
 	}
 };
