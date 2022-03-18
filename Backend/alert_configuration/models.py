@@ -25,8 +25,8 @@ class Anomaly(models.Model):
     
 
 class Feedback(models.Model):
-    anomaly_id = models.ForeignKey(Anomaly, on_delete=models.CASCADE)
-    feedback = models.BooleanField(null=True)
+    anomaly_id = models.ForeignKey(Anomaly, on_delete=models.CASCADE, unique=True)
+    response = models.BooleanField(null=True)
 
 # class AlertConfiguration(models.Model):
 #     alert_configuration_id = models.AutoField(primary_key=True)
