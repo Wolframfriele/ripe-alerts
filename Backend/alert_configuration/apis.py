@@ -40,6 +40,7 @@ class LabelAlert(APIView):
         anomaly_serialized = AnomalySerializer(anomaly)
         return Response(anomaly_serialized.data, status=status.HTTP_200_OK)
 
+
 class FeedBack(APIView):
     "Saving the feedback to the database"
 
@@ -47,12 +48,11 @@ class FeedBack(APIView):
         anomaly_id = request.data.get("anomaly_id")
         response = request.data.get("response")
 
-        print(anomaly_id, response)
         anomaly = Anomaly.objects.get(id=anomaly_id)
 
         feedback = Feedback(anomaly_id=anomaly, response=response)
         feedback.save()
-        
+
         return Response(status=status.HTTP_200_OK)
 
     def put(self, request):
@@ -65,7 +65,3 @@ class FeedBack(APIView):
         feedback_data.save(update_fields=['response'])
 
         return Response(status=status.HTTP_200_OK)
-
-
-
-
