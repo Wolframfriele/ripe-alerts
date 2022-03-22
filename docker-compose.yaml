@@ -28,13 +28,16 @@ services:
   db:
     image: postgres
     container_name: database
+    user: postgres
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_NAME=ripe
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - APP_DB_USER=docker
+      - APP_DB_PASS=docker
+      - APP_DB_NAME=docker
     ports:
       - "5432:5432"
   be:
@@ -49,9 +52,8 @@ services:
     volumes:
       - ./backend:/code
     environment:
-      - POSTGRES_NAME=ripe
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
       - DJANGO_SUPERUSER_PASSWORD=password
     depends_on:
       - db
@@ -65,9 +67,8 @@ services:
     volumes:
       - ./anomalydetection:/code
     environment:
-      - POSTGRES_NAME=ripe
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
     depends_on:
