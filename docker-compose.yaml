@@ -37,7 +37,7 @@ services:
 
 
   web:
-    build: ./Backend
+    build: ./backend
     restart: always
     container_name: web-server
     command: >
@@ -47,7 +47,7 @@ services:
       - "8000:8000"
 
     volumes:
-      - ./Backend:/code
+      - ./backend:/code
     environment:
       - POSTGRES_NAME=ripe_alerts
       - POSTGRES_USER=postgres
