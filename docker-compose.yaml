@@ -36,10 +36,10 @@ services:
       - mongodb
 
 
-  web:
+  be:
     build: ./backend
     restart: always
-    container_name: web-server
+    container_name: backend
     command: >
         sh -c "python user.py
         && python manage.py runserver 0.0.0.0:8000"
@@ -53,8 +53,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
       - DJANGO_SUPERUSER_PASSWORD=password
-    depends_on:
-      - db
+#    depends_on:
+#      - db
   ai:
     build: ./AnomolyDetectionServer
     restart: always
@@ -82,4 +82,4 @@ services:
     volumes:
       - ./Frontend:/code
     depends_on:
-      - web
+      - be

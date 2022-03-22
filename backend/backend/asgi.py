@@ -1,5 +1,5 @@
 """
-ASGI config for RipeUgh project.
+ASGI config for Ripe-alert project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
