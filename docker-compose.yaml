@@ -3,6 +3,7 @@ version: "3.4"
 services:
   db:
     image: postgres
+    container_name: database
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
@@ -11,29 +12,29 @@ services:
       - POSTGRES_DB=ripe_alerts
     ports:
       - "5432:5432"
-  mongodb:
-    image: mongo
-    hostname: mongodb
-    restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./data/mongodb:/data
-  mongodb-express:
-    image: mongo-express
-    hostname: mongo-express
-    restart: always
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-    ports:
-      - "8081:8081"
-    depends_on:
-      - mongodb
+#  mongodb:
+#    image: mongo
+#    hostname: mongodb
+#    restart: always
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=password
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - ./data/mongodb:/data
+#  mongodb-express:
+#    image: mongo-express
+#    hostname: mongo-express
+#    restart: always
+#    environment:
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - mongodb
 
 
   be:
@@ -56,27 +57,27 @@ services:
 #    depends_on:
 #      - db
   ai:
-    build: ./AnomolyDetectionServer
+    build: ./anomalydetection
     restart: always
-    container_name: ai-server
+    container_name: artificial-intelligence
     command: python manage.py runserver 0.0.0.0:8001
     ports:
       - "8001:8001"
     volumes:
-      - ./AnomolyDetectionServer:/code
+      - ./anomalydetection:/code
     environment:
       - POSTGRES_NAME=ripe_alerts
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
-    depends_on:
-      - db
-      - mongodb
+#    depends_on:
+#      - db
+#      - mongodb
   fe:
     build: ./Frontend
     restart: always
-    container_name: fe-server
+    container_name: frontend
     ports:
       - "8080:8080"
     volumes:
