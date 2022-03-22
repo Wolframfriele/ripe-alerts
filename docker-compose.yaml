@@ -1,17 +1,7 @@
 version: "3.4"
 
 services:
-  db:
-    image: postgres
-    container_name: database
-    restart: always
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=ripe_alerts
-    ports:
-      - "5432:5432"
+# TODO: remove comments
 #  mongodb:
 #    image: mongo
 #    hostname: mongodb
@@ -35,8 +25,18 @@ services:
 #      - "8081:8081"
 #    depends_on:
 #      - mongodb
-
-
+  db:
+    image: postgres
+    container_name: database
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_NAME=ripe
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
+    ports:
+      - "5432:5432"
   be:
     build: ./backend
     restart: always
@@ -46,16 +46,15 @@ services:
         && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
-
     volumes:
       - ./backend:/code
     environment:
-      - POSTGRES_NAME=ripe_alerts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_NAME=ripe
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
       - DJANGO_SUPERUSER_PASSWORD=password
-#    depends_on:
-#      - db
+    depends_on:
+      - db
   ai:
     build: ./anomalydetection
     restart: always
@@ -66,13 +65,13 @@ services:
     volumes:
       - ./anomalydetection:/code
     environment:
-      - POSTGRES_NAME=ripe_alerts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_NAME=ripe
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=bd3jWCVJRheNmrWy
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
-#    depends_on:
-#      - db
+    depends_on:
+      - db
 #      - mongodb
   fe:
     build: ./Frontend
