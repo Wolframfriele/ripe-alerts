@@ -75,12 +75,12 @@ services:
       - db
 #      - mongodb
   fe:
-    build: ./Frontend
+    build: ./frontend
     restart: always
     container_name: frontend
     ports:
       - "8080:8080"
     volumes:
-      - ./Frontend:/code
+      - ./frontend:/code
     depends_on:
       - be
