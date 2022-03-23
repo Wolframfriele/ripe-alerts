@@ -28,10 +28,11 @@ SECRET_KEY = 'django-insecure-c=w^5c0h6%0!8eq6x^hztl=kzd@w(e=i2)^-00@lidswb774il
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "web-server",
-    "localhost"
-]
+# ALLOWED_HOSTS = [
+#     "web-server",
+#     "localhost"
+# ]
+ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -83,24 +84,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'RipeAlerts',
-#         'HOST': 'localhost',
-#         'PORT': 5432,
-#         'USER': 'tientjieit' ,
-#         'PASSWORD': os.getenv('DBWW')
-#
-#     }
-# }
 
 DATABASES = {
     'default': {

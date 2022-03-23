@@ -1,43 +1,16 @@
-version: "3.4"
+version: "3.9"
 
 services:
-# TODO: remove comments
-#  mongodb:
-#    image: mongo
-#    hostname: mongodb
-#    restart: always
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=admin
-#      - MONGO_INITDB_ROOT_PASSWORD=password
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - ./data/mongodb:/data
-#  mongodb-express:
-#    image: mongo-express
-#    hostname: mongo-express
-#    restart: always
-#    environment:
-#      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-#      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-#      - ME_CONFIG_MONGODB_SERVER=mongodb
-#    ports:
-#      - "8081:8081"
-#    depends_on:
-#      - mongodb
   db:
     image: postgres
     container_name: database
-    user: postgres
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=password
-      - APP_DB_USER=docker
-      - APP_DB_PASS=docker
-      - APP_DB_NAME=docker
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
   be:
@@ -52,8 +25,9 @@ services:
     volumes:
       - ./backend:/code
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - DJANGO_SUPERUSER_PASSWORD=password
     depends_on:
       - db
@@ -67,13 +41,11 @@ services:
     volumes:
       - ./anomalydetection:/code
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=password
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
-#      - mongodb
   fe:
     build: ./frontend
     restart: always
