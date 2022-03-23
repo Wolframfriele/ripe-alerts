@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-jhb+0v&@(=y@u691u9f_12@6_pp$0pl+3ar8rn1_j^f5k+2_4(
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'artificial-intelligence',
+    'anomaly-detection',
     'localhost'
 ]
 # ALLOWED_HOSTS = ['*']
