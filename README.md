@@ -83,17 +83,27 @@ To run this application, you'll need the latest version of Docker and Python ins
 
 ### Installation
 
-1. After you've cloned the repository. Comment line #11 from the `Backend/notifications/apis.py` file. 
-It will look like the example below.
-```python
-#  station = Station(PostgresInterface())
-```
-2. Build all component images with Docker, by using the command:
+1. If you're reinstalling the app, please delete the currently existing ripe-alert app first. Installing for the first time? Skip to step 4.<br/>
+
+2. Delete the ripe-alerts from Docker.<br>
+Open Docker Desktop → Go to Containers / Apps → ripe-alerts → Delete
+3. Delete the database folder.<br> 
+Open folder 'ripe-alerts' → Delete folder 'data'
+4. After you've cloned the repository. Open the terminal, and run the following command: 
 ```bash
-  docker-compose
+  docker compose run --rm db
+```
+Wait, until it says: 
+```bash
+  PostgreSQL init process complete; ready for start up.
+```
+5. Close the container (CTRL+C). 
+6. Start the application, by using the command:
+```bash
+  docker-compose up
 ```
 3. Open Docker.
-4. Start the application and go to the Webserver-container to open the Command Line Interface (CLI).
+4. Go to the backend-container, and open the Command Line Interface (CLI).
 5. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
@@ -103,14 +113,13 @@ To create a superuser, use the command:
 ```bash
   python manage.py createsuperuser
 ```
-7. After succesfully creating the superuser, stop the Docker container.
-8. Now go back to the project and uncomment line #11 from the `Backend/notifications/apis.py` file. <br/>
-So it will look like the code below.
-```python
-  station = Station(PostgresInterface())
+8. Go to the anomaly-container, and open the Command Line Interface (CLI).
+9. Migrate the database, by using the command:
+```bash
+  python manage.py migrate
 ```
-9. Repeat step 2 and start the application.
-10. Congratulations! It should be running now. You can access the site at [http://localhost:8080/](http://localhost:8080/).
+10. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+
 
 <!-- HOW TO USE THE DATABASE? -->
 ### How to use the database?
