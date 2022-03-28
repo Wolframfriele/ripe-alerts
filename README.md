@@ -89,36 +89,40 @@ To run this application, you'll need the latest version of Docker and Python ins
 Open Docker Desktop → Go to Containers / Apps → ripe-alerts → Delete
 3. Delete the database folder.<br> 
 Open folder 'ripe-alerts' → Delete folder 'data'
-4. After you've cloned the repository. Open the terminal, and run the following command: 
+4. After you've cloned the repository. Build all component images with Docker, by using the command:
 ```bash
-  docker compose run --rm db
+  docker compose build
+```
+5. Initialize the database. Open the terminal, and run the following command: 
+```bash
+  docker compose run --name database --rm db
 ```
 Wait, until it says: 
 ```bash
   PostgreSQL init process complete; ready for start up.
 ```
-5. Close the container (CTRL+C). 
-6. Start the application, by using the command:
+6. Close the container (CTRL+C). 
+7. Start the application, by using the command:
 ```bash
   docker-compose up
 ```
-3. Open Docker.
-4. Go to the backend-container, and open the Command Line Interface (CLI).
-5. Migrate the database, by using the command:
+8. Open Docker.
+9. Go to the backend-container, and open the Command Line Interface (CLI).
+10. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
 ```
-6. To manage access to the database we need a superuser. So let's create one! <br/>
+11. To manage access to the database we need a superuser. So let's create one! <br/>
 To create a superuser, use the command:
 ```bash
   python manage.py createsuperuser
 ```
-8. Go to the anomaly-container, and open the Command Line Interface (CLI).
-9. Migrate the database, by using the command:
+12. Go to the anomaly-container, and open the Command Line Interface (CLI).
+13. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
 ```
-10. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+14. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
 
 
 <!-- HOW TO USE THE DATABASE? -->
