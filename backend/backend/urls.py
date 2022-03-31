@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.urls.conf import include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from ninja import NinjaAPI
+from ripe_interface.api import router as events_router
 
+api = NinjaAPI(title="Ripe Alerter API", version="0.1", description="Welcome to our backend server!",)
+api.add_router("/asn/", events_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/", api.urls),
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
     # path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
