@@ -19,3 +19,4 @@ six==1.16.0
 sqlparse==0.4.2
 typing-extensions==3.10.0.2
 urllib3==1.26.7
+django-ninja==0.17.0
