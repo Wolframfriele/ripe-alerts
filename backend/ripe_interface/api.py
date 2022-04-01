@@ -27,6 +27,10 @@ def set_autonomous_system_setting(request, as_number: int):
 def pets(request):
     return f"Authenticated user {request.auth}"
 
+    # def my_view(request):
+    #     username = None
+    #     if request.user.is_authenticated():
+    #         username = request.user.username
 
 @router.get('/{event_id}', tags=[TAG])
 def event_details(request, event_id: int):
