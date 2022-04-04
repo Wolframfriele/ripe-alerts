@@ -132,11 +132,11 @@ To access the database you'll need go to the Django admin page. This can be foun
 
 After, opening the link. You can log in with the default user:
 
-| Info     |                 Value |
-|----------|----------------------:|
-| username |                 admin |
-| email    | `admin@myproject.com` |
-| password |              password |
+| Info     |            Value |
+|----------|-----------------:|
+| username |            admin |
+| email    | `admin@ripe.net` |
+| password |         password |
 
 
 We highly recommend changing your password after logging in. This can be done in by navigating to the top right of the Django admin page.
