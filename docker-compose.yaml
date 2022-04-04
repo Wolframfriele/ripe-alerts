@@ -28,7 +28,6 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - DJANGO_SUPERUSER_PASSWORD=password
     depends_on:
       - db
   ad:
