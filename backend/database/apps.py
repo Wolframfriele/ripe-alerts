@@ -11,5 +11,4 @@ class DatabaseConfig(AppConfig):
         admin_exist = User.objects.filter(username="admin").exists()
         if not admin_exist:
             User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
-        else:
             print("Superuser 'admin' created!")
