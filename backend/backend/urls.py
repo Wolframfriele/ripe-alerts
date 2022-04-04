@@ -14,21 +14,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import path
 from django.views.generic import RedirectView
 from ninja import NinjaAPI
-from ripe_interface.api import router as events_router
+from ripe_interface.api import router as ripe_interface_router
 
 description = "Welcome to our backend server!<br></br>Go to: " \
               "<a href='/admin/'>Django administration panel</a>"
 
 api = NinjaAPI(title="Ripe Alerter API", version="0.1", description=description, csrf=True)
-api.add_router("/asn/", events_router)
+api.add_router("/asn/", ripe_interface_router)
+
+
+def api_redirect(request):
+    return redirect('/api/docs#/')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/", api.urls, name='swagger'),
+    path('api/', api.urls, name='swagger'),
+    path('', api_redirect, name='redirect-to-swagger')
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
     # path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
