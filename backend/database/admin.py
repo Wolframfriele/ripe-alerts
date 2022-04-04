@@ -16,3 +16,5 @@ admin.site.register(DetectionMethod)
 admin.site.register(Anomaly)
 admin.site.register(Feedback)
 admin.site.register(Tag)
+
+admin.site.site_header = "Ripe Alerter"
