@@ -25,9 +25,10 @@ class ASTestCase(TestCase):
     def test_get_random_autonomous_system(self):  # -> list[Anchor]:
         """Returns a list of random currently online anchors """
         random_id = random.randint(1, 30)
-        print(random_id)
+        # print(random_id)
         response = requests.get(url=ANCHORS_URL + "10").json()
         anchor = Anchor(**response)
+        print(anchor)
 
 
         self.assertEqual(1, 1)
