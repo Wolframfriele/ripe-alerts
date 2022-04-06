@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'simple_alert'
+    'simple_alert'
 ]
 
 MIDDLEWARE = [

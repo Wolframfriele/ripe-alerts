@@ -3,6 +3,7 @@ from enum import Enum
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class MeasurementType(models.TextChoices):
     PING = 'Ping'
     TRACEROUTE = 'Traceroute'

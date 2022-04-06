@@ -1,27 +1,16 @@
 import datetime
 import os
 import time
-from pymongo import MongoClient, DESCENDING
 from ripe.atlas.cousteau import *
 import multiprocessing
 from .monitor_strategy_base import MonitorStrategy
-from .models import Anomaly, AlertConfiguration
-
-username = os.getenv('MONGO_INITDB_ROOT_USERNAME')
-password = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
-
+from .models import Anomaly, MeasurementCollection, Probe, MeasurementPoint, Hop, AutonomousSystem, DetectionMethod
 
 class Monitor:
-    def __init__(self, alert_configuration: AlertConfiguration, strategy: MonitorStrategy):
+    def __init__(self, MeasurementCollection: MeasurementCollection, strategy: MonitorStrategy):
 
-        self.measurement = alert_configuration.measurement
+        self.measurement = MeasurementCollection
         self.strategy = strategy
-        self.alert_configuration = alert_configuration
-        # variables related to mongo db should be initialized when we start a monitoring process
-        self.client: MongoClient = None
-        self.database = None
-        self.process: multiprocessing.Process = None
-        self.collection = None
 
     def __str__(self):
         return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
@@ -31,16 +20,27 @@ class Monitor:
         Function called every time we receive a new result.
         Store the result in the corresponding Mongodb collection.
         """
+        print(MeasurementCollection)
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
-        self.strategy.store(self.collection, measurement_result)
-        analyzed = self.strategy.analyze(self.collection)
+        #self.strategy.store(self.collection, measurement_result)
+        analyzed = self.strategy.analyze(measurement_result)
         anomalies = self.strategy.filter(analyzed)
         if len(anomalies) > 0:
             for anomaly in anomalies:
-                Anomaly.objects.create(alert_configuration=self.alert_configuration,
-                                       description=anomaly['description'],
-                                       datetime=anomaly['alert_time'])
+                detection_method = DetectionMethod.objects.get(type=self.measurement.type)
+
+                Anomaly.objects.create(time=anomaly['alert_time'],
+                                        ip_adress='127.0.0.1', #Dummy data
+                                        asn_settings_id=1234,
+                                        description=anomaly['description'],
+                                        measurement_type=self.measurement.type,
+                                        detection_method_id=detection_method,
+                                        medium_value=0, #Dummy data
+                                        value=0, #Dummy data
+                                        anomaly_score=0, #Dummy data
+                                        preditction_value=False, 
+                                        asn_error=1111) #Dummy data
 
     def on_error(*args):
         "got in on_error"
@@ -81,20 +81,12 @@ class Monitor:
         print(args)
         raise ConnectionError("Unsubscribed")
 
-    def init_db(self):
-        self.client = MongoClient(f'mongodb://{username}:{password}@mongodb')
-        self.database = self.client['Atlas_Results']
-        self.collection = self.database[f'{self.measurement.type} measurement: {self.measurement.measurement_id}']
-        self.collection.create_index([("created", DESCENDING)])
-
     def monitor(self):
-
-        self.init_db()
-
-        yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
-        count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
-        if count == 0:
-            self.strategy.collect_initial_dataset(self.collection, self.measurement.measurement_id)
+        print("Starting monitor")
+        # yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
+        # count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
+        # if count == 0:
+        #     self.strategy.collect_initial_dataset(self.collection, self.measurement.measurement_id)
 
         atlas_stream = AtlasStream()
         atlas_stream.connect()
@@ -112,7 +104,7 @@ class Monitor:
         # Subscribe to new stream
         atlas_stream.bind_channel(channel, self.on_result_response)
 
-        stream_parameters = {"msm": self.measurement.measurement_id}
+        stream_parameters = {"msm": self.measurement.id}
         atlas_stream.start_stream(stream_type="result", **stream_parameters)
 
         # run forever

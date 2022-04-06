@@ -2,7 +2,7 @@ asgiref==3.4.1
 certifi==2021.10.8
 charset-normalizer==2.0.7
 coverage==6.1
-Django==3.2.8
+Django==3.2.9
 django-cors-headers==3.10.1
 django-filter==21.1
 djangorestframework==3.12.4
@@ -19,3 +19,4 @@ six==1.16.0
 sqlparse==0.4.2
 typing-extensions==3.10.0.2
 urllib3==1.26.7
+./ripe_alerts_database-0.1.tar.gz
