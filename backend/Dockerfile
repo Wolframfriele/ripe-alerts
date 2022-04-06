@@ -5,5 +5,8 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 COPY ripe_alerts_database-0.1.tar.gz /code/
 COPY requirements.txt /code/
-RUN pip install -r requirements.txt
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && apt-get install -y whois \
+    && pip install -r requirements.txt
 COPY . /code/
