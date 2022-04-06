@@ -31,21 +31,6 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=password
     depends_on:
       - db
-  ad:
-    build: ./anomalydetection
-    restart: always
-    container_name: anomaly-detection
-    command: python manage.py runserver 0.0.0.0:8001
-    ports:
-      - "8001:8001"
-    volumes:
-      - ./anomalydetection:/code
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    depends_on:
-      - db
   fe:
     build: ./frontend
     restart: always

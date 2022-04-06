@@ -21,6 +21,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('monitor/', include('anomaly_detection.urls'))
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
     # path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
