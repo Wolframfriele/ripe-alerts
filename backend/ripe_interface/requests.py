@@ -3,9 +3,10 @@ import json
 import requests
 from collections import defaultdict
 
-from ripe_interface.anchor import Anchor
+from ripe_interface.anchor import Anchor, AnchoringMeasurement
 
 # "RIPE API URLS"
+
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"
 MEASUREMENTS_URL = RIPE_BASE_URL + "measurements/"
 MY_MEASUREMENTS_URL = MEASUREMENTS_URL + "my/"
@@ -53,7 +54,7 @@ class RipeRequests:
         return not probes_amount == 0
 
     @staticmethod
-    def get_anchoring_measurements(target_address: str) -> list:
+    def get_anchoring_measurements(target_address: str) -> list[AnchoringMeasurement]:
         """Returns a list of anchoring measurements in the same form as specified by ripe atlas documentation, the
         type of measurements that are returned are supported by the monitoring system
         Keyword arguments:
@@ -61,13 +62,19 @@ class RipeRequests:
         """
         params = {
             'tags': 'anchoring',
-            'status': 'Ongoing',
+            'status': 'ongoing',
             'target_ip': target_address,
             'fields': WANTED_ANCHOR_MEASUREMENT_FIELDS
         }
         response = requests.get(MEASUREMENTS_URL, params=params).json()
-        return [measurement for measurement in response['results'] if
-                measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
+        results = response.get('results')
+        measurements = []
+        for x in results:
+            anchor_measurement = AnchoringMeasurement(**x)
+            measurements.append(anchor_measurement)
+        return measurements
+        # return [measurement for measurement in response['results'] if
+        #         measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
 
     @staticmethod
     def get_asn_host(asn: int):
