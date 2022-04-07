@@ -3,7 +3,6 @@ FROM python:3
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 WORKDIR /code
-COPY ripe_alerts_database-0.1.tar.gz /code/
 COPY requirements.txt /code/
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
