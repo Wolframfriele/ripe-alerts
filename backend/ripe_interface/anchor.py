@@ -1,3 +1,6 @@
+from database.models import MeasurementCollection
+
+
 class Anchor:
     def __init__(self, id, type, fqdn, probe, is_ipv4_only, ip_v4, as_v4, ip_v4_gateway, ip_v4_netmask, ip_v6, as_v6,
                  ip_v6_gateway, ip_v6_prefix, city, country, company, nic_handle, geometry, tlsa_record, is_disabled,
@@ -28,3 +31,17 @@ class Anchor:
     def __str__(self) -> str:
         return "Anchor (id: " + str(self.id) + " | asn: " + str(self.as_v4) \
                + " | ip: " + self.ip_v4 + " | city: " + self.city + ")"
+
+
+class AnchoringMeasurement:
+    def __init__(self, id, type, interval, description):
+        self.id = id
+        self.type = type
+        self.interval = interval
+        self.description = description
+
+    def __str__(self):
+        return self.description
+
+    def convert_to_model(self) -> MeasurementCollection:
+        return MeasurementCollection.objects.create()
