@@ -19,34 +19,34 @@ class AutonomousSystemSetting(Schema):
     message: str = Field("Success!", alias="Response from the server.")
 
 
-class AsNumber(Schema):
+class ASNumber(Schema):
     value: int = Field(1104, alias="as_number", description="The Autonomous system number to be set for the user for "
                                                             "monitoring. ")
 
 
 @router.get("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
-def set_autonomous_system_setting(request, asn: AsNumber = Path(...)):
-    as_number = asn.value
-    anchors = RipeRequests.get_anchors(as_number)
+def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
+    asn_name = "ASN" + str(asn.value)
+    if not RipeRequests.autonomous_system_exist(asn.value):
+        return JsonResponse({"monitoring_possible": False, "hostname": None,
+                             "message": asn_name + " does not exist!"}, status=200)
+
+    anchors = RipeRequests.get_anchors(asn.value)
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "hostname": None,
-                             "message": "There does not exist an autonomous system by that number."}, status=200)
+                             "message": "There were no anchors found in " + asn_name}, status=200)
     else:
-        as_name = anchors[0].company + " - " + anchors[0].country
-        user = get_object_or_404(User, username="admin992")
+        asn_location = anchors[0].company + " - " + anchors[0].country
+        user = User.objects.get(username="admin")
         if user is None:
             return JsonResponse({"monitoring_possible": False, "hostname": None, "message:": "User 'admin' not found!"},
                                 status=400)
         else:
-
+            return JsonResponse({"monitoring_possible": True, "hostname": None, "message": "Success!"}, status=200)
             setting = Setting.objects.create(user=user)
             setting.save()
             print("Yeey")
-            JsonResponse({"monitoring_possible": True, "hostname": None}, status=200)
             print(as_name)
-
-        # asn = AutonomousSystem(number=anchors[0].ip_v4, name=)
-        # autonomous_system = AutonomousSystem.objects.create()
         return {"amount of anchors: ": len(anchors)}
 
 
