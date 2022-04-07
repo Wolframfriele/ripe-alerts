@@ -17,9 +17,14 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import path
+from django.contrib import admin
+from django.urls import path
+from django.urls.conf import include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.views.generic import RedirectView
 from ninja import NinjaAPI
 from ripe_interface.api import router as ripe_interface_router
+
 
 description = "Welcome to our backend server!<br></br>Go to: " \
               "<a href='/admin/'>Django administration panel</a>"
@@ -35,7 +40,8 @@ def api_redirect(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls, name='swagger'),
-    path('', api_redirect, name='redirect-to-swagger')
+    path('', api_redirect, name='redirect-to-swagger'),
+    path('monitor/', include('anomaly_detection.urls'))
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
     # path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),

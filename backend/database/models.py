@@ -3,7 +3,6 @@ from enum import Enum
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class MeasurementType(models.TextChoices):
     PING = 'Ping'
     TRACEROUTE = 'Traceroute'
@@ -45,7 +44,7 @@ class Widget(models.Model):
 class AutonomousSystem(models.Model):
     # id = models.AutoField(primary_key=True)
     setting = models.ForeignKey(Setting, on_delete=models.CASCADE, null=False, blank=False)
-    number = models.PositiveIntegerField(null=False, blank=False)
+    number = models.PositiveIntegerField(primary_key=True, null=False, blank=False)
     name = models.CharField(null=False, blank=False, max_length=30)
 
     # measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False)
