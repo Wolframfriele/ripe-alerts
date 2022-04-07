@@ -5,7 +5,7 @@ from .monitor_manager import MonitorManager
 from .services import get_measurementcollection_by_asn
 from database.models import MeasurementCollection, AutonomousSystem
 
-monitor_manager = MonitorManager()
+# monitor_manager = MonitorManager()
 
 
 class MonitorProcess(APIView):
