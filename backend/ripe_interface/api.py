@@ -20,7 +20,7 @@ class AutonomousSystemSetting(Schema):
 
 
 class ASNumber(Schema):
-    value: int = Field(1104, alias="as_number", description="The Autonomous system number to be set for the user for "
+    value: int = Field(1103, alias="as_number", description="The Autonomous system number to be set for the user for "
                                                             "monitoring. ")
 
 
