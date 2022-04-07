@@ -1,8 +1,3 @@
-import json
-from collections import namedtuple
-from json import JSONEncoder
-
-
 class Anchor:
     def __init__(self, id, type, fqdn, probe, is_ipv4_only, ip_v4, as_v4, ip_v4_gateway, ip_v4_netmask, ip_v6, as_v6,
                  ip_v6_gateway, ip_v6_prefix, city, country, company, nic_handle, geometry, tlsa_record, is_disabled,

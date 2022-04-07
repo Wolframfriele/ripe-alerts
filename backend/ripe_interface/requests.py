@@ -33,7 +33,24 @@ class RipeRequests:
         """Returns all Anchors based on the autonomous system number, if empty then there have been no anchors found."""
         params = {"as_v4": str(as_number)}
         response = requests.get(url=ANCHORS_URL, params=params).json()
-        results = response.get('results')
+        results = response.get('results')  # There are multiple anchors.
+        if not results:
+            return []
+        else:
+            anchor_array = []
+            for x in results:
+                anchor = Anchor(**x)
+                anchor_array.append(anchor)
+        return anchor_array
+
+    @staticmethod
+    def does_autonou(as_number: int) -> Anchor:
+        """Returns the anchor based on the autonomous system number, if null then there have been no anchor found."""
+        params = {"as_v4": str(as_number)}
+        print(ANCHORS_URL)
+        response = requests.get(url=ANCHORS_URL, params=params).json()
+        results = response.get('results')  # There are multiple anchors.
+        # The Autonomous system number exist, but it has no anchors associated with it,
         if not results:
             return []
         else:
