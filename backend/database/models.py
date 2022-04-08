@@ -43,8 +43,8 @@ class Widget(models.Model):
 
 class AutonomousSystem(models.Model):
     # id = models.AutoField(primary_key=True)
-    setting = models.ForeignKey(Setting, on_delete=models.CASCADE, null=False, blank=False)
-    number = models.PositiveIntegerField(primary_key=True, null=False, blank=False)
+    setting = models.OneToOneField(Setting, on_delete=models.CASCADE, null=False, blank=False, unique=True)
+    number = models.PositiveIntegerField(null=False, blank=False)
     name = models.CharField(null=False, blank=False, max_length=30)
 
     # measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False)
