@@ -29,12 +29,12 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     asn_name = "ASN" + str(asn.value)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
-                             "message": asn_name + " does not exist!"}, status=200)
+                             "message": asn_name + " does not exist!"}, status=404)
 
     anchors = RipeRequests.get_anchors(asn.value)
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "host": None,
-                             "message": "There were no anchors found in " + asn_name}, status=200)
+                             "message": "There were no anchors found in " + asn_name}, status=404) #TODO: all edit status code except for the last one200
 
     asn_location = anchors[0].company + " - " + anchors[0].country
     user_exists = User.objects.filter(username="admin").exists()
@@ -48,8 +48,12 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User 'admin' settings is missing!"}, status=400)
     setting = Setting.objects.get(user=user)
-    autonomous_system = AutonomousSystem.objects.get_or_create(setting_id=setting.id, number=asn.value,
-                                                               name=asn_location)
+    autonomous_system = AutonomousSystem.objects.get(setting=setting)
+    # autonomous_system.number = asn.value
+    # autonomous_system.name = asn_location
+    # autonomous_system.save()
+    # , number = asn.value,
+    # name = asn_location
     # user = User.objects.get(username="admin")
     # print(str(setting.id))
     # setting.save()
