@@ -50,7 +50,7 @@ class AutonomousSystem(models.Model):
     # measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return 'Username (' + str(self.setting.user.get_username()) + ') ' + 'AS' + str(self.number) + ' - ' + self.name
+        return str(self.setting.user.get_username()) + ': ' + 'AS' + str(self.number) + ' - ' + self.name
 
     class Meta:
         verbose_name_plural = "Autonomous Systems"
