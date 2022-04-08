@@ -11,6 +11,7 @@ class DatabaseConfig(AppConfig):
         from django.contrib.auth.models import User
         from database.models import Setting
         auth_user_table_exist = "auth_user" in connection.introspection.table_names()
+        setting_table_exists = "database_setting" in connection.introspection.table_names()
         if not auth_user_table_exist:  # Migrate before you create the user!
             return
         else:
@@ -18,6 +19,7 @@ class DatabaseConfig(AppConfig):
             if not admin_exist:
                 user = User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
                 print("Superuser 'admin' created!")
-            else:
+            elif admin_exist and setting_table_exists:
                 user = User.objects.get(username="admin")
-            Setting.objects.get_or_create(user=user)
+                if Setting.objects.filter(user=user).exists():
+                    Setting.objects.create(user=user)
