@@ -35,24 +35,31 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": "There were no anchors found in " + asn_name}, status=200)
-    else:
-        asn_location = anchors[0].company + " - " + anchors[0].country
-        user = User.objects.get(username="admin")
-        if user is None:
-            return JsonResponse({"monitoring_possible": False, "host": asn_location, "message:": "User 'admin' not "
-                                                                                                 "found!"}, status=400)
-        else:
-            setting = Setting.objects.get_or_create(user=user)
-            autonomous_system = AutonomousSystem.objects.get(setting=setting, number=asn.value, name=asn_location)
-            # setting.save()
-            # autonomous_system = AutonomousSystem.objects.create(setting=setting, number=asn.value, name=asn_location)
-            # autonomous_system.save()
-            for x in anchors:
-                measurements = RipeRequests.get_anchoring_measurements(x.ip_v4)
-                # for y in measurements:
 
-            # print(RipeRequests.get_anchoring_measurements(anchors[0].ip_v4))
-            return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
+    asn_location = anchors[0].company + " - " + anchors[0].country
+    user_exists = User.objects.filter(username="admin").exists()
+    if not user_exists:
+        return JsonResponse({"monitoring_possible": False, "host": asn_location,
+                             "message:": "User 'admin' does not exist!"}, status=400)
+
+    user = User.objects.get(username="admin")
+    user_configured = Setting.objects.filter(user=user).exists()
+    if not user_configured:
+        return JsonResponse({"monitoring_possible": False, "host": asn_location,
+                             "message:": "User 'admin' settings is missing!"}, status=400)
+    setting = Setting.objects.get(user=user)
+    autonomous_system = AutonomousSystem.objects.get_or_create(setting_id=setting.id, number=asn.value,
+                                                               name=asn_location)
+    # user = User.objects.get(username="admin")
+    # print(str(setting.id))
+    # setting.save()
+    # autonomous_system = AutonomousSystem.objects.create(setting=setting, number=asn.value, name=asn_location)
+    # autonomous_system.save()
+    for x in anchors:
+        measurements = RipeRequests.get_anchoring_measurements(x.ip_v4)
+        # for y in measurements:
+    # print(RipeRequests.get_anchoring_measurements(anchors[0].ip_v4))
+    return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
 
 
 # POST AS Nummer, output. Kan het gebruikt worden om te monitoren.
