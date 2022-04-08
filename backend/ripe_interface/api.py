@@ -48,17 +48,15 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User 'admin' settings is missing!"}, status=400)
     setting = Setting.objects.get(user=user)
-    autonomous_system = AutonomousSystem.objects.get(setting=setting)
-    # autonomous_system.number = asn.value
-    # autonomous_system.name = asn_location
-    # autonomous_system.save()
-    # , number = asn.value,
-    # name = asn_location
-    # user = User.objects.get(username="admin")
-    # print(str(setting.id))
-    # setting.save()
-    # autonomous_system = AutonomousSystem.objects.create(setting=setting, number=asn.value, name=asn_location)
-    # autonomous_system.save()
+    autonomous_system_registered = AutonomousSystem.objects.filter(setting_id=setting.id).exists()
+    if not autonomous_system_registered:
+        AutonomousSystem.objects.create(setting=setting, number=asn.value, name=asn_location)
+    elif autonomous_system_registered:
+        autonomous_system = AutonomousSystem.objects.get(setting_id=setting.id)
+        autonomous_system.number = asn.value
+        autonomous_system.name = asn_location
+        autonomous_system.save()
+
     for x in anchors:
         measurements = RipeRequests.get_anchoring_measurements(x.ip_v4)
         # for y in measurements:

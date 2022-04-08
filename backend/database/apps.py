@@ -21,5 +21,5 @@ class DatabaseConfig(AppConfig):
                 print("Superuser 'admin' created!")
             elif admin_exist and setting_table_exists:
                 user = User.objects.get(username="admin")
-                if Setting.objects.filter(user=user).exists():
+                if not Setting.objects.filter(user=user).exists():
                     Setting.objects.create(user=user)
