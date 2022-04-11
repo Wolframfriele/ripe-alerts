@@ -47,8 +47,8 @@ class RipeRequests:
 
     @staticmethod
     def autonomous_system_exist(as_number: int) -> bool:
-        """Returns whether the autonomous system number exists or not."""
-        params = {"as_v4": str(as_number)}
+        """Returns whether the autonomous system number exists or not. """
+        params = {"asn_v4": str(as_number)}
         response = requests.get(url=PROBES_URL, params=params).json()
         probes_amount = response.get('count')
         return not probes_amount == 0
