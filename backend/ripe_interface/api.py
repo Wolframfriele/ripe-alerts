@@ -5,7 +5,7 @@ from ninja import Router, Schema, Path
 from ninja.security import django_auth
 from pydantic import Field
 
-from database.models import AutonomousSystem, Setting
+from database.models import AutonomousSystem, Setting, MeasurementCollection
 from ripe_interface.requests import RipeRequests
 
 router = Router()
@@ -24,7 +24,7 @@ class ASNumber(Schema):
                                                             "monitoring. ")
 
 
-@router.get("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
+@router.post("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     asn_name = "ASN" + str(asn.value)
     if not RipeRequests.autonomous_system_exist(asn.value):
@@ -34,7 +34,8 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     anchors = RipeRequests.get_anchors(asn.value)
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "host": None,
-                             "message": "There were no anchors found in " + asn_name}, status=404) #TODO: all edit status code except for the last one200
+                             "message": "There were no anchors found in " + asn_name},
+                            status=404)
 
     asn_location = anchors[0].company + " - " + anchors[0].country
     user_exists = User.objects.filter(username="admin").exists()
@@ -48,19 +49,13 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User 'admin' settings is missing!"}, status=400)
     setting = Setting.objects.get(user=user)
-    autonomous_system_registered = AutonomousSystem.objects.filter(setting_id=setting.id).exists()
-    if not autonomous_system_registered:
-        AutonomousSystem.objects.create(setting=setting, number=asn.value, name=asn_location)
-    elif autonomous_system_registered:
-        autonomous_system = AutonomousSystem.objects.get(setting_id=setting.id)
-        autonomous_system.number = asn.value
-        autonomous_system.name = asn_location
-        autonomous_system.save()
 
-    for x in anchors:
-        measurements = RipeRequests.get_anchoring_measurements(x.ip_v4)
-        # for y in measurements:
-    # print(RipeRequests.get_anchoring_measurements(anchors[0].ip_v4))
+    autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
+    MeasurementCollection.delete_all_by_asn(system=autonomous_system)
+    for anchor in anchors:
+        measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
+        for measurement in measurements:
+            measurement.save_to_database(system=autonomous_system)
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
 
 

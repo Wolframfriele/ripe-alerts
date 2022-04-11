@@ -1,4 +1,4 @@
-from database.models import MeasurementCollection
+from database.models import MeasurementCollection, AutonomousSystem, Tag
 
 
 class Anchor:
@@ -34,14 +34,21 @@ class Anchor:
 
 
 class AnchoringMeasurement:
-    def __init__(self, id, type, interval, description):
+    def __init__(self, id, type, interval, description, tags, target):
         self.id = id
         self.type = type
         self.interval = interval
         self.description = description
+        self.tags = tags
+        self.target = target
 
     def __str__(self):
         return self.description
 
-    def convert_to_model(self) -> MeasurementCollection:
-        return MeasurementCollection.objects.create()
+    def save_to_database(self, system: AutonomousSystem) -> None:
+        tags = Tag.get_tag_ids(self.tags)
+        measurement_collection = MeasurementCollection.objects.create(
+            autonomous_system=system, type=self.type, target=self.target, measurement_id=self.id,
+            description=self.description)
+        measurement_collection.tags.set(tags)
+        measurement_collection.save()

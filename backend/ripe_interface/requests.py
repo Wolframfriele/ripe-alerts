@@ -20,7 +20,7 @@ RIPE_STATS_ASN = "https://stat.ripe.net/data/as-overview/data.json"
 # fields should be comma seperated for the fields query parameter, id and type is always included
 WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_ANCHOR_FIELDS = "id,ip_v4,ipv6,as_v4,as_v6,geometry,prefix_v4,prefix_v6,fqdn"
-WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description"
+WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description,tags,target"
 WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
 
 """SUPPORTED MEASUREMENTS"""
@@ -73,8 +73,6 @@ class RipeRequests:
             anchor_measurement = AnchoringMeasurement(**x)
             measurements.append(anchor_measurement)
         return measurements
-        # return [measurement for measurement in response['results'] if
-        #         measurement['type'] in SUPPORTED_TYPE_MEASUREMENTS]
 
     @staticmethod
     def get_asn_host(asn: int):

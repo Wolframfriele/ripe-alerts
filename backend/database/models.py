@@ -2,6 +2,8 @@
 from enum import Enum
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
+
 
 class MeasurementType(models.TextChoices):
     PING = 'Ping'
@@ -55,28 +57,63 @@ class AutonomousSystem(models.Model):
     class Meta:
         verbose_name_plural = "Autonomous Systems"
 
+    @staticmethod
+    def register_asn(setting: Setting, system_number: int, location: str):
+        autonomous_system_registered = AutonomousSystem.objects.filter(setting_id=setting.id).exists()
+        if not autonomous_system_registered:
+            AutonomousSystem.objects.create(setting=setting, number=system_number, name=location)
+        elif autonomous_system_registered:
+            autonomous_system = AutonomousSystem.objects.get(setting_id=setting.id)
+            autonomous_system.number = system_number
+            autonomous_system.name = location
+            autonomous_system.save()
+        return AutonomousSystem.objects.get(setting_id=setting.id)
+
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(null=False, blank=False, max_length=30)
+    name = models.CharField(unique=True, null=False, blank=False, max_length=30)
 
     def __str__(self):
-        return 'Tag (' + str(self.id) + ') - ' + self.name
+        return 'Tag (' + str(self.id) + '): ' + self.name
+
+    @staticmethod
+    def get_tag_ids(tags: dict) -> list[int]:
+        result: list[int] = []
+        for tag in tags:
+            if Tag.objects.filter(name=tag).exists():
+                result.append(Tag.objects.get(name=tag).id)
+            else:
+                tag_i = Tag.objects.create(name=tag)
+                tag_i.save()
+                result.append(tag_i.id)
+        return result
+
 
 
 class MeasurementCollection(models.Model):
     id = models.AutoField(primary_key=True)
-    autonomous_system = models.OneToOneField(AutonomousSystem, null=False, blank=False, on_delete=models.CASCADE)
+    autonomous_system = models.ForeignKey(AutonomousSystem, null=False, blank=False, on_delete=models.CASCADE)
     type = models.CharField(MeasurementType, choices=MeasurementType.choices, default=None, max_length=10,
                             null=False, blank=False)
-    target = models.CharField(null=False, blank=False, max_length=30)
-    tag = models.ManyToManyField(Tag, blank=False)
+    target = models.CharField(null=False, blank=False, max_length=100)
+    tags = models.ManyToManyField(Tag, blank=True)
+    measurement_id = models.PositiveIntegerField(null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return 'MeasurementCollection (' + str(self.id) + ') - target: ' + self.target
+        return self.description + ' (' + str(self.id) + ')'
 
     class Meta:
         verbose_name_plural = "Measurement Collections"
+
+    @staticmethod
+    def delete_all_by_asn(system: AutonomousSystem) -> None:
+        system_exist = MeasurementCollection.objects.filter(autonomous_system=system).exists()
+        if system_exist:
+            collections = MeasurementCollection.objects.all().filter(autonomous_system=system)
+            for x in collections:
+                x.delete()
 
 
 class Probe(models.Model):
@@ -156,7 +193,8 @@ class Anomaly(models.Model):
     asn_error = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
-        return 'Anomaly (' + str(self.id) + ') -  ip: ' + self.ip_address + ' - ASN' + str(self.autonomous_system.number)
+        return 'Anomaly (' + str(self.id) + ') -  ip: ' + self.ip_address + ' - ASN' + str(
+            self.autonomous_system.number)
 
     class Meta:
         verbose_name_plural = "Anomalies"
