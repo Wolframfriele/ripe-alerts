@@ -1,7 +1,4 @@
-import json
-
 import requests
-from collections import defaultdict
 
 from ripe_interface.anchor import Anchor, AnchoringMeasurement
 
@@ -17,14 +14,11 @@ RIPE_STATS_ASN_NEIGHBOURS = "https://stat.ripe.net/data/asn-neighbours/data.json
 RIPE_STATS_ASN = "https://stat.ripe.net/data/as-overview/data.json"
 
 # """RIPE RESPONSE FIELDS"""
-# fields should be comma seperated for the fields query parameter, id and type is always included
+
 WANTED_PROBE_FIELDS = "id,is_anchor,type,address_v4,address_v6,asn_v4,asn_v6,geometry,prefix_v4,prefix_v6,description"
 WANTED_ANCHOR_FIELDS = "id,ip_v4,ipv6,as_v4,as_v6,geometry,prefix_v4,prefix_v6,fqdn"
 WANTED_ANCHOR_MEASUREMENT_FIELDS = "id,type,interval,description,tags,target"
 WANTED_MEASUREMENT_FIELDS = "id,type,interval,description,target_ip,target,target_asn,target_prefix"
-
-"""SUPPORTED MEASUREMENTS"""
-SUPPORTED_TYPE_MEASUREMENTS = "traceroute"
 
 
 class RipeRequests:
@@ -73,8 +67,3 @@ class RipeRequests:
             anchor_measurement = AnchoringMeasurement(**x)
             measurements.append(anchor_measurement)
         return measurements
-
-    @staticmethod
-    def get_asn_host(asn: int):
-        response = requests.get(RIPE_STATS_ASN, params={"resource": asn}).json()
-        return {"holder": response['data'].get('holder')}
