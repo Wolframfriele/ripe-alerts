@@ -26,6 +26,8 @@ class ASNumber(Schema):
 
 @router.post("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
+    """To monitor a specific Autonomous System, we'll first need a valid Autonomous
+    System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
     asn_name = "ASN" + str(asn.value)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
