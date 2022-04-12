@@ -5,6 +5,59 @@ from ripe.atlas.cousteau import *
 import multiprocessing
 from .monitor_strategy_base import MonitorStrategy
 from database.models import MeasurementCollection, Anomaly, DetectionMethod, AutonomousSystem, Probe, MeasurementPoint, Hop
+from .probe_measurement import ProbeMeasurement
+
+class DataManager:
+    def __init__(self) -> None:
+        pass
+
+    def store2(self, probe_measurement: ProbeMeasurement, measurement_id):
+        probe = Probe(probe=264983,
+                #measurement_id=measurement_id,
+                as_number=0, #dummy data
+                location='Amsterdam') #dummy data
+        probe.save()
+        print('Probe ' + probe_measurement.probe_id + ' is saved!')
+
+    def store(self, measurement_data, measurement_id):
+        print('1')
+        print(measurement_data)
+        probe_number = measurement_data['probe_id']
+        print(probe_number)
+        probe = Probe(probe=probe_number,
+                        measurement_id=measurement_id,
+                        as_number=0000, #dummy data
+                        location='Amsterdam') #dummy data
+        probe.save()
+        print('Probes are saved')
+
+
+        probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
+
+        MeasurementPoint.objects.create(probe_id=probe_id,
+                                        time=measurement_data['created'],
+                                        round_trip_time_ms=measurement_data['entry_rtt'],
+                                        hops_total=12) #dummy data
+        print('Measurementpoints are saved')
+
+    # def store(self, measurement_data, measurement_id):
+        # print('1')
+        # print(measurement_data)
+        # probe = Probe(probe=measurement_data['probe_id'],
+        #                 measurement_id=measurement_id,
+        #                 as_number=0000, #dummy data
+        #                 location='Amsterdam') #dummy data
+        # probe.save()
+        # print('Probes are saved')
+
+
+        # probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
+
+        # MeasurementPoint.objects.create(probe_id=probe_id,
+        #                                 time=measurement_data['created'],
+        #                                 round_trip_time_ms=measurement_data['entry_rtt'],
+        #                                 hops_total=12) #dummy data
+        # print('Measurementpoints are saved')
 
 class Monitor:
     def __init__(self, MeasurementCollection: MeasurementCollection, strategy: MonitorStrategy):
@@ -13,17 +66,21 @@ class Monitor:
         self.strategy = strategy
 
     def __str__(self):
-        return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
+        return f"Monitor for {self.measurement.type} measurement: {self.measurement.target}"
 
     def on_result_response(self, *args):
         """
         Function called every time we receive a new result.
         Store the result in the corresponding Mongodb collection.
         """
-        print(MeasurementCollection)
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
-        #self.strategy.store(self.collection, measurement_result)
+        #print(measurement_result)
+        #print(type(measurement_result))
+        probe_mesh = ProbeMeasurement(**measurement_result)
+        DataManager.store2(self, probe_mesh, self.measurement.id)
+        return
+        DataManager.store(self, measurement_result, self.measurement.id)
         analyzed = self.strategy.analyze(measurement_result)
         anomalies = self.strategy.filter(analyzed)
         if len(anomalies) > 0:
@@ -39,7 +96,7 @@ class Monitor:
                                         medium_value=0, #Dummy data
                                         value=0, #Dummy data
                                         anomaly_score=0, #Dummy data
-                                        preditction_value=False, 
+                                        preditction_value=False,
                                         asn_error=1111) #Dummy data
 
     def on_error(*args):
@@ -104,7 +161,8 @@ class Monitor:
         # Subscribe to new stream
         atlas_stream.bind_channel(channel, self.on_result_response)
 
-        stream_parameters = {"msm": self.measurement.id}
+        print(self.measurement)
+        stream_parameters = {"msm": self.measurement.target}
         atlas_stream.start_stream(stream_type="result", **stream_parameters)
 
         # run forever
@@ -115,6 +173,7 @@ class Monitor:
     def start(self):
         # x = threading.Thread(target=self.monitor)
         # x.start()
+        print('Starting multithreading')
         print(f"Starting {self}")
         self.process = multiprocessing.Process(target=self.monitor, name=self)
         self.process.start()
@@ -132,3 +191,10 @@ class Monitor:
             after training this function should restart the monitoring process
         """
         pass
+
+
+
+# measurement_data = 'sdfsef'
+# # {'probe_id': 6660, 'created': datetime.datetime(2022, 4, 12, 8, 4, 41, tzinfo=<UTC>), 'entry_rtt': inf, 'entry_ip': '2401:ee00:104:3::2', 'entry_as': nan}
+
+# DataManager().store(measurement_data, 1)

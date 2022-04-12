@@ -6,13 +6,13 @@ from django.db.models import QuerySet
 
 
 class MeasurementType(models.TextChoices):
-    PING = 'Ping'
-    TRACEROUTE = 'Traceroute'
+    PING = 'ping'
+    TRACEROUTE = 'traceroute'
     DNS = 'DNS'
     HTTP = 'HTTP'
     SSL = 'SSL'
     NTP = 'NTP'
-    ANCHORING = 'Anchoring'
+    ANCHORING = 'anchoring'
 
 
 class Setting(models.Model):
@@ -117,20 +117,20 @@ class MeasurementCollection(models.Model):
 
 class Probe(models.Model):
     id = models.AutoField(primary_key=True)
-    probe_id = models.PositiveIntegerField(null=False, blank=False)
-    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False, blank=False)
+    probe = models.PositiveIntegerField(null=False, blank=False)
+    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=True, blank=False)
     as_number = models.PositiveIntegerField(null=False, blank=False)
     location = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return 'Probe (' + str(self.probe_id) + ') - location: ' + self.location
+        return 'Probe (' + str(self.probe) + ') - location: ' + self.location
 
 
 class MeasurementPoint(models.Model):
     id = models.AutoField(primary_key=True)
     probe = models.ForeignKey(Probe, on_delete=models.CASCADE, null=False, blank=False)
     time = models.DateTimeField(null=False, blank=False)
-    round_trip_time_ms = models.PositiveIntegerField(null=False, blank=False)
+    round_trip_time_ms = models.FloatField(null=True, blank=False)
     hops_total = models.PositiveSmallIntegerField(null=False, blank=False)
 
     def __str__(self):

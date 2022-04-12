@@ -111,8 +111,9 @@ class DetectionMethod(MonitorStrategy):
                         if packet['rtt'] < min_hop_rtt:
                             hop_ip = packet['from']
                             min_hop_rtt = packet['rtt']
-
                 min_hop_rtt = float(min_hop_rtt)
+                if min_hop_rtt == float('inf'):
+                    min_hop_rtt = None
                 cleaned_hops.append({
                     'hop': hop_object.raw_data['hop'],
                     'ip': hop_ip,
