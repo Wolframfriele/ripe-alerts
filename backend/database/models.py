@@ -90,7 +90,6 @@ class Tag(models.Model):
         return result
 
 
-
 class MeasurementCollection(models.Model):
     id = models.AutoField(primary_key=True)
     autonomous_system = models.ForeignKey(AutonomousSystem, null=False, blank=False, on_delete=models.CASCADE)

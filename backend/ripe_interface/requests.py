@@ -1,7 +1,7 @@
 import requests
 
-from ripe_interface.anchor import Anchor, AnchoringMeasurement
-
+from ripe_interface.anchor import AnchoringMeasurement, Anchor
+# from .anchor import Anchor
 # "RIPE API URLS"
 
 RIPE_BASE_URL = "https://atlas.ripe.net/api/v2/"

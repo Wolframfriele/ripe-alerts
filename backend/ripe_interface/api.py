@@ -19,9 +19,23 @@ class AutonomousSystemSetting(Schema):
     message: str = Field("Success!", alias="Response from the server.")
 
 
+class Message(Schema):
+    message: str = Field("Success!", alias="Response from the server.")
+
+
 class ASNumber(Schema):
     value: int = Field(1103, alias="as_number", description="The Autonomous system number to be set for the user for "
                                                             "monitoring. ")
+
+
+@router.get("/hello2", tags=[TAG])
+def hello(request):
+    return JsonResponse({"message": "Hello world"}, status=200)
+
+
+@router.get("/hello1", tags=[TAG])
+def hello2(request):
+    return "Hello worldooooo"
 
 
 @router.post("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
@@ -60,23 +74,9 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
             measurement.save_to_database(system=autonomous_system)
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
 
-
-# POST AS Nummer, output. Kan het gebruikt worden om te monitoren.
-# GET
-@router.get("/pets", tags=[TAG], auth=django_auth)
-def pets(request):
-    if request.user.is_authenticated():
-        username = request.user.username
-        return JsonResponse({'username': request.user.username})
-    return JsonResponse({'username': "nope"})
-    # return f"Authenticated user {request.auth}"
-
-    # def my_view(request):
-    #     username = None
-    #     if request.user.is_authenticated():
-    #         username = request.user.username
-
-
-@router.get('/{event_id}', tags=[TAG])
-def event_details(request, event_id: int):
-    return {"title": event_id, "details": "not for now!"}
+# @router.get("/pets", tags=[TAG], auth=django_auth)
+# def get_anomaly(request):
+#     if request.user.is_authenticated():
+#         username = request.user.username
+#         return JsonResponse({'username': request.user.username})
+#     return JsonResponse({'username': "nope"})
