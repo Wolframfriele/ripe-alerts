@@ -180,7 +180,7 @@ class Anomaly(models.Model):
     id = models.AutoField(primary_key=True)
     time = models.DateTimeField(null=False, blank=False)
     ip_address = models.CharField(null=False, blank=False, max_length=20)
-    autonomous_system = models.ForeignKey(AutonomousSystem, on_delete=models.CASCADE, null=False, blank=False)
+    autonomous_system = models.ForeignKey('AutonomousSystem', on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
     measurement_type = models.CharField(MeasurementType, choices=MeasurementType.choices, default=None, max_length=10,
                                         blank=False, null=False)
