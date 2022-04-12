@@ -12,7 +12,7 @@ class MonitorManager:
         self.monitors = dict()
 
         self.monitors = {}
-        print("self monitor epritn")
+        print("Monitor Manager started.")
         print(self.monitors)
         
         plugins = os.listdir('anomaly_detection/detection_methods')
