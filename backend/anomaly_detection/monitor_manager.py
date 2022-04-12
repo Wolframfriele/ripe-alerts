@@ -1,15 +1,19 @@
 import os
 import importlib
+from django.forms.models import model_to_dict
 from database.models import MeasurementCollection
 from .monitor_strategy_base import MonitorStrategy
 from .monitors import Monitor
-
 
 
 class MonitorManager:
     def __init__(self):
         self.measurement_collection = MeasurementCollection.objects.all()
         self.monitors = dict()
+
+        self.monitors = {}
+        print("self monitor epritn")
+        print(self.monitors)
         
         plugins = os.listdir('anomaly_detection/detection_methods')
         plugin_list = []
@@ -29,20 +33,25 @@ class MonitorManager:
             else:
                 raise TypeError("Plugin does not follow MonitorStrategy")
 
-        for monitor in self.monitors.values():
-            monitor.start()
+        # for monitor in self.monitors.values():
+        #     monitor.start()
 
     def create_monitors(self, measurements: list):
-        print("createmonitor")
         # db.connections.close_all()
         for plugin in self._plugins:
-            print(type(measurements))
-            for measurement in measurements:
-                print("createmonitor2")
-                print(measurement)
+            measurement_list = []
+            measurement_list.append(measurements)
+            for measurement in measurement_list:
+                self.monitors = {}
+                print(self.monitors)
+                print(self.monitors.get(measurement.id))
                 configuration_in_system = self.monitors.get(measurement.id) is None
                 plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
+                print('test test')
+                print(configuration_in_system)
+                print(plugin_type_is_measurement_type)
                 if configuration_in_system and plugin_type_is_measurement_type:
+                    print(1)
                     self.monitors[measurement.id] = Monitor(measurement, plugin)
                     self.monitors[measurement.id].start()
 
