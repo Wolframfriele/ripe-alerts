@@ -19,18 +19,14 @@ class AutonomousSystemSetting(Schema):
     message: str = Field("Success!", alias="Response from the server.")
 
 
-class Message(Schema):
-    message: str = Field("Success!", alias="Response from the server.")
-
-
 class ASNumber(Schema):
     value: int = Field(1103, alias="as_number", description="The Autonomous system number to be set for the user for "
                                                             "monitoring. ")
 
 
-@router.get("/hello2", tags=[TAG])
-def hello(request):
-    return JsonResponse({"message": "Hello world"}, status=200)
+@router.get("/generate-anomalies", tags=[TAG])
+def generate_anomalies(request):
+    return JsonResponse({"message": "Success!"}, status=200)
 
 
 @router.get("/hello1", tags=[TAG])
