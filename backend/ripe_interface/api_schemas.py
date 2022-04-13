@@ -5,24 +5,27 @@ from database.models import MeasurementType
 
 
 class DetectionMethodOut(Schema):
-    id: int
-    type: str
-    description: str
+    id: int = Field(1, alias="The id (primary key) of the detection method in the database. It can be used for "
+                             "retrieving more information about the detection method. ")
+    type: str = Field("ping", alias="Type of detection method.")
+    description: str = Field("A1 Algorithm", alias="Short summary of the kind of detection method.")
 
 
 class AnomalyOut(Schema):
-    id: int
-    timestamp: str
-    ip_address: str
+    id: int = Field(1, alias="The id of the anomaly in the database.")
+    timestamp: str = Field("2022-4-13 8:41:28", alias="Date and time when the anomaly occurred. Format: yyyy-mm-dd "
+                                                      "hh:mm:ss")
+    ip_address: str = Field("localhost", alias="Target address of Autonomous System")
     # autonomous_system: AutonomousSystem
-    description: str
+    description: str = Field("Ping above 200ms for 5 minutes, normally 12ms.", alias="Explanation of the anomaly")
     measurement_type: MeasurementType
     detection_method: DetectionMethodOut
-    medium_value: float
-    value: float
-    anomaly_score: float
-    prediction_value: bool
-    asn_error: int
+    medium_value: float = Field(40.122, alias="Average increase of round trip time (ms) at time of anomaly.")
+    value: float = Field(12.144, alias="Average RTT (ms) at time of anomaly")
+    anomaly_score: float = Field(22, alias="The strength of the anomaly? Percentage of probes that report an anomaly.")
+    prediction_value: bool = Field(True,
+                                   alias="User feedback, whether the prediction was accurate (True) or not. (False)")
+    asn_error: int = Field(1402, alias="ASN of the router were the error happened.")
 
     @staticmethod
     def resolve_timestamp(obj):

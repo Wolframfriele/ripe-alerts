@@ -11,7 +11,7 @@ from pydantic import Field
 
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, \
     DetectionMethodSetting
-from ripe_interface.api_schemas import AnomalyOut
+from ripe_interface.api_schemas import AnomalyOut, AutonomousSystemSetting, ASNumber
 from ripe_interface.requests import RipeRequests
 
 router = Router()
@@ -50,17 +50,6 @@ def list_anomalies(request):  # TODO: edit router path
     """Retrieve all anomalies from the database."""
     anomalies = Anomaly.objects.all()  # TODO: add filtering
     return anomalies
-
-
-class AutonomousSystemSetting(Schema):
-    monitor_possible: bool = Field(True, alias="Whether it is possible or not to monitor the given autonomous system.")
-    host: str = Field("VODANET - Vodafone GmbH", alias="Hostname of the autonomous system.")
-    message: str = Field("Success!", alias="Response from the server.")
-
-
-class ASNumber(Schema):
-    value: int = Field(1103, alias="as_number", description="The Autonomous system number to be set for the user for "
-                                                            "monitoring. ")
 
 
 @router.post("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
