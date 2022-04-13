@@ -69,6 +69,14 @@ class AutonomousSystem(models.Model):
             autonomous_system.save()
         return AutonomousSystem.objects.get(setting_id=setting.id)
 
+    @staticmethod
+    def get_asn_by_username(username: str):
+        user = User.objects.get(username=username)
+        setting = Setting.objects.get(user=user)
+        system = AutonomousSystem.objects.get(setting=setting)
+        return system
+
+
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)

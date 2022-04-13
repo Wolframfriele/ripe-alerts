@@ -1,16 +1,12 @@
-import datetime
-from typing import List, Optional
+from typing import List
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from ninja import Router, Schema, Path
-from ninja.security import django_auth
-from pydantic import Field
+from ninja import Router, Path
+from ninja.pagination import paginate, PageNumberPagination
 
-from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, \
-    DetectionMethodSetting
+from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
 from ripe_interface.api_schemas import AnomalyOut, AutonomousSystemSetting, ASNumber
 from ripe_interface.requests import RipeRequests
 
@@ -38,17 +34,14 @@ def generate_fake_anomalies(request):
     return JsonResponse({"message": "Success!"}, status=200)
 
 
-@router.get("/anomaly/{anomaly_id)", tags=[TAG])
-def get_anomaly(request):  # TODO: edit router path
-    """Retrieve an anomaly from the database."""
-    Anomaly.objects.all()  # TODO: add filtering
-    return "Hello worldooooo"
-
-
 @router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])  # TODO for later: add authentication
-def list_anomalies(request):  # TODO: edit router path
-    """Retrieve all anomalies from the database."""
-    anomalies = Anomaly.objects.all()  # TODO: add filtering
+@paginate(PageNumberPagination)
+def list_anomalies(request):
+    """Retrieves all anomalies by user from the database.  """
+    system = AutonomousSystem.get_asn_by_username(username="admin")
+    anomalies = Anomaly.objects.filter(autonomous_system=system)
+    if anomalies is None:
+        return []
     return anomalies
 
 
