@@ -22,7 +22,7 @@ def generate_fake_anomalies(request):
     asn.value = 1103
     response = set_autonomous_system_setting(request=None, asn=asn)
     if not response.status_code == 200:
-        return JsonResponse({"message": "Something went wrong inside the server!"}, status=400)
+        return JsonResponse({"message": response.get('message')}, status=response.status_code)
     user = User.objects.get(username="admin")
     setting = Setting.objects.get(user=user)
     system = AutonomousSystem.objects.get(setting_id=setting.id)
