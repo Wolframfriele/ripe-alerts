@@ -45,7 +45,7 @@ def list_anomalies(request):
     return anomalies
 
 
-@router.post("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
+@router.put("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """

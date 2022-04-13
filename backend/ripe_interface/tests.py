@@ -52,7 +52,7 @@ class APITest(TestCase):
         Setting.objects.create(user=user)
 
     def test_set_autonomous_system_setting_valid(self):
-        response = self.client.post('/api/asn/' + str(self.valid_asn))
+        response = self.client.put('/api/asn/' + str(self.valid_asn))
         result = response.json()
         monitoring_possible = result.get('monitoring_possible')
         host_is_empty = not bool(result.get('host'))
@@ -63,7 +63,7 @@ class APITest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_set_autonomous_system_setting_invalid(self):
-        response = self.client.post('/api/asn/' + str(self.invalid_asn))
+        response = self.client.put('/api/asn/' + str(self.invalid_asn))
         result = response.json()
         monitoring_possible = result.get('monitoring_possible')
         host = result.get('host')
