@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Optional
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -11,6 +11,7 @@ from pydantic import Field
 
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, \
     DetectionMethodSetting
+from ripe_interface.api_schemas import AnomalyOut
 from ripe_interface.requests import RipeRequests
 
 router = Router()
@@ -44,28 +45,7 @@ def get_anomaly(request):  # TODO: edit router path
     return "Hello worldooooo"
 
 
-class DetectionMethodOut(Schema): #TODO: remove all schemes to schemes.py
-    id: int
-    type: str
-    description: str
-
-
-class AnomalyOut(Schema):
-    id: int
-    time: datetime.datetime
-    ip_address: str
-    # autonomous_system: AutonomousSystem
-    description: str
-    measurement_type: MeasurementType
-    detection_method: DetectionMethodOut
-    medium_value: float
-    value: float
-    anomaly_score: float
-    prediction_value: bool
-    asn_error: int
-
-
-@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG]) #TODO for later: add authentication
+@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])  # TODO for later: add authentication
 def list_anomalies(request):  # TODO: edit router path
     """Retrieve all anomalies from the database."""
     anomalies = Anomaly.objects.all()  # TODO: add filtering
