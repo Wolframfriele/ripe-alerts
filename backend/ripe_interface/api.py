@@ -7,7 +7,7 @@ from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
 
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
-from ripe_interface.api_schemas import AnomalyOut, AutonomousSystemSetting, ASNumber
+from ripe_interface.api_schemas import AnomalyOut, AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2
 from ripe_interface.requests import RipeRequests
 
 router = Router()
@@ -43,6 +43,17 @@ def list_anomalies(request):
     if anomalies is None:
         return []
     return anomalies
+
+
+@router.get("/", response=AutonomousSystemSetting2, tags=[TAG])
+def get_autonomous_system_setting(request):
+    """Retrieve the current ASN configuration of the user. """
+    system = AutonomousSystem.get_asn_by_username("admin")
+    if system is None:
+        return JsonResponse({"monitoring_possible": False, "host": None,
+                             "message": "ASN configuration not found!", "autonomous_system": None}, status=404)
+    return JsonResponse({"monitoring_possible": True, "host": system.name,
+                         "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=404)
 
 
 @router.put("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])

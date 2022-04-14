@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ninja import Schema
 from pydantic import Field
 
@@ -37,6 +39,13 @@ class AutonomousSystemSetting(Schema):
     monitor_possible: bool = Field(True, alias="Whether it is possible or not to monitor the given autonomous system.")
     host: str = Field("VODANET - Vodafone GmbH", alias="Hostname of the autonomous system.")
     message: str = Field("Success!", alias="Response from the server.")
+
+
+class AutonomousSystemSetting2(Schema):
+    monitor_possible: bool = Field(True, alias="Whether it is possible or not to monitor the given autonomous system.")
+    host: str = Field("VODANET - Vodafone GmbH", alias="Hostname of the autonomous system.")
+    message: str = Field("Success!", alias="Response from the server.")
+    autonomous_system: Optional[str] = Field("ASN1103", alias="The specified autonomous system")
 
 
 class ASNumber(Schema):
