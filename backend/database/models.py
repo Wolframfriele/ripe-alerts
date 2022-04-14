@@ -145,7 +145,8 @@ class Hop(models.Model):
     measurement_point = models.ForeignKey(MeasurementPoint, on_delete=models.CASCADE, null=False, blank=False)
     current_hop = models.PositiveSmallIntegerField(null=False, blank=False)
     round_trip_time_ms = models.PositiveIntegerField(null=False, blank=False)
-    as_number = models.PositiveIntegerField(null=False, blank=False)
+    ip_address = models.CharField(null=False, blank=False, max_length=50)
+    as_number = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
         return 'Hop (' + str(self.current_hop) + ') - Measurement Point: ' + str(self.measurement_point.id)

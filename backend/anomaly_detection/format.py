@@ -8,3 +8,13 @@ class ProbeMeasurement:
 
     def __str__(self):
         return str(self.probe_id) + str(self.created)
+
+
+class Hops:
+    def __init__(self, hop, ip, min_rtt):
+        self.hop = hop
+        self.ip_address = ip
+        self.min_rtt = min_rtt
+
+    def __str__(self):
+        return str(self.hop) + str(self.ip) + str(self.min_rtt)

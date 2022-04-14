@@ -75,14 +75,14 @@ class DetectionMethod(MonitorStrategy):
         hops = self.clean_hops(measurement_result.hops)
         entry_rtt, entry_ip, entry_as = self.find_network_entry_hop(
             hops, user_ip)
-
+        
         return {
             'probe_id': measurement_result.probe_id,
             'created': measurement_result.created,
             'entry_rtt': entry_rtt,
             'entry_ip': entry_ip,
             'entry_as': entry_as
-        }
+        }, hops
 
     def clean_hops(self, hops: list) -> list:
         """

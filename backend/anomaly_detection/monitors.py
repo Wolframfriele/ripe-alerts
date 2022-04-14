@@ -4,42 +4,63 @@ import time
 from ripe.atlas.cousteau import *
 import multiprocessing
 from .monitor_strategy_base import MonitorStrategy
-from database.models import MeasurementCollection, Anomaly, DetectionMethod, AutonomousSystem, Probe, MeasurementPoint, \
-    Hop
-from .probe_measurement import ProbeMeasurement
+from database.models import MeasurementCollection, Anomaly, DetectionMethod, AutonomousSystem, Probe, MeasurementPoint, Hop
+from .format import ProbeMeasurement, Hops
 
 
 class DataManager:
     def __init__(self) -> None:
         pass
 
-    def store2(self, probe_measurement: ProbeMeasurement, measurement_id):
-        probe = Probe.objects.create(probe=264983,
-                                     measurement_id=measurement_id,
-                                     as_number=0,
-                                     location='Amsterdam')
-        probe.save()
-        print('Probe ' + probe_measurement.probe_id + ' is saved!')
+    def store(self, probe_measurement: ProbeMeasurement, measurement_id):
+        if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
+            probe = Probe.objects.create(probe=probe_measurement.probe_id,
+                                        measurement_id=measurement_id,
+                                        as_number=0, #dummy data
+                                        location='Amsterdam') # dummy data
+            probe.save()
 
-    def store(self, measurement_data, measurement_id):
-        print('1')
-        print(measurement_data)
-        probe_number = measurement_data['probe_id']
-        print(probe_number)
-        probe = Probe(probe=probe_number,
-                      measurement_id=measurement_id,
-                      as_number=0000,  # dummy data
-                      location='Amsterdam')  # dummy data
-        probe.save()
-        print('Probes are saved')
-
-        probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
-
-        MeasurementPoint.objects.create(probe_id=probe_id,
-                                        time=measurement_data['created'],
-                                        round_trip_time_ms=measurement_data['entry_rtt'],
+        else:
+            pass
+        
+        probe = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
+        
+        MeasurementPoint.objects.create(probe=probe,
+                                        time=probe_measurement.created,
+                                        round_trip_time_ms=probe_measurement.entry_rtt,
                                         hops_total=12)  # dummy data
-        print('Measurementpoints are saved')
+
+        measurementpoint = MeasurementPoint.objects.get(probe=probe, time=probe_measurement.created)
+        print('Probe ' + str(probe_measurement.probe_id) + ' is saved!')
+
+        return measurementpoint.id
+
+    def store_hops(self, hops: Hops, measurementpoint_id):
+        hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
+                        current_hop=hops.hop,
+                        round_trip_time_ms=hops.min_rtt,
+                        ip_address=hops.ip_address)
+        hop_data.save()
+
+    # def store(self, measurement_data, measurement_id):
+    #     print('1')
+    #     print(measurement_data)
+    #     probe_number = measurement_data['probe_id']
+    #     print(probe_number)
+    #     probe = Probe(probe=probe_number,
+    #                   measurement_id=measurement_id,
+    #                   as_number=0000,  # dummy data
+    #                   location='Amsterdam')  # dummy data
+    #     probe.save()
+    #     print('Probes are saved')
+
+    #     probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
+
+    #     MeasurementPoint.objects.create(probe_id=probe_id,
+    #                                     time=measurement_data['created'],
+    #                                     round_trip_time_ms=measurement_data['entry_rtt'],
+    #                                     hops_total=12)  # dummy data
+    #     print('Measurementpoints are saved')
 
     # def store(self, measurement_data, measurement_id):
     # print('1')
@@ -67,7 +88,7 @@ class Monitor:
         self.strategy = strategy
 
     def __str__(self):
-        return f"Monitor for {self.measurement.type} measurement: {self.measurement.target}"
+        return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
 
     def on_result_response(self, *args):
         """
@@ -76,12 +97,17 @@ class Monitor:
         """
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
-        # print(measurement_result)
-        # print(type(measurement_result))
-        probe_mesh = ProbeMeasurement(**measurement_result)
-        DataManager.store2(self, probe_mesh, self.measurement.id)
+
+        probe_mesh = ProbeMeasurement(**measurement_result[0])
+        hops = measurement_result[1]
+
+        stored_data =  DataManager.store(self, probe_mesh, self.measurement.id)
+
+        for hop in hops:
+            hop = Hops(**hop)
+            DataManager.store_hops(self, hop, stored_data)
+
         return
-        DataManager.store(self, measurement_result, self.measurement.id)
         analyzed = self.strategy.analyze(measurement_result)
         anomalies = self.strategy.filter(analyzed)
         if len(anomalies) > 0:
@@ -163,7 +189,7 @@ class Monitor:
         atlas_stream.bind_channel(channel, self.on_result_response)
 
         print(self.measurement)
-        stream_parameters = {"msm": self.measurement.target}
+        stream_parameters = {"msm": self.measurement.measurement_id}
         atlas_stream.start_stream(stream_type="result", **stream_parameters)
 
         # run forever

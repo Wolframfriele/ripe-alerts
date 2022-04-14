@@ -14,7 +14,7 @@ class MonitorProcess(APIView):
         asn = request.data.get('asn')
         print(asn)
         asn_id = AutonomousSystem.objects.get(number=asn)
-        
+
 
         measurements = MeasurementCollection.objects.get(autonomous_system=asn_id)
         monitor_manager.create_monitors(measurements)
