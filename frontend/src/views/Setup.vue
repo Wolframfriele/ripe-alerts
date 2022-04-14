@@ -11,7 +11,7 @@
 					and sends those to the anomaly detection."
 				/>
 				<h2>AS Numbers</h2>
-				<p>Remove or add AS numbers that you want to monitor.</p>
+				<p>Set the AS number that you want to monitor.</p>
 				<q-input
 					ref="ASNField"
 					v-model="asNumber"
@@ -25,11 +25,17 @@
 				>
 				</q-input>
 				
-				<q-banner v-if="hostname" class="bg-green-3">
-					AS Company name: <strong> {{ hostname }} </strong>
+				<q-banner v-if="isMonitorable" class="bg-green-3">
+					<p v-if="hostname">
+						The monitoring process is running. AS belongs to: <strong> {{ hostname }} </strong>.
+					</p>
+					<p v-else>
+						The monitoring process is running.
+					</p>
+					
 				</q-banner>
 
-				<q-banner v-if="isMonitorable === false" class="bg-red">
+				<q-banner v-if="errorMessage" class="bg-red">
 					{{ errorMessage }}
 				</q-banner>
 
@@ -127,7 +133,6 @@ export default {
 					method: "put",
 					url: `asn/${this.asNumber}`,
 				}).catch((error) => {
-					console.log(error)
 					if (error.response.data.monitoring_possible == false) {
 						console.log("Monitoring not possible")
 						this.hostname = ""
@@ -136,6 +141,7 @@ export default {
 					}
 				}).then(response => {
 					if (response.data.monitoring_possible) {
+						this.errorMessage = ""
 						this.get_asn()
 					}
 				})
