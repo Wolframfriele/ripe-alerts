@@ -11,7 +11,7 @@
 					icon="menu"
 				/>
 				<q-toolbar-title>
-					Ripe Alerter
+					Ripe Alerts
 				</q-toolbar-title>
 
 				<div>v 0.1</div>
@@ -87,7 +87,7 @@ export default {
 		};
 	},
 	created () {
-		document.title = "Ripe Alerter"
+		document.title = "Ripe Alerts"
 	}
 };
 </script>
