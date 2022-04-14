@@ -71,8 +71,14 @@ class AutonomousSystem(models.Model):
 
     @staticmethod
     def get_asn_by_username(username: str):
+        if not User.objects.filter(username=username).exists():
+            return None
         user = User.objects.get(username=username)
+        if not Setting.objects.filter(user=user).exists():
+            return None
         setting = Setting.objects.get(user=user)
+        if not AutonomousSystem.objects.filter(setting=setting).exists():
+            return None
         system = AutonomousSystem.objects.get(setting=setting)
         return system
 
