@@ -40,10 +40,10 @@
 				</q-item>
 				<q-item clickable tag="a" :to="{ name: 'setup' }">
 					<q-item-section avatar>
-						<q-icon name="settings_suggest" />
+						<q-icon name="settings" />
 					</q-item-section>
 					<q-item-section>
-						<q-item-label>Setup Monitoring</q-item-label>
+						<q-item-label>Settings</q-item-label>
 					</q-item-section>
 				</q-item>
 				<q-separator />
