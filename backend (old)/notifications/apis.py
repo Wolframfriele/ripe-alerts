@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.core import management
+from django.core.management.commands import migrate
 # Create your views here.
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -7,9 +8,9 @@ from rest_framework.views import APIView
 from pluginplay.station import Station
 from .database_interface import PostgresInterface
 
-
+if not Station(PostgresInterface()):
+    management.call_command('migrate')
 station = Station(PostgresInterface())
-
 
 class PluginConfigSystem(APIView):
     def post(self, request: Request):
