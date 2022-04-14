@@ -29,7 +29,7 @@ from ripe_interface.api import router as ripe_interface_router
 description = "Welcome to our backend server!<br></br>Go to: " \
               "<a href='/admin/'>Django administration panel</a>"
 
-api = NinjaAPI(title="Ripe Alerter API", version="0.1", description=description, csrf=True)
+api = NinjaAPI(title="Ripe Alerts API", version="0.1", description=description, csrf=True)
 api.add_router("/asn/", ripe_interface_router)
 
 
