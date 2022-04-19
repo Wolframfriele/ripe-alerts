@@ -13,19 +13,22 @@ class DataManager:
         pass
 
     def store(self, probe_measurement: ProbeMeasurement, measurement_id):
-        if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
-            probe = Probe.objects.create(probe=probe_measurement.probe_id,
+        probe = Probe.objects.create(probe=probe_measurement.probe_id,
                                         measurement_id=measurement_id,
-                                        as_number=0, #dummy data
+                                        as_number=1103, #dummy data
                                         location='Amsterdam') # dummy data
-            probe.save()
+        probe.save()
+
+        print(Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id))
+        if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
+            print('test')
 
         else:
             pass
+
+        probe_id = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
         
-        probe = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
-        
-        MeasurementPoint.objects.create(probe=probe,
+        MeasurementPoint.objects.create(probe=probe_id,
                                         time=probe_measurement.created,
                                         round_trip_time_ms=probe_measurement.entry_rtt,
                                         hops_total=12)  # dummy data
@@ -100,7 +103,7 @@ class Monitor:
 
         probe_mesh = ProbeMeasurement(**measurement_result[0])
         hops = measurement_result[1]
-
+        print(probe_mesh)
         stored_data =  DataManager.store(self, probe_mesh, self.measurement.id)
 
         for hop in hops:
