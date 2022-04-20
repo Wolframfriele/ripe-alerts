@@ -53,7 +53,7 @@ def get_autonomous_system_setting(request):
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": "ASN configuration not found!", "autonomous_system": None}, status=404)
     return JsonResponse({"monitoring_possible": True, "host": system.name,
-                         "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=404)
+                         "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=200)
 
 
 @router.put("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
