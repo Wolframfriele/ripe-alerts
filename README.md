@@ -153,7 +153,7 @@ To check out live examples and docs, visit [our wiki.](https://github.com/Wolfra
 
 - [x] Anomaly detection
 - [x] Base API
-- [ ] Improve Docker installation
+- [x] Improve Docker installation
 - [ ] Add additional alerting methods like Webhooks, API
 - [ ] Personalize alerts by giving feedback to anomalies
 - [ ] Better API documentation
