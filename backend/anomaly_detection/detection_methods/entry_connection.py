@@ -82,7 +82,7 @@ class DetectionMethod(MonitorStrategy):
             'entry_rtt': entry_rtt,
             'entry_ip': entry_ip,
             'entry_as': entry_as
-        }, hops
+        }
 
     def clean_hops(self, hops: list) -> list:
         """

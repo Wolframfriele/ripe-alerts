@@ -118,7 +118,7 @@ class MeasurementCollection(models.Model):
 class Probe(models.Model):
     id = models.AutoField(primary_key=True)
     probe = models.PositiveIntegerField(null=False, blank=False)
-    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=True, blank=False)
+    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False, blank=False)
     as_number = models.PositiveIntegerField(null=False, blank=False)
     location = models.TextField(null=True, blank=True)
 
@@ -134,7 +134,7 @@ class MeasurementPoint(models.Model):
     hops_total = models.PositiveSmallIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return 'Measurement Point (' + str(self.id) + ') - probe: ' + str(self.probe.probe_id)
+        return 'Measurement Point (' + str(self.id) + ')' #' - probe: ' + str(self.probe.id)
 
     class Meta:
         verbose_name_plural = "Measurement Points"

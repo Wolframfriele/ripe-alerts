@@ -13,30 +13,38 @@ class DataManager:
         pass
 
     def store(self, probe_measurement: ProbeMeasurement, measurement_id):
-        probe = Probe.objects.create(probe=probe_measurement.probe_id,
-                                        measurement_id=measurement_id,
-                                        as_number=1103, #dummy data
-                                        location='Amsterdam') # dummy data
-        probe.save()
+        obj, created_probe = Probe.objects.get_or_create(probe=probe_measurement.probe_id,
+                                                    measurement_id=measurement_id,
+                                                    as_number=1103, #dummy data
+                                                    location='Amsterdam') # dummy data
 
-        print(Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id))
-        if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
-            print('test')
+        # print(probe_measurement.probe_id, measurement_id)
+        # print(probe_measurement)
+        # probe_measurement.save_to_database()
 
-        else:
-            pass
+        # # probe = Probe.objects.create(probe=probe_measurement.probe_id,
+        # #                                 measurement_id=measurement_id,
+        # #                                 as_number=1103, #dummy data
+        # #                                 location='Amsterdam') # dummy data
+        # # probe.save()
 
-        probe_id = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
+        # print(Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id))
+        # if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
+        #     print('test')
+
+        # else:
+        #     pass
+
+        # probe_id = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
         
-        MeasurementPoint.objects.create(probe=probe_id,
+        object, created_point = MeasurementPoint.objects.get_or_create(probe=obj,
                                         time=probe_measurement.created,
                                         round_trip_time_ms=probe_measurement.entry_rtt,
                                         hops_total=12)  # dummy data
 
-        measurementpoint = MeasurementPoint.objects.get(probe=probe, time=probe_measurement.created)
         print('Probe ' + str(probe_measurement.probe_id) + ' is saved!')
 
-        return measurementpoint.id
+        return object.id
 
     def store_hops(self, hops: Hops, measurementpoint_id):
         hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
@@ -100,15 +108,15 @@ class Monitor:
         """
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
-
-        probe_mesh = ProbeMeasurement(**measurement_result[0])
-        hops = measurement_result[1]
-        print(probe_mesh)
+        print(measurement_result)
+        probe_mesh = ProbeMeasurement(**measurement_result)
+        print(type(probe_mesh.entry_as))
+        # hops = measurement_result[1]
         stored_data =  DataManager.store(self, probe_mesh, self.measurement.id)
 
-        for hop in hops:
-            hop = Hops(**hop)
-            DataManager.store_hops(self, hop, stored_data)
+        # for hop in hops:
+        #     hop = Hops(**hop)
+        #     DataManager.store_hops(self, hop, stored_data)
 
         return
         analyzed = self.strategy.analyze(measurement_result)
@@ -205,8 +213,9 @@ class Monitor:
         # x.start()
         print('Starting multithreading')
         print(f"Starting {self}")
-        self.process = multiprocessing.Process(target=self.monitor, name=self)
-        self.process.start()
+        # self.process = multiprocessing.Process(target=self.monitor, name=self)
+        # self.process.start()
+        self.monitor()
 
     def end(self):
         print(f"Terminating {self}")
@@ -222,7 +231,8 @@ class Monitor:
         """
         pass
 
-# measurement_data = 'sdfsef'
-# # {'probe_id': 6660, 'created': datetime.datetime(2022, 4, 12, 8, 4, 41, tzinfo=<UTC>), 'entry_rtt': inf, 'entry_ip': '2401:ee00:104:3::2', 'entry_as': nan}
+test = {'probe_id': 6660, 'created': datetime.datetime(2022, 4, 12, 8, 4, 41), 'entry_rtt': 'inf', 'entry_ip': '2401:ee00:104:3::2', 'entry_as': 'nan'}
+probe_mesh = ProbeMeasurement(**test)
 
-# DataManager().store(measurement_data, 1)
+probe_mesh.save_to_database()
+#DataManager().store(probe_mesh, 7)
