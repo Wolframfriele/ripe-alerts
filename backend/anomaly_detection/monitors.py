@@ -109,14 +109,14 @@ class Monitor:
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
         print(measurement_result)
-        probe_mesh = ProbeMeasurement(**measurement_result)
-        print(type(probe_mesh.entry_as))
-        # hops = measurement_result[1]
-        stored_data =  DataManager.store(self, probe_mesh, self.measurement.id)
+        probe_mesh = ProbeMeasurement(**measurement_result[0])
+        print(probe_mesh)
+        hops = measurement_result[1]
+        measurementpoint_id =  DataManager.store(self, probe_mesh, self.measurement.id)
 
-        # for hop in hops:
-        #     hop = Hops(**hop)
-        #     DataManager.store_hops(self, hop, stored_data)
+        for hop in hops:
+            hop = Hops(**hop)
+            DataManager.store_hops(self, hop, measurementpoint_id)
 
         return
         analyzed = self.strategy.analyze(measurement_result)
@@ -231,8 +231,8 @@ class Monitor:
         """
         pass
 
-test = {'probe_id': 6660, 'created': datetime.datetime(2022, 4, 12, 8, 4, 41), 'entry_rtt': 'inf', 'entry_ip': '2401:ee00:104:3::2', 'entry_as': 'nan'}
-probe_mesh = ProbeMeasurement(**test)
+# test = {'probe_id': 6660, 'created': datetime.datetime(2022, 4, 12, 8, 4, 41), 'entry_rtt': 'inf', 'entry_ip': '2401:ee00:104:3::2', 'entry_as': 'nan'}
+# probe_mesh = ProbeMeasurement(**test)
 
-probe_mesh.save_to_database()
+# probe_mesh.save_to_database()
 #DataManager().store(probe_mesh, 7)
