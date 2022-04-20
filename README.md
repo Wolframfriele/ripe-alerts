@@ -112,6 +112,10 @@ Wait, until it says:
 ```bash
   python manage.py migrate
 ```
+10. Then, synchronize the database, by using the command:
+```bash
+  python manage.py migrate --run-syncdb
+```
 11. Now, restart the container by using the command:
 ```bash
   docker-compose up
