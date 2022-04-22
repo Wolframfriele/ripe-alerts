@@ -109,7 +109,6 @@ Open folder 'ripe-alerts' → Delete folder 'data'
 ```
 10. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
 
-
 <!-- HOW TO USE THE DATABASE? -->
 ### How to use the database?
 
