@@ -7,12 +7,18 @@ services:
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    user: postgres
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   be:
     build: ./backend
     restart: always
@@ -28,7 +34,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   fe:
     build: ./frontend
     restart: always

@@ -93,34 +93,21 @@ Open folder 'ripe-alerts' → Delete folder 'data'
 ```bash
   docker compose build
 ```
-5. Initialize the database. Open the terminal, and run the following command: 
+5. Start the application, by using the command:
 ```bash
-  docker compose run --name database --rm db
+  docker compose up
 ```
-Wait, until it says: 
-```bash
-  PostgreSQL init process complete; ready for start up.
-```
-6. Close the container (CTRL+C). 
-7. Start the application, by using the command:
-```bash
-  docker-compose up
-```
-8. Open Docker.
-9. Go to the backend-container, and open the Command Line Interface (CLI).
-10. Migrate the database, by using the command:
+6. Open Docker.
+7. Go to the backend-container, and open the Command Line Interface (CLI).
+8. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
 ```
-10. Then, synchronize the database, by using the command:
+9. Then, synchronize the database, by using the command:
 ```bash
   python manage.py migrate --run-syncdb
 ```
-11. Now, restart the container by using the command:
-```bash
-  docker-compose up
-```
-12. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+10. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
 
 
 <!-- HOW TO USE THE DATABASE? -->
