@@ -92,7 +92,7 @@ class DetectionMethod(MonitorStrategy):
                 hops (list): A list with raw hop data.
 
         Returns:
-                cleanend_hops (list): contains dict objects with {hop(id), ip, min_rtt}  
+                cleanend_hops (list): contains dict objects with {hop(id), ip, as, min_rtt}  
         """
         cleaned_hops = []
         for hop_object in hops:
@@ -105,11 +105,13 @@ class DetectionMethod(MonitorStrategy):
             else:
                 hop_packets = hop_object.raw_data['result']
                 hop_ip = None
+                hop_as = None
                 min_hop_rtt = float('inf')
                 for packet in hop_packets:
                     if 'rtt' in packet:
                         if packet['rtt'] < min_hop_rtt:
                             hop_ip = packet['from']
+                            hop_as = self.as_look_up.get_as(hop_ip)
                             min_hop_rtt = packet['rtt']
                 min_hop_rtt = float(min_hop_rtt)
                 if min_hop_rtt == float('inf'):
@@ -117,6 +119,7 @@ class DetectionMethod(MonitorStrategy):
                 cleaned_hops.append({
                     'hop': hop_object.raw_data['hop'],
                     'ip': hop_ip,
+                    'as': hop_as,
                     'min_rtt': min_hop_rtt,
                 })
         return cleaned_hops
@@ -139,15 +142,14 @@ class DetectionMethod(MonitorStrategy):
 
         hops.reverse()
         for idx, hop in enumerate(hops):
-            hop_as = self.as_look_up.get_as(hop['ip'])
-            if hop_as != user_as:
+            if hop['as'] != user_as:
                 entry_ip = hop['ip']
                 entry_rtt = hops[idx - 1]['min_rtt']
                 if idx - 1 == -1:
                     entry_rtt = float('inf')
                 break
         if isinstance(entry_ip, str):
-            entry_as = hop_as
+            entry_as = hop['as']
         else:
             entry_ip = np.nan
         return entry_rtt, entry_ip, entry_as
