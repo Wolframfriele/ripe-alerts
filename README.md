@@ -112,17 +112,15 @@ Wait, until it says:
 ```bash
   python manage.py migrate
 ```
-11. To manage access to the database we need a superuser. So let's create one! <br/>
-To create a superuser, use the command:
+10. Then, synchronize the database, by using the command:
 ```bash
-  python manage.py createsuperuser
+  python manage.py migrate --run-syncdb
 ```
-12. Go to the anomaly-container, and open the Command Line Interface (CLI).
-13. Migrate the database, by using the command:
+11. Now, restart the container by using the command:
 ```bash
-  python manage.py migrate
+  docker-compose up
 ```
-14. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+12. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
 
 
 <!-- HOW TO USE THE DATABASE? -->
@@ -155,7 +153,7 @@ To check out live examples and docs, visit [our wiki.](https://github.com/Wolfra
 
 - [x] Anomaly detection
 - [x] Base API
-- [ ] Improve Docker installation
+- [x] Improve Docker installation
 - [ ] Add additional alerting methods like Webhooks, API
 - [ ] Personalize alerts by giving feedback to anomalies
 - [ ] Better API documentation
