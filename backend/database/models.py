@@ -120,10 +120,11 @@ class Probe(models.Model):
     probe = models.PositiveIntegerField(null=False, blank=False)
     measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False, blank=False)
     as_number = models.PositiveIntegerField(null=False, blank=False)
-    location = models.TextField(null=True, blank=True)
+    country = models.TextField(null=False, blank=True)
+    city = models.TextField(null=False, blank=True)
 
     def __str__(self):
-        return 'Probe (' + str(self.probe) + ') - location: ' + self.location
+        return 'Probe (' + str(self.probe) + ') - location: ' + self.city
 
 
 class MeasurementPoint(models.Model):

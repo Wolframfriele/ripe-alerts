@@ -1,5 +1,4 @@
 import datetime
-import typing
 from database.models import Probe
 class ProbeMeasurement:
     def __init__(self, probe_id: int, created: datetime.datetime, entry_rtt, entry_ip: str, entry_as):
@@ -11,7 +10,7 @@ class ProbeMeasurement:
 
     def save_to_database(self) -> None:
         probe = Probe.objects.create(probe=self.probe_id,
-                                    measurement_id=7,
+                                    measurement_id=31,
                                     as_number=1103, #dummy data
                                     location='Amsterdam') # dummy data
         probe.save()

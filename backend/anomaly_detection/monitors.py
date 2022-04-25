@@ -1,11 +1,13 @@
 import datetime
 import os
 import time
+from django import db
 from ripe.atlas.cousteau import *
 import multiprocessing
 from .monitor_strategy_base import MonitorStrategy
 from database.models import MeasurementCollection, Anomaly, DetectionMethod, AutonomousSystem, Probe, MeasurementPoint, Hop
 from .format import ProbeMeasurement, Hops
+from .requests import get_probe_location
 
 
 class DataManager:
@@ -13,11 +15,15 @@ class DataManager:
         pass
 
     def store(self, probe_measurement: ProbeMeasurement, measurement_id):
+        probe_information = get_probe_location(probe_measurement.probe_id)
+        
         obj, created_probe = Probe.objects.get_or_create(probe=probe_measurement.probe_id,
                                                     measurement_id=measurement_id,
-                                                    as_number=1103, #dummy data
-                                                    location='Amsterdam') # dummy data
-
+                                                    as_number=probe_information['as_number'],
+                                                    country=probe_information['country'],
+                                                    city=probe_information['city'])
+        print(obj)
+        print(obj.city, obj.country, obj.as_number)
         # print(probe_measurement.probe_id, measurement_id)
         # print(probe_measurement)
         # probe_measurement.save_to_database()
@@ -213,9 +219,10 @@ class Monitor:
         # x.start()
         print('Starting multithreading')
         print(f"Starting {self}")
-        # self.process = multiprocessing.Process(target=self.monitor, name=self)
-        # self.process.start()
-        self.monitor()
+        db.connections.close_all()
+        self.process = multiprocessing.Process(target=self.monitor, name=self)
+        self.process.start()
+        #self.monitor()
 
     def end(self):
         print(f"Terminating {self}")
