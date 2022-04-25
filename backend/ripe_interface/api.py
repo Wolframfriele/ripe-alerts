@@ -71,7 +71,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
                              "message": "There were no anchors found in " + asn_name},
                             status=404)
 
-    asn_location = anchors[0].company + " - " + anchors[0].country
+    asn_location = RipeRequests.get_company_name(asn.value)  # anchors[0].company + " - " + anchors[0].country
     user_exists = User.objects.filter(username="admin").exists()
     if not user_exists:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,

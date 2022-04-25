@@ -1,6 +1,7 @@
 import requests
 
 from ripe_interface.anchor import AnchoringMeasurement, Anchor
+
 # from .anchor import Anchor
 # "RIPE API URLS"
 
@@ -67,3 +68,14 @@ class RipeRequests:
             anchor_measurement = AnchoringMeasurement(**x)
             measurements.append(anchor_measurement)
         return measurements
+
+    @staticmethod
+    def get_company_name(as_number: int) -> str:
+        """ Returns the company name of an autonomous system. """
+        company: str = ""
+        params = {"resource": str(as_number)}
+        response = requests.get(url=RIPE_STATS_ASN, params=params).json()
+        results = response.get('data')
+        if results['holder']:
+            company = results['holder']
+        return company
