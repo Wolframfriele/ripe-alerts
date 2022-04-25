@@ -137,7 +137,7 @@ class DetectionMethod(MonitorStrategy):
                 entry_ip (str): ip adress of the router before entering your network.
                 entry_as (str): as number of the neighboring network connection.
         """
-        entry_rtt, entry_ip, entry_as = [np.nan] * 3
+        entry_rtt, entry_ip, entry_as = [None] * 3
         user_as = self.as_look_up.get_as(user_ip)
 
         hops.reverse()
@@ -151,7 +151,7 @@ class DetectionMethod(MonitorStrategy):
         if isinstance(entry_ip, str):
             entry_as = hop['as']
         else:
-            entry_ip = np.nan
+            entry_ip = None
         return entry_rtt, entry_ip, entry_as
 
     def analyze(self, collection) -> pd.DataFrame:
