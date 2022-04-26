@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
+from ninja.security import django_auth
 
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
@@ -12,7 +13,15 @@ from ripe_interface.requests import RipeRequests
 
 router = Router()
 """Tags are used by Swagger to group endpoints."""
-TAG = "Ripe Interface"
+TAG = "RIPE Interface"
+
+
+def get_username(request):
+    default_user = 'admin'
+    if hasattr(request, 'auth'):
+        return str(request.auth)
+    else:
+        return default_user
 
 
 @router.get("/generate-fake-anomalies", tags=[TAG])
@@ -91,10 +100,3 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
         for measurement in measurements:
             measurement.save_to_database(system=autonomous_system)
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
-
-# @router.get("/pets", tags=[TAG], auth=django_auth)
-# def get_anomaly(request):
-#     if request.user.is_authenticated():
-#         username = request.user.username
-#         return JsonResponse({'username': request.user.username})
-#     return JsonResponse({'username': "nope"})
