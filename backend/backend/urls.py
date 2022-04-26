@@ -43,11 +43,11 @@ def auth_configuration():
 description = ""
 if settings.NINJA_AUTH_ENABLED:
     description = "Welcome to our backend server!<br><br>Authentication is enabled. To change this, " \
-                  "open <u>settings.py</u> and set NINJA_AUTH_ENABLED to false.  <br></br>Go to: " \
+                  "open <u>backend/settings.py</u> and set NINJA_AUTH_ENABLED to false.  <br></br>Go to: " \
                   "<a href='/admin/'>Django administration panel</a>"
 elif not settings.NINJA_AUTH_ENABLED:
     description = "Welcome to our backend server!<br><br>Authentication is disabled. To change this, " \
-                  "open <u>settings.py</u> and set NINJA_AUTH_ENABLED to true.  <br></br>Go to: " \
+                  "open <u>backend/settings.py</u> and set NINJA_AUTH_ENABLED to true.  <br></br>Go to: " \
                   "<a href='/admin/'>Django administration panel</a>"
 
 api = NinjaAPI(title="Ripe Alerts API", version="0.1", description=description, csrf=True)
