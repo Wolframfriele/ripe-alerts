@@ -21,10 +21,11 @@ class ProbeMeasurement:
 
 
 class Hops:
-    def __init__(self, hop, ip, min_rtt):
+    def __init__(self, hop, ip, min_rtt, asn):
         self.hop = hop
         self.ip_address = ip
         self.min_rtt = min_rtt
+        self.asn = asn
 
     def __str__(self):
         return str(self.hop) + str(self.ip) + str(self.min_rtt)

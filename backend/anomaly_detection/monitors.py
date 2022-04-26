@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import os
 import time
 from django import db
@@ -56,7 +57,8 @@ class DataManager:
         hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
                         current_hop=hops.hop,
                         round_trip_time_ms=hops.min_rtt,
-                        ip_address=hops.ip_address)
+                        ip_address=hops.ip_address,
+                        as_number=hops.asn)
         hop_data.save()
 
     # def store(self, measurement_data, measurement_id):
@@ -184,10 +186,13 @@ class Monitor:
 
     def monitor(self):
         print("Starting monitor")
-        # yesterday = datetime.datetime.now() - datetime.timedelta(hours=24)
-        # count = self.collection.count_documents(filter={"created": {"$lt": yesterday}})
-        # if count == 0:
-        #     self.strategy.collect_initial_dataset(self.collection, self.measurement.measurement_id)
+        timezone = pytz.timezone('UTC')
+    
+        yesterday = datetime.datetime.now(timezone) - datetime.timedelta(hours=24)
+        count = MeasurementPoint.objects.filter(time=yesterday)
+        if not count.exists():
+            print('collecting data')
+            self.strategy.collect_initial_dataset(self.measurement.measurement_id)
 
         atlas_stream = AtlasStream()
         atlas_stream.connect()

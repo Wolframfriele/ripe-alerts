@@ -14,6 +14,9 @@ from adtk.data import validate_series
 from ..as_tools import ASLookUp
 from datetime import datetime, timedelta
 from ..monitor_strategy_base import MonitorStrategy
+from ..format import ProbeMeasurement, Hops
+from ..monitors import DataManager
+from database.models import MeasurementCollection
 
 
 class DetectionMethod(MonitorStrategy):
@@ -24,7 +27,7 @@ class DetectionMethod(MonitorStrategy):
     def measurement_type(self) -> str:
         return 'traceroute'
 
-    def collect_initial_dataset(self, collection, measurement_id: str) -> None:
+    def collect_initial_dataset(self, measurement_id: str) -> None:
         """
         Collect data from the last day as a baseline.
 
@@ -37,17 +40,26 @@ class DetectionMethod(MonitorStrategy):
         print(f"collecting initial dataset for measurement: {measurement_id}")
         yesterday = int(datetime.now().timestamp()) - 24 * 60 * 60
         result_time = yesterday
-
+        
         while True:
             try:
                 f = urlopen(
-                    f"https://atlas.ripe.net/api/v2/measurements/\
-                        {measurement_id}/results?start={result_time}")
+                    f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}")
                 parser = ijson.items(f, 'item')
                 for measurement_data in parser:
                     result = self.preprocess(measurement_data)
-                    result_time = result['created']
-                    self.store(collection, result)
+                    result_time = result[0]['created']
+                    
+                    probe_mesh = ProbeMeasurement(**result[0])
+                    print(probe_mesh)
+                    hops = result[1]
+                    measurement = MeasurementCollection.objects.get(measurement_id=measurement_id)
+                    measurementpoint_id = DataManager.store(self, probe_mesh, measurement.id)
+
+                    for hop in hops:
+                        hop = Hops(**hop)
+                        DataManager.store_hops(self, hop, measurementpoint_id)
+
                 break
             except ChunkedEncodingError:
                 print("Oh no we lost connection, but we will try again")
@@ -119,7 +131,7 @@ class DetectionMethod(MonitorStrategy):
                 cleaned_hops.append({
                     'hop': hop_object.raw_data['hop'],
                     'ip': hop_ip,
-                    'as': hop_as,
+                    'asn': hop_as,
                     'min_rtt': min_hop_rtt,
                 })
         return cleaned_hops
@@ -142,14 +154,14 @@ class DetectionMethod(MonitorStrategy):
 
         hops.reverse()
         for idx, hop in enumerate(hops):
-            if hop['as'] != user_as:
+            if hop['asn'] != user_as:
                 entry_ip = hop['ip']
                 entry_rtt = hops[idx - 1]['min_rtt']
                 if idx - 1 == -1:
                     entry_rtt = float('inf')
                 break
         if isinstance(entry_ip, str):
-            entry_as = hop['as']
+            entry_as = hop['asn']
         else:
             entry_ip = None
         return entry_rtt, entry_ip, entry_as
