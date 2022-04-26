@@ -193,17 +193,16 @@ class DetectionMethodSetting(models.Model):
 class Anomaly(models.Model):
     id = models.AutoField(primary_key=True)
     time = models.DateTimeField(null=False, blank=False)
-    ip_address = models.CharField(null=False, blank=False, max_length=20)
+    ip_address = models.TextField(null=False, blank=False)
     autonomous_system = models.ForeignKey('AutonomousSystem', on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
     measurement_type = models.CharField(MeasurementType, choices=MeasurementType.choices, default=None, max_length=10,
                                         blank=False, null=False)
     detection_method = models.ForeignKey(DetectionMethod, on_delete=models.CASCADE, null=False, blank=False)
-    medium_value = models.FloatField(null=False, blank=False)
-    value = models.FloatField(null=False, blank=False)
+    mean_increase = models.FloatField(null=False, blank=False)
     anomaly_score = models.FloatField(null=False, blank=False)
     prediction_value = models.BooleanField(null=False, blank=False)
-    asn_error = models.PositiveIntegerField(null=True, blank=False)
+    asn = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
         return 'Anomaly (' + str(self.id) + ') -  ip: ' + self.ip_address + ' - ASN' + str(
@@ -218,7 +217,18 @@ class Feedback(models.Model):
     response = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
-        return 'Feedback on anomaly(' + str(self.anomaly.id) + ')'
+        return 'Feedback on anomaly (' + str(self.anomaly.id) + ')'
 
     class Meta:
         verbose_name_plural = "Feedback"
+
+    @staticmethod
+    def get_feedback(autonomous_system_id: int):
+        # get feedback object where asn equals given asn
+        feedback_exist = Feedback.objects.filter(anomaly__autonomous_system__number=1103).exists()
+        # feedback_exist = Feedback.objects.filter(anomaly__autonomous_system_id=autonomous_system_id).exists()
+        if feedback_exist:
+            feedback = Feedback.objects.get(anomaly__autonomous_system__number=autonomous_system_id)
+            return feedback.response
+        else:
+            return None

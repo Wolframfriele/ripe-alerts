@@ -37,9 +37,10 @@ def generate_fake_anomalies(request):
     system = AutonomousSystem.objects.get(setting_id=setting.id)
     method = DetectionMethod.objects.create(type="ipv6 traceroute", description="a1 algorithm")
     method.save()
-    Anomaly.objects.create(time=timezone.now(), ip_address="localhost", autonomous_system=system, description="test",
-                           measurement_type=MeasurementType.ANCHORING, detection_method=method, medium_value=1.1,
-                           value=1.2, anomaly_score=1.3, prediction_value=True, asn_error=1)
+    Anomaly.objects.create(time=timezone.now(), ip_address="localhost, google.com", autonomous_system=system,
+                           description="Ping above 100ms",
+                           measurement_type=MeasurementType.TRACEROUTE, detection_method=method, mean_increase=2.1,
+                           anomaly_score=4.0, prediction_value=False, asn=1402)
     return JsonResponse({"message": "Success!"}, status=200)
 
 
