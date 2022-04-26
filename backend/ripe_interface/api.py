@@ -7,7 +7,7 @@ from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
 
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
-from ripe_interface.api_schemas import AnomalyOut, AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2
+from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.requests import RipeRequests
 
 router = Router()
