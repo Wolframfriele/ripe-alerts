@@ -41,9 +41,9 @@ class MonitorManager:
             measurement_list = []
             measurement_list.append(measurements)
             for measurement in measurement_list:
-                self.monitors = {}
-                print(self.monitors)
-                print(self.monitors.get(measurement.id))
+                # self.monitors = {}
+                # print(self.monitors)
+                # print(self.monitors.get(measurement.id))
                 configuration_in_system = self.monitors.get(measurement.id) is None
                 plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
                 print('test test')

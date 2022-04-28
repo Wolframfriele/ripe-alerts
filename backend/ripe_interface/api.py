@@ -7,6 +7,7 @@ from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
 from ninja.security import django_auth
 
+from anomaly_detection.monitor_manager import MonitorManager
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.requests import RipeRequests
@@ -96,8 +97,11 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
+    monitor_manager = MonitorManager()
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
-            measurement.save_to_database(system=autonomous_system)
+            monitor_mesh = measurement.save_to_database(system=autonomous_system)
+            # monitor_manager.create_monitors(monitor_mesh)
+            # break
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
