@@ -14,18 +14,18 @@ class ASLookUp:
     LAST_IP_INDEX = -4
 
     def __init__(self) -> None:
-        if exists('anomaly_detection/rtree.pickle'):
-            day_length = 86400
-            modified_time = getmtime('anomaly_detection/rtree.pickle')
-            if (time() - modified_time) > day_length:
-                self.rtree = radix.Radix()
-                self.get_ris
-            else:
-                with open('anomaly_detection/rtree.pickle', 'rb') as f:
-                    self.rtree = pickle.load(f)
-        else:
-            self.rtree = radix.Radix()
-            self.get_ris()
+        # if exists('anomaly_detection/rtree.pickle'):
+        #     day_length = 86400
+        #     modified_time = getmtime('anomaly_detection/rtree.pickle')
+        #     if (time() - modified_time) > day_length:
+        #         self.rtree = radix.Radix()
+        #         self.get_ris
+        #     else:
+        #         with open('anomaly_detection/rtree.pickle', 'rb') as f:
+        #             self.rtree = pickle.load(f)
+        # else:
+        self.rtree = radix.Radix()
+        self.get_ris()
 
     def get_ris(self) -> None:
         """

@@ -7,24 +7,27 @@ from ripe.atlas.cousteau import *
 import multiprocessing
 from .monitor_strategy_base import MonitorStrategy
 from database.models import MeasurementCollection, Anomaly, DetectionMethod, AutonomousSystem, Probe, MeasurementPoint, Hop
-from .format import ProbeMeasurement, Hops
-from .requests import get_probe_location
+from .format import HopFormat, ProbeMeasurement, HopFormat
+from .requests import ProbeRequest
+from time import perf_counter
 
 
 class DataManager:
     def __init__(self) -> None:
         pass
 
-    def store(self, probe_measurement: ProbeMeasurement, measurement_id):
-        probe_information = get_probe_location(probe_measurement.probe_id)
+    def store(self, probe_measurement: ProbeMeasurement, measurement_id, total_hops):
+        start_store = perf_counter()
+        probe_information = ProbeRequest().get_probe_location(probe_measurement.probe_id)
+        get_location_time = perf_counter() - start_store
+
+        print(f" Get location time - {get_location_time}")
         
         obj, created_probe = Probe.objects.get_or_create(probe=probe_measurement.probe_id,
                                                     measurement_id=measurement_id,
                                                     as_number=probe_information['as_number'],
                                                     country=probe_information['country'],
                                                     city=probe_information['city'])
-        print(obj)
-        print(obj.city, obj.country, obj.as_number)
         # print(probe_measurement.probe_id, measurement_id)
         # print(probe_measurement)
         # probe_measurement.save_to_database()
@@ -47,19 +50,27 @@ class DataManager:
         object, created_point = MeasurementPoint.objects.get_or_create(probe=obj,
                                         time=probe_measurement.created,
                                         round_trip_time_ms=probe_measurement.entry_rtt,
-                                        hops_total=12)  # dummy data
+                                        hops_total=total_hops)
 
-        print('Probe ' + str(probe_measurement.probe_id) + ' is saved!')
-
+        # print('Probe ' + str(probe_measurement.probe_id) + ' is saved!')
+        print(f" Probe {str(probe_measurement.probe_id)} + measurementpoints savetime - {perf_counter() - start_store}")
         return object.id
 
-    def store_hops(self, hops: Hops, measurementpoint_id):
-        hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
-                        current_hop=hops.hop,
-                        round_trip_time_ms=hops.min_rtt,
-                        ip_address=hops.ip_address,
-                        as_number=hops.asn)
-        hop_data.save()
+    def store_hops(self, hop: HopFormat, measurementpoint_id):
+        start_store = perf_counter()
+        try:
+            hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
+                            current_hop=hop.hop,
+                            round_trip_time_ms=hop.min_rtt,
+                            ip_address=hop.ip_address,
+                            as_number=hop.asn)
+            hop_data.save()
+        except ValueError:
+            print(hop.ip_address)
+            print(hop.asn)
+            raise ValueError
+        print(f" Hop {str(hop.hop)} savetime - {perf_counter() - start_store}")
+        
 
     # def store(self, measurement_data, measurement_id):
     #     print('1')
@@ -120,10 +131,11 @@ class Monitor:
         probe_mesh = ProbeMeasurement(**measurement_result[0])
         print(probe_mesh)
         hops = measurement_result[1]
-        measurementpoint_id =  DataManager.store(self, probe_mesh, self.measurement.id)
-
+        hop_total = len(hops)
+        print(hop_total)
+        measurementpoint_id =  DataManager.store(self, probe_mesh, self.measurement.id, hop_total)
         for hop in hops:
-            hop = Hops(**hop)
+            hop = HopFormat(**hop)
             DataManager.store_hops(self, hop, measurementpoint_id)
 
         return
@@ -188,8 +200,8 @@ class Monitor:
         print("Starting monitor")
         timezone = pytz.timezone('UTC')
     
-        yesterday = datetime.datetime.now(timezone) - datetime.timedelta(hours=24)
-        count = MeasurementPoint.objects.filter(time=yesterday)
+        #yesterday = datetime.datetime.now(timezone) - datetime.timedelta(hours=24)
+        count = MeasurementPoint.objects.filter(time__gt=(datetime.datetime.now(timezone)-datetime.timedelta(hours=24)))
         if not count.exists():
             print('collecting data')
             self.strategy.collect_initial_dataset(self.measurement.measurement_id)
