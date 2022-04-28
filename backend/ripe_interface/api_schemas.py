@@ -38,7 +38,7 @@ class AnomalyOut(Schema):
     timestamp: str = Field("2022-4-13 8:41:28",
                            description="Date and time when the anomaly occurred. Format: yyyy-mm-dd "
                                        "hh:mm:ss")
-    ip_address: list[str] = Field("localhost", description="Target address of Autonomous System")
+    ip_addresses: list[str] = Field("[216.58.214.14]", description="Target address of Autonomous System")
     description: str = Field("Ping above 200ms for 5 minutes, normally 12ms.", description="Explanation of the anomaly")
     measurement_type: MeasurementType
     detection_method: DetectionMethodOut
@@ -58,7 +58,7 @@ class AnomalyOut(Schema):
                " " + str(obj.time.hour) + ":" + str(obj.time.minute) + ":" + str(obj.time.second)
 
     @staticmethod
-    def resolve_ip_address(obj):
+    def resolve_ip_addresses(obj):
         return str(obj.ip_address).replace(' ', '').split(",")
 
     @staticmethod
