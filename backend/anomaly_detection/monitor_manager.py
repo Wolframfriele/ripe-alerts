@@ -37,7 +37,6 @@ class MonitorManager:
         #     monitor.start()
 
     def create_monitors(self, measurements: list):
-        # db.connections.close_all()
         for plugin in self._plugins:
             measurement_list = []
             measurement_list.append(measurements)

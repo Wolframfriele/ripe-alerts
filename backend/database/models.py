@@ -131,12 +131,13 @@ class MeasurementCollection(models.Model):
 class Probe(models.Model):
     id = models.AutoField(primary_key=True)
     probe = models.PositiveIntegerField(null=False, blank=False)
-    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=True, blank=False)
+    measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False, blank=False)
     as_number = models.PositiveIntegerField(null=False, blank=False)
-    location = models.TextField(null=True, blank=True)
+    country = models.TextField(null=False, blank=True)
+    city = models.TextField(null=False, blank=True)
 
     def __str__(self):
-        return 'Probe (' + str(self.probe) + ') - location: ' + self.location
+        return 'Probe (' + str(self.probe) + ') - location: ' + self.city
 
 
 class MeasurementPoint(models.Model):
@@ -147,7 +148,7 @@ class MeasurementPoint(models.Model):
     hops_total = models.PositiveSmallIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return 'Measurement Point (' + str(self.id) + ') - probe: ' + str(self.probe.probe_id)
+        return 'Measurement Point (' + str(self.id) + ')' #' - probe: ' + str(self.probe.id)
 
     class Meta:
         verbose_name_plural = "Measurement Points"
@@ -157,8 +158,9 @@ class Hop(models.Model):
     # id = models.AutoField(primary_key=True)
     measurement_point = models.ForeignKey(MeasurementPoint, on_delete=models.CASCADE, null=False, blank=False)
     current_hop = models.PositiveSmallIntegerField(null=False, blank=False)
-    round_trip_time_ms = models.PositiveIntegerField(null=False, blank=False)
-    as_number = models.PositiveIntegerField(null=False, blank=False)
+    round_trip_time_ms = models.PositiveIntegerField(null=True, blank=True)
+    ip_address = models.CharField(null=True, blank=True, max_length=50)
+    as_number = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
         return 'Hop (' + str(self.current_hop) + ') - Measurement Point: ' + str(self.measurement_point.id)

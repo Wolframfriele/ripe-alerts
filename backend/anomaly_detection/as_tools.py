@@ -67,9 +67,9 @@ class ASLookUp:
         try:
             asn = self.rtree.search_best(ip).data["asn"]
         except AttributeError:
-            asn = np.nan
+            asn = None
         except TypeError:
-            asn = np.nan
+            asn = None
         except ValueError:
-            asn = np.nan
+            asn = None
         return asn

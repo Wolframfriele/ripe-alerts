@@ -57,7 +57,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls, name='swagger'),
     path('', api_redirect, name='redirect-to-swagger'),
-    # path('monitor/', include('anomaly_detection.urls')) #TODO: fix u need to remove this line bug: with this: setting_table_exists = "database_setting" in connection.introspection.table_names()
+    path('monitor/', include('anomaly_detection.urls')) #TODO: fix u need to remove this line bug: with this: setting_table_exists = "database_setting" in connection.introspection.table_names()
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
     # path('api/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
