@@ -50,7 +50,7 @@ class AnomalyOut(Schema):
                                                "whether the prediction was accurate (True) or not. (False)")
     asn: int = Field(1402, description="ASN of the router were the error happened.")
     feedback: Optional[bool] = Field(None, description="User feedback, whether the prediction was accurate (True) or "
-                                              "not. (False)")
+                                                       "not. (False)")
 
     @staticmethod
     def resolve_timestamp(obj):
@@ -63,6 +63,5 @@ class AnomalyOut(Schema):
 
     @staticmethod
     def resolve_feedback(obj):
-        # print(obj.autonomous_system_id)
-        # print(type(obj.autonomous_system_id))
-        return Feedback.get_feedback(obj.autonomous_system_id)
+        return Feedback.get_feedback(obj.id)
+

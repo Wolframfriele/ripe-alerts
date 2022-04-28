@@ -83,7 +83,6 @@ class AutonomousSystem(models.Model):
         return system
 
 
-
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, null=False, blank=False, max_length=30)
@@ -223,12 +222,10 @@ class Feedback(models.Model):
         verbose_name_plural = "Feedback"
 
     @staticmethod
-    def get_feedback(autonomous_system_id: int):
-        # get feedback object where asn equals given asn
-        feedback_exist = Feedback.objects.filter(anomaly__autonomous_system__number=1103).exists()
-        # feedback_exist = Feedback.objects.filter(anomaly__autonomous_system_id=autonomous_system_id).exists()
+    def get_feedback(anomaly_id: int):
+        feedback_exist = Feedback.objects.filter(anomaly_id=anomaly_id).exists()
         if feedback_exist:
-            feedback = Feedback.objects.get(anomaly__autonomous_system__number=autonomous_system_id)
+            feedback = Feedback.objects.get(anomaly_id=anomaly_id)
             return feedback.response
         else:
             return None
