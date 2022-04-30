@@ -49,7 +49,8 @@ def generate_fake_anomalies(request):
 @paginate(PageNumberPagination)
 def list_anomalies(request):
     """Retrieves all anomalies by user from the database.  """
-    system = AutonomousSystem.get_asn_by_username(username="admin")
+    username = get_username(request)
+    system = AutonomousSystem.get_asn_by_username(username=username)
     anomalies = Anomaly.objects.filter(autonomous_system=system)
     if anomalies is None:
         return []
