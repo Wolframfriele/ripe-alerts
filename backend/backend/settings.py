@@ -170,3 +170,7 @@ CORS_ALLOWED_ORIGINS = [
 # Django Ninja
 NINJA_PAGINATION_PER_PAGE = 5
 NINJA_AUTH_ENABLED = False
+# Disable Authentication when testing.
+if 'test' in sys.argv:
+    NINJA_AUTH_ENABLED = False
+
