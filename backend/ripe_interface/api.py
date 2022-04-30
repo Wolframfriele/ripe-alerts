@@ -72,6 +72,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
     asn_name = "ASN" + str(asn.value)
+    username = get_username(request)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": asn_name + " does not exist!"}, status=404)
@@ -83,16 +84,16 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
                             status=404)
 
     asn_location = RipeRequests.get_company_name(asn.value)
-    user_exists = User.objects.filter(username="admin").exists()
+    user_exists = User.objects.filter(username=username).exists()
     if not user_exists:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
-                             "message:": "User 'admin' does not exist!"}, status=400)
+                             "message:": "User '" + username + "' does not exist!"}, status=400)
 
-    user = User.objects.get(username="admin")
+    user = User.objects.get(username=username)
     user_configured = Setting.objects.filter(user=user).exists()
     if not user_configured:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
-                             "message:": "User 'admin' settings is missing!"}, status=400)
+                             "message:": "User '" + username + "' settings is missing!"}, status=400)
     setting = Setting.objects.get(user=user)
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
