@@ -28,6 +28,7 @@ from ninja import NinjaAPI
 from backend import settings
 from ripe_interface.api import router as ripe_interface_router
 from anomaly_detection.api import router as anomaly_detection_router
+from auth.api import router as authentication_router
 
 
 def api_redirect(request):
@@ -51,16 +52,17 @@ elif not settings.NINJA_AUTH_ENABLED:
                   "open <u>backend/settings.py</u> and set NINJA_AUTH_ENABLED to true.  <br></br>Go to: " \
                   "<a href='/admin/'>Django administration panel</a>"
 
-api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=True)
+api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=False)
 api.add_router("/asn/", ripe_interface_router, auth=auth_configuration())
 api.add_router("/ai/", anomaly_detection_router, auth=auth_configuration())
+api.add_router("/auth", authentication_router, auth=None)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls, name='swagger'),
-    # path('', api_redirect, name='redirect-to-swagger'),
-    path("accounts/", include("django.contrib.auth.urls")), #TODO: change to AUTH
-    path('', TemplateView.as_view(template_name='home.html'), name='home')
+    path('', api_redirect, name='redirect-to-swagger'),
+    # path("accounts/", include("django.contrib.auth.urls")), #TODO: change to AUTH
+    # path('', TemplateView.as_view(template_name='home.html'), name='home')
     # path('monitor/', include('anomaly_detection.urls')) #TODO: fix u need to remove this line bug: with this: setting_table_exists = "database_setting" in connection.introspection.table_names()
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # path('api/atlas/', include('ripe_atlas.urls')),
