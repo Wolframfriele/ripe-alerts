@@ -172,7 +172,7 @@ LOGIN_REDIRECT_URL = "/home"
 
 # Django Ninja
 NINJA_PAGINATION_PER_PAGE = 5
-NINJA_AUTH_ENABLED = False
+NINJA_AUTH_ENABLED = True
 # Disable Authentication when testing.
 if 'test' in sys.argv:
     NINJA_AUTH_ENABLED = False
