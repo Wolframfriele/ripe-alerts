@@ -56,9 +56,11 @@ class DetectionMethod(MonitorStrategy):
                         total_time = perf_counter()
                         probe_mesh = ProbeMeasurement(**result[0])
                         hops = result[1]
+                        
                         measurement = MeasurementCollection.objects.get(measurement_id=measurement_id)
-                       
-                        measurementpoint_id = DataManager.store(self, probe_mesh, measurement.id)
+
+                        hop_total = len(hops)
+                        measurementpoint_id = DataManager.store(self, probe_mesh, measurement.id, hop_total)
                         
                         
                         start_store = perf_counter()

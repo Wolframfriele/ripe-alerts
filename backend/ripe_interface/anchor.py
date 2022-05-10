@@ -47,9 +47,9 @@ class AnchoringMeasurement:
 
     def save_to_database(self, system: AutonomousSystem):
         tags = Tag.get_tag_ids(self.tags)
-        measurement_collection, created = MeasurementCollection.objects.get_or_create(
+        measurement_collection = MeasurementCollection.objects.create(
             autonomous_system=system, type=self.type, target=self.target, measurement_id=self.id,
             description=self.description)
         measurement_collection.tags.set(tags)
-        return measurement_collection
+        measurement_collection.save()
 

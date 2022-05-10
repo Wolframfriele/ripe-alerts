@@ -15,6 +15,7 @@ def koen(request):
 
     measurements = MeasurementCollection.objects.get(autonomous_system=asn_id)
     monitor_manager = MonitorManager()
+    print(type(measurements))
     monitor_manager.create_monitors(measurements)
 
     return JsonResponse({"message": "Monitoring Process started for the following ASN:" + str(asn)}, status=200)

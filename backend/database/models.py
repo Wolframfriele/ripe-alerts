@@ -47,7 +47,7 @@ class AutonomousSystem(models.Model):
     # id = models.AutoField(primary_key=True)
     setting = models.OneToOneField(Setting, on_delete=models.CASCADE, null=False, blank=False, unique=True)
     number = models.PositiveIntegerField(null=False, blank=False)
-    name = models.CharField(null=False, blank=False, max_length=30)
+    name = models.TextField(null=False, blank=False)
 
     # measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False)
 
