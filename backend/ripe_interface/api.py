@@ -45,7 +45,7 @@ def generate_fake_anomalies(request):
     return JsonResponse({"message": "Success!"}, status=200)
 
 
-@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])  # TODO for later: add authentication
+@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])
 @paginate(PageNumberPagination)
 def list_anomalies(request):
     """Retrieves all anomalies by user from the database.  """
