@@ -69,6 +69,19 @@ class AutonomousSystem(models.Model):
             autonomous_system.save()
         return AutonomousSystem.objects.get(setting_id=setting.id)
 
+    @staticmethod
+    def get_asn_by_username(username: str):
+        if not User.objects.filter(username=username).exists():
+            return None
+        user = User.objects.get(username=username)
+        if not Setting.objects.filter(user=user).exists():
+            return None
+        setting = Setting.objects.get(user=user)
+        if not AutonomousSystem.objects.filter(setting=setting).exists():
+            return None
+        system = AutonomousSystem.objects.get(setting=setting)
+        return system
+
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
@@ -181,17 +194,16 @@ class DetectionMethodSetting(models.Model):
 class Anomaly(models.Model):
     id = models.AutoField(primary_key=True)
     time = models.DateTimeField(null=False, blank=False)
-    ip_address = models.CharField(null=False, blank=False, max_length=20)
+    ip_address = models.TextField(null=False, blank=False)
     autonomous_system = models.ForeignKey('AutonomousSystem', on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
     measurement_type = models.CharField(MeasurementType, choices=MeasurementType.choices, default=None, max_length=10,
                                         blank=False, null=False)
     detection_method = models.ForeignKey(DetectionMethod, on_delete=models.CASCADE, null=False, blank=False)
-    medium_value = models.FloatField(null=False, blank=False)
-    value = models.FloatField(null=False, blank=False)
+    mean_increase = models.FloatField(null=False, blank=False)
     anomaly_score = models.FloatField(null=False, blank=False)
     prediction_value = models.BooleanField(null=False, blank=False)
-    asn_error = models.PositiveIntegerField(null=True, blank=False)
+    asn = models.PositiveIntegerField(null=True, blank=False)
 
     def __str__(self):
         return 'Anomaly (' + str(self.id) + ') -  ip: ' + self.ip_address + ' - ASN' + str(
@@ -206,7 +218,16 @@ class Feedback(models.Model):
     response = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
-        return 'Feedback on anomaly(' + str(self.anomaly.id) + ')'
+        return 'Feedback on anomaly (' + str(self.anomaly.id) + ')'
 
     class Meta:
         verbose_name_plural = "Feedback"
+
+    @staticmethod
+    def get_feedback(anomaly_id: int):
+        feedback_exist = Feedback.objects.filter(anomaly_id=anomaly_id).exists()
+        if feedback_exist:
+            feedback = Feedback.objects.get(anomaly_id=anomaly_id)
+            return feedback.response
+        else:
+            return None

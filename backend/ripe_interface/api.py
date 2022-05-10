@@ -5,17 +5,26 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from ninja import Router, Schema, Path
+from ninja import Router, Path
+from ninja.pagination import paginate, PageNumberPagination
 from ninja.security import django_auth
-from pydantic import Field
 
-from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, \
-    DetectionMethodSetting
+from anomaly_detection.monitor_manager import MonitorManager
+from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
+from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.requests import RipeRequests
 
 router = Router()
 """Tags are used by Swagger to group endpoints."""
-TAG = "Ripe Interface"
+TAG = "RIPE Interface"
+
+
+def get_username(request):
+    default_user = 'admin'
+    if hasattr(request, 'auth'):
+        return str(request.auth)
+    else:
+        return default_user
 
 
 @router.get("/generate-fake-anomalies", tags=[TAG])
@@ -31,9 +40,10 @@ def generate_fake_anomalies(request):
     system = AutonomousSystem.objects.get(setting_id=setting.id)
     method = DetectionMethod.objects.create(type="ipv6 traceroute", description="a1 algorithm")
     method.save()
-    Anomaly.objects.create(time=timezone.now(), ip_address="localhost", autonomous_system=system, description="test",
-                           measurement_type=MeasurementType.ANCHORING, detection_method=method, medium_value=1.1,
-                           value=1.2, anomaly_score=1.3, prediction_value=True, asn_error=1)
+    Anomaly.objects.create(time=timezone.now(), ip_address="localhost, google.com", autonomous_system=system,
+                           description="Ping above 100ms",
+                           measurement_type=MeasurementType.TRACEROUTE, detection_method=method, mean_increase=2.1,
+                           anomaly_score=4.0, prediction_value=False, asn=1402)
     return JsonResponse({"message": "Success!"}, status=200)
 
 
@@ -98,7 +108,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
                              "message": "There were no anchors found in " + asn_name},
                             status=404)
 
-    asn_location = anchors[0].company + " - " + anchors[0].country
+    asn_location = RipeRequests.get_company_name(asn.value)
     user_exists = User.objects.filter(username="admin").exists()
     if not user_exists:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
@@ -113,15 +123,11 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
+    monitor_manager = MonitorManager()
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
-            measurement.save_to_database(system=autonomous_system)
+            monitor_mesh = measurement.save_to_database(system=autonomous_system)
+            # monitor_manager.create_monitors(monitor_mesh)
+            # break
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
-
-# @router.get("/pets", tags=[TAG], auth=django_auth)
-# def get_anomaly(request):
-#     if request.user.is_authenticated():
-#         username = request.user.username
-#         return JsonResponse({'username': request.user.username})
-#     return JsonResponse({'username': "nope"})

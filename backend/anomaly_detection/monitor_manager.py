@@ -33,35 +33,20 @@ class MonitorManager:
             else:
                 raise TypeError("Plugin does not follow MonitorStrategy")
 
-        # for monitor in self.monitors.values():
-        #     monitor.start()
+        for monitor in self.monitors.values():
+            monitor.start()
 
     def create_monitors(self, measurements: list):
         for plugin in self._plugins:
             measurement_list = []
             measurement_list.append(measurements)
             for measurement in measurement_list:
-                self.monitors = {}
-                print(self.monitors)
-                print(self.monitors.get(measurement.id))
                 configuration_in_system = self.monitors.get(measurement.id) is None
                 plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
-                print('test test')
-                print(configuration_in_system)
-                print(plugin_type_is_measurement_type)
                 if configuration_in_system and plugin_type_is_measurement_type:
-                    print(1)
                     self.monitors[measurement.id] = Monitor(measurement, plugin)
                     self.monitors[measurement.id].start()
 
-
-        # for plugin in self._plugins:
-        #     for alert_configuration in alert_configurations:
-        #         configuration_in_system = self.monitors.get(alert_configuration.alert_configuration_id) is None
-        #         plugin_type_is_measurement_type = alert_configuration.measurement.type == plugin.measurement_type()
-        #         if configuration_in_system and plugin_type_is_measurement_type:
-        #             self.monitors[alert_configuration.alert_configuration_id] = Monitor(alert_configuration, plugin)
-        #             self.monitors[alert_configuration.alert_configuration_id].start()
 
     def restart_monitor(self, monitor_id):
         pass

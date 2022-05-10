@@ -16,6 +16,7 @@ class DataManager:
     def __init__(self) -> None:
         pass
 
+    #Saving the probe and measurementpoint data
     def store(self, probe_measurement: ProbeMeasurement, measurement_id, total_hops):
         start_store = perf_counter()
         probe_information = ProbeRequest().get_probe_location(probe_measurement.probe_id)
@@ -28,24 +29,6 @@ class DataManager:
                                                     as_number=probe_information['as_number'],
                                                     country=probe_information['country'],
                                                     city=probe_information['city'])
-        # print(probe_measurement.probe_id, measurement_id)
-        # print(probe_measurement)
-        # probe_measurement.save_to_database()
-
-        # # probe = Probe.objects.create(probe=probe_measurement.probe_id,
-        # #                                 measurement_id=measurement_id,
-        # #                                 as_number=1103, #dummy data
-        # #                                 location='Amsterdam') # dummy data
-        # # probe.save()
-
-        # print(Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id))
-        # if not Probe.objects.filter(probe=probe_measurement.probe_id, measurement_id=measurement_id).exists():
-        #     print('test')
-
-        # else:
-        #     pass
-
-        # probe_id = Probe.objects.get(probe=probe_measurement.probe_id, measurement_id=measurement_id)
         
         object, created_point = MeasurementPoint.objects.get_or_create(probe=obj,
                                         time=probe_measurement.created,
@@ -56,6 +39,7 @@ class DataManager:
         print(f" Probe {str(probe_measurement.probe_id)} + measurementpoints savetime - {perf_counter() - start_store}")
         return object.id
 
+    #Saving the data from the hops
     def store_hops(self, hop: HopFormat, measurementpoint_id):
         start_store = perf_counter()
         try:
@@ -70,46 +54,6 @@ class DataManager:
             print(hop.asn)
             raise ValueError
         print(f" Hop {str(hop.hop)} savetime - {perf_counter() - start_store}")
-        
-
-    # def store(self, measurement_data, measurement_id):
-    #     print('1')
-    #     print(measurement_data)
-    #     probe_number = measurement_data['probe_id']
-    #     print(probe_number)
-    #     probe = Probe(probe=probe_number,
-    #                   measurement_id=measurement_id,
-    #                   as_number=0000,  # dummy data
-    #                   location='Amsterdam')  # dummy data
-    #     probe.save()
-    #     print('Probes are saved')
-
-    #     probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
-
-    #     MeasurementPoint.objects.create(probe_id=probe_id,
-    #                                     time=measurement_data['created'],
-    #                                     round_trip_time_ms=measurement_data['entry_rtt'],
-    #                                     hops_total=12)  # dummy data
-    #     print('Measurementpoints are saved')
-
-    # def store(self, measurement_data, measurement_id):
-    # print('1')
-    # print(measurement_data)
-    # probe = Probe(probe=measurement_data['probe_id'],
-    #                 measurement_id=measurement_id,
-    #                 as_number=0000, #dummy data
-    #                 location='Amsterdam') #dummy data
-    # probe.save()
-    # print('Probes are saved')
-
-    # probe_id = Probe.objects.get(probe=measurement_data['probe_id'], measurement_id=MeasurementCollection)
-
-    # MeasurementPoint.objects.create(probe_id=probe_id,
-    #                                 time=measurement_data['created'],
-    #                                 round_trip_time_ms=measurement_data['entry_rtt'],
-    #                                 hops_total=12) #dummy data
-    # print('Measurementpoints are saved')
-
 
 class Monitor:
     def __init__(self, MeasurementCollection: MeasurementCollection, strategy: MonitorStrategy):
@@ -120,6 +64,7 @@ class Monitor:
     def __str__(self):
         return f"Monitor for {self.measurement.type} measurement: {self.measurement.measurement_id}"
 
+    #Get the data from streaming API and starting the anomaly detction
     def on_result_response(self, *args):
         """
         Function called every time we receive a new result.
@@ -127,12 +72,9 @@ class Monitor:
         """
         measurement_result = self.strategy.preprocess(args[0])
         print('Received result')
-        print(measurement_result)
         probe_mesh = ProbeMeasurement(**measurement_result[0])
-        print(probe_mesh)
         hops = measurement_result[1]
         hop_total = len(hops)
-        print(hop_total)
         measurementpoint_id =  DataManager.store(self, probe_mesh, self.measurement.id, hop_total)
         for hop in hops:
             hop = HopFormat(**hop)
@@ -196,11 +138,11 @@ class Monitor:
         print(args)
         raise ConnectionError("Unsubscribed")
 
+    #Streaming API for monitoring measurementcollections
     def monitor(self):
         print("Starting monitor")
         timezone = pytz.timezone('UTC')
-    
-        #yesterday = datetime.datetime.now(timezone) - datetime.timedelta(hours=24)
+
         count = MeasurementPoint.objects.filter(time__gt=(datetime.datetime.now(timezone)-datetime.timedelta(hours=24)))
         if not count.exists():
             print('collecting data')
@@ -236,10 +178,10 @@ class Monitor:
         # x.start()
         print('Starting multithreading')
         print(f"Starting {self}")
-        db.connections.close_all()
-        self.process = multiprocessing.Process(target=self.monitor, name=self)
-        self.process.start()
-        #self.monitor()
+        # db.connections.close_all()
+        # self.process = multiprocessing.Process(target=self.monitor, name=self)
+        # self.process.start()
+        self.monitor()
 
     def end(self):
         print(f"Terminating {self}")
