@@ -1,3 +1,4 @@
+from ctypes.wintypes import tagSIZE
 from typing import List
 
 from django.contrib.auth.models import User
@@ -8,7 +9,7 @@ from ninja.pagination import paginate, PageNumberPagination
 from ninja.security import django_auth
 
 from anomaly_detection.monitor_manager import MonitorManager
-from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
+from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, Tag
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.requests import RipeRequests
 
@@ -99,17 +100,15 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
-<<<<<<< HEAD
-    #monitor_manager = MonitorManager()
-=======
-    # monitor_manager = MonitorManager()
->>>>>>> origin/api
+    
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
             measurement.save_to_database(system=autonomous_system)
 
-            # measurements = MeasurementCollection.objects.get(autonomous_system=autonomous_system)
-            # monitor_manager.create_monitors(measurements)
-            # break
+    mesh_tag = Tag.objects.get(name="mesh")
+    measurements = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
+    for measurement in measurements:
+        MonitorManager().create_monitors(measurement)
+    
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

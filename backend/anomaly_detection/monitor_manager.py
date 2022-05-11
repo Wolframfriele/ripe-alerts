@@ -7,11 +7,11 @@ from .monitors import Monitor
 
 
 class MonitorManager:
+    #Get all plugin and check if excisting measurementcollections needs to be monitored 
     def __init__(self):
         self.measurement_collection = MeasurementCollection.objects.all()
         self.monitors = dict()
 
-        self.monitors = {}
         print("Monitor Manager started.")
         print(self.monitors)
         
@@ -36,6 +36,7 @@ class MonitorManager:
         for monitor in self.monitors.values():
             monitor.start()
 
+    #Check if plugin matches measurementcollection type and start the streaming API monitor
     def create_monitors(self, measurements: list):
         for plugin in self._plugins:
             measurement_list = []

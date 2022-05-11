@@ -41,7 +41,6 @@ class DataManager:
 
     #Saving the data from the hops
     def store_hops(self, hop: HopFormat, measurementpoint_id):
-        start_store = perf_counter()
         try:
             hop_data = Hop.objects.create(measurement_point_id=measurementpoint_id,
                             current_hop=hop.hop,
@@ -53,7 +52,6 @@ class DataManager:
             print(hop.ip_address)
             print(hop.asn)
             raise ValueError
-        print(f" Hop {str(hop.hop)} savetime - {perf_counter() - start_store}")
 
 class Monitor:
     def __init__(self, MeasurementCollection: MeasurementCollection, strategy: MonitorStrategy):
