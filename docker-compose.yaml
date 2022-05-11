@@ -1,85 +1,47 @@
-version: "3.4"
+version: "3.9"
 
 services:
   db:
     image: postgres
+    container_name: database
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=ripe_alerts
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
-  mongodb:
-    image: mongo
-    hostname: mongodb
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  be:
+    build: ./backend
     restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./data/mongodb:/data
-  mongodb-express:
-    image: mongo-express
-    hostname: mongo-express
-    restart: always
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-    ports:
-      - "8081:8081"
-    depends_on:
-      - mongodb
-
-
-  web:
-    build: ./Backend
-    restart: always
-    container_name: web-server
+    container_name: backend
     command: >
-        sh -c "python user.py
-        && python manage.py runserver 0.0.0.0:8000"
+        python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
-
     volumes:
-      - ./Backend:/code
+      - ./backend:/code
     environment:
-      - POSTGRES_NAME=ripe_alerts
+      - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
-      - DJANGO_SUPERUSER_PASSWORD=password
+      - POSTGRES_PASSWORD=postgres
     depends_on:
-      - db
-  ai:
-    build: ./AnomolyDetectionServer
-    restart: always
-    container_name: ai-server
-    command: python manage.py runserver 0.0.0.0:8001
-    ports:
-      - "8001:8001"
-    volumes:
-      - ./AnomolyDetectionServer:/code
-    environment:
-      - POSTGRES_NAME=ripe_alerts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    depends_on:
-      - db
-      - mongodb
+      db:
+        condition: service_healthy
   fe:
-    build: ./Frontend
+    build: ./frontend
     restart: always
-    container_name: fe-server
+    container_name: frontend
     ports:
       - "8080:8080"
     volumes:
-      - ./Frontend:/code
+      - ./frontend:/code
     depends_on:
-      - web
+      - be

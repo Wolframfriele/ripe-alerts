@@ -4,6 +4,7 @@ __pycache__/
 **/__pycache__
 .DS_Store
 node_modules
+/frontend/node_modules
 /dist
 .yarn/
 
@@ -29,3 +30,6 @@ pnpm-debug.log*
 
 # Dockerdata
 /data
+
+#migration data
+migrations
