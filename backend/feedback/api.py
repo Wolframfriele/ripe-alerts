@@ -16,6 +16,6 @@ TAG = "Feedback"
 def save_feedback(request, data: FeedbackFormat = Query(...)):
     anomaly_exist = Anomaly.objects.filter(id=data.anomaly_id).exists()
     if not anomaly_exist:
-        return JsonResponse({"message": "Failed, anomaly bla bla does not exist!"}, status=404)
+        return JsonResponse({"message": f"Failed, anomaly {data.anomaly_id} does not exists!"}, status=404)
     Feedback.create_or_update(data.anomaly_id, data.user_feedback)
-    return JsonResponse({"message": "Feedback has been saved successfully!"}, status=200)
+    return JsonResponse({"message": f"The feedback for anomaly {data.anomaly_id} has been succesfully saved!"}, status=200)
