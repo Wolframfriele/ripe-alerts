@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from .models import User, AlertConfiguration, Anomaly
+from .models import User, Anomaly
 from ripe_atlas.models import Measurement, Asn, Anchor
 from .services import get_alerts, get_anomalies
 import time

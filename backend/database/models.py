@@ -231,3 +231,14 @@ class Feedback(models.Model):
             return feedback.response
         else:
             return None
+
+    @staticmethod
+    def create_or_update(anomaly_id: int, response: bool):
+        feedback_exist = Feedback.objects.filter(anomaly_id=anomaly_id).exists()
+        if feedback_exist:
+            feedback = Feedback.objects.get(anomaly_id=anomaly_id)
+            feedback.response = response
+            feedback.save()
+        elif not feedback_exist:
+            feedback = Feedback.objects.create(anomaly_id=anomaly_id, response=response)
+            feedback.save()

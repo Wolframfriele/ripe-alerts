@@ -14,7 +14,7 @@
 						<q-td
 							:props="props"
 							:class="
-								props.row.label == null
+								props.row.feedback == null
 									? 'bg-grey-3 text-black'
 									: 'bg-white text-black'
 							"
@@ -64,9 +64,41 @@ export default {
 					required: true,
 					label: "Timestamp",
 					align: "left",
-					field: row => row.datetime,
+					field: row => row.timestamp,
 					format: val => this.convertDate(val),
 					sortable: true
+				},
+				{
+					name: "detection_method",
+					align: "left",
+					label: "Detection Method",
+					field: "detection_method",
+					format: val => this.getDetectionType(val)
+				},
+				{
+					name: "ip_adresses",
+					align: "left",
+					label: "IP Adresses",
+					field: "ip_addresses",
+					format: val => this.firstInList(val)
+				},
+				{
+					name: "as_number",
+					align: "left",
+					label: "AS Number",
+					field: "asn",
+				},
+				{
+					name: "anomalie_score",
+					align: "left",
+					label: "Anomaly Score",
+					field: "anomaly_score",
+				},
+				{
+					name: "mean_value_increase",
+					align: "left",
+					label: "Value Increase",
+					field: "mean_increase"
 				},
 				{
 					name: "description",
@@ -79,7 +111,7 @@ export default {
 					align: "left",
 					label: "Predicion",
 					format: val => this.format_prediction(val),
-					field: "is_alert"
+					field: "prediction_value"
 				},
 				{
 					name: "actions",
@@ -105,34 +137,27 @@ export default {
 	methods: {
 		positiveFeedback(row) {
 			axios({
-				method: "post",
-				url: "alerts/label_alert",
-				data: {
-					anomaly_id: row.anomaly_id,
-					label: true
-				}
-			}).then((row.label = true));
+				method: "put",
+				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=true`,
+			}).then(this.get_alerts());
 		},
 		negativeFeedback(row) {
 			axios({
-				method: "post",
-				url: "alerts/label_alert",
-				data: {
-					anomaly_id: row.anomaly_id,
-					label: false
-				}
-			}).then((row.label = false));
+				method: "put",
+				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=false`,
+			}).then(this.get_alerts());
 		},
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "alerts/get_alerts"
+				url: "asn/anomaly"
 			}).then(response => {
-				this.data = response.data;
+				this.data = response.data.items;
+				// console.log(this.data)
 			});
 		},
 		convertDate(input) {
-			let date = new Date(input * 1000);
+			let date = new Date(input);
 			let year = date.getFullYear();
 			let month = (date.getMonth() + 1).toString().padStart(2, "0");
 			let day = date
@@ -149,6 +174,12 @@ export default {
 				.padStart(2, "0");
 			return `${year}-${month}-${day}  |  ${hours}:${minutes}`;
 		},
+		firstInList(list) {
+			return list[0]
+		},
+		getDetectionType(detectionObject) {
+			return detectionObject.type
+		},
 		format_prediction(input) {
 			let format = "No Alert";
 			if (input == true) {
@@ -157,7 +188,7 @@ export default {
 			return format
 		},
 		getUpThumbColor(row) {
-			if (row.label == 1) {
+			if (row.feedback == 1) {
 				return 'green'
 			}
 			else{
@@ -165,7 +196,7 @@ export default {
 			}
 		},
 		getDownThumbColor(row) {
-			if (row.label == 0) {
+			if (row.feedback == 0) {
 				return 'red'
 			}
 			else{
@@ -177,8 +208,8 @@ export default {
 </script>
 
 <style scoped>
-.alert-wrapper {
+/* .alert-wrapper {
 	max-width: 1024px;
 	margin: 0 auto;
-}
+} */
 </style>

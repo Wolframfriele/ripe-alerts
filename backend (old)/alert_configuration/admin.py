@@ -1,23 +1,24 @@
 from django.contrib import admin
-from .models import AlertConfiguration, Anomaly
+from .models import Anomaly, Feedback, ASN
 
 # Register your models here.
 
 
 class AnomalyInline(admin.TabularInline):
-    model = Anomaly
+   model = Anomaly
 
 
-class AlertConfigurationInline(admin.TabularInline):
-    model = AlertConfiguration
+# class AlertConfigurationInline(admin.TabularInline):
+#     model = AlertConfiguration
 
 
-class AlertConfigurationAdmin(admin.ModelAdmin):
-    inlines = [AnomalyInline]
+# class AlertConfigurationAdmin(admin.ModelAdmin):
+#     inlines = [AnomalyInline]
 
 
-admin.site.register(AlertConfiguration, AlertConfigurationAdmin)
 admin.site.register(Anomaly)
+admin.site.register(Feedback)
+admin.site.register(ASN)
 
 
 

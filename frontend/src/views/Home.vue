@@ -2,7 +2,7 @@
 	<div
 		class="row wrap justify-start items-start content-start q-gutter-md q-pa-md"
 	>
-		<q-card class="col-4">
+		<q-card class="col-5">
 			<q-card-section>
 				<h1 class="text-h6">Recent Alerts</h1>
 			</q-card-section>

@@ -1,6 +1,6 @@
 from ripe_atlas.models import Measurement, Asn, Anchor
 from django.db import IntegrityError
-from alert_configuration.models import AlertConfiguration
+#from alert_configuration.models import AlertConfiguration
 from .models import RipeUser
 from ripe_atlas.interfaces import RipeInterface
 import requests
@@ -33,12 +33,12 @@ class InitialSetupService:
                                               description=measurement['description'], interval=measurement["interval"],
                                               anchor=anchor)
                     measurement.save()
-                    try:
-                        AlertConfiguration(user=validated_data['user'], measurement=measurement,
-                                           alert_configuration_type="default", alert_configuration=
-                                           {"default": "wordt later geimplementeerd"}).save()
-                    except IntegrityError:
-                        continue
+                    #try:
+                    #    AlertConfiguration(user=validated_data['user'], measurement=measurement,
+                    #                       alert_configuration_type="default", alert_configuration=
+                    #                       {"default": "wordt later geimplementeerd"}).save()
+                    #except IntegrityError:
+                    #    continue
 
             # Send signal to ai server to start monitoring the asns
             requests.post(url=AI_SERVER_MONITOR_URL, json={"asns": validated_data['asns']})
