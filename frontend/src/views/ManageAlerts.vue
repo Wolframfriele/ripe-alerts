@@ -80,6 +80,7 @@ export default {
 					align: "left",
 					label: "IP Adresses",
 					field: "ip_addresses",
+					format: val => this.firstInList(val)
 				},
 				{
 					name: "as_number",
@@ -164,7 +165,6 @@ export default {
 			});
 		},
 		convertDate(input) {
-			console.log(input)
 			let date = new Date(input);
 			let year = date.getFullYear();
 			let month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -181,6 +181,9 @@ export default {
 				.toString()
 				.padStart(2, "0");
 			return `${year}-${month}-${day}  |  ${hours}:${minutes}`;
+		},
+		firstInList(list) {
+			return list[0]
 		},
 		getDetectionType(detectionObject) {
 			return detectionObject.type
