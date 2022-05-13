@@ -28,6 +28,7 @@ from ninja import NinjaAPI
 from backend import settings
 from ripe_interface.api import router as ripe_interface_router
 from anomaly_detection.api import router as anomaly_detection_router
+from feedback.api import router as feedback_router
 
 
 def api_redirect(request):
@@ -54,6 +55,7 @@ elif not settings.NINJA_AUTH_ENABLED:
 api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=True)
 api.add_router("/asn/", ripe_interface_router, auth=auth_configuration())
 api.add_router("/ai/", anomaly_detection_router, auth=auth_configuration())
+api.add_router("/feedback", feedback_router, auth=auth_configuration())
 
 urlpatterns = [
     path('admin/', admin.site.urls),

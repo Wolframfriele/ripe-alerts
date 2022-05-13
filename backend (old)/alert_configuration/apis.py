@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Anomaly
+from .models import Anomaly, Feedback
 from .serializers import AnomalySerializer
 from users.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -40,3 +40,28 @@ class LabelAlert(APIView):
         anomaly_serialized = AnomalySerializer(anomaly)
         return Response(anomaly_serialized.data, status=status.HTTP_200_OK)
 
+
+class FeedBack(APIView):
+    "Saving the feedback to the database"
+
+    def post(self, request):
+        anomaly_id = request.data.get("anomaly_id")
+        response = request.data.get("response")
+
+        anomaly = Anomaly.objects.get(id=anomaly_id)
+
+        feedback = Feedback(anomaly_id=anomaly, response=response)
+        feedback.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+    def put(self, request):
+        anomaly_id = request.data.get("anomaly_id")
+        response = request.data.get("response")
+
+        feedback_data = Feedback.objects.get(anomaly_id=anomaly_id)
+        feedback_data.response = response
+
+        feedback_data.save(update_fields=['response'])
+
+        return Response(status=status.HTTP_200_OK)
