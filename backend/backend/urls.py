@@ -52,7 +52,7 @@ elif not settings.NINJA_AUTH_ENABLED:
                   "open <u>backend/settings.py</u> and set NINJA_AUTH_ENABLED to true.  <br></br>Go to: " \
                   "<a href='/admin/'>Django administration panel</a>"
 
-api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=True)
+api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=False)
 api.add_router("/asn/", ripe_interface_router, auth=auth_configuration())
 api.add_router("/ai/", anomaly_detection_router, auth=auth_configuration())
 api.add_router("/feedback", feedback_router, auth=auth_configuration())

@@ -14,7 +14,7 @@
 						<q-td
 							:props="props"
 							:class="
-								props.row.label == null
+								props.row.feedback == null
 									? 'bg-grey-3 text-black'
 									: 'bg-white text-black'
 							"
@@ -137,23 +137,15 @@ export default {
 	methods: {
 		positiveFeedback(row) {
 			axios({
-				method: "post",
-				url: "alerts/label_alert",
-				data: {
-					anomaly_id: row.anomaly_id,
-					label: true
-				}
-			}).then((row.label = true));
+				method: "put",
+				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=true`,
+			}).then(this.get_alerts());
 		},
 		negativeFeedback(row) {
 			axios({
-				method: "post",
-				url: "alerts/label_alert",
-				data: {
-					anomaly_id: row.anomaly_id,
-					label: false
-				}
-			}).then((row.label = false));
+				method: "put",
+				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=false`,
+			}).then(this.get_alerts());
 		},
 		get_alerts() {
 			axios({
@@ -161,7 +153,7 @@ export default {
 				url: "asn/anomaly"
 			}).then(response => {
 				this.data = response.data.items;
-				console.log(this.data)
+				// console.log(this.data)
 			});
 		},
 		convertDate(input) {
@@ -196,7 +188,7 @@ export default {
 			return format
 		},
 		getUpThumbColor(row) {
-			if (row.label == 1) {
+			if (row.feedback == 1) {
 				return 'green'
 			}
 			else{
@@ -204,7 +196,7 @@ export default {
 			}
 		},
 		getDownThumbColor(row) {
-			if (row.label == 0) {
+			if (row.feedback == 0) {
 				return 'red'
 			}
 			else{
