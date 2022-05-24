@@ -1,8 +1,17 @@
 import threading
 
+import django
 from django.apps import AppConfig
+from django.dispatch import receiver
 
+# from django.core.signals import my_signal_handler
+from anomaly_detection_reworked import server_shutdown_event
 from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
+
+
+@receiver(server_shutdown_event)
+def stop_anomaly_detection(sender, **kwargs):
+    print("Request finished!")
 
 
 def start_anomaly_detection():
@@ -32,3 +41,7 @@ class AnomalyDetectionConfig(AppConfig):
         print("Anomaly Detection disabled.")
         print("To enable this, please use the --noreload option at "
               "startup.")
+
+    @receiver(server_shutdown_event)
+    def lala(sender, **kwargs):
+        print("lalalala")
