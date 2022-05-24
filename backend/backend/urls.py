@@ -11,6 +11,7 @@ from backend.settings import NINJA_AUTH_ENABLED as NINJA_AUTH_ENABLED
 from ripe_interface.api import router as ripe_interface_router
 from feedback.api import router as feedback_router
 
+
 def api_redirect(request):
     return redirect('/api/docs#/')
 
