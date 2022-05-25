@@ -92,7 +92,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     user = User.objects.get(username=username)
     user_configured = Setting.objects.filter(user=user).exists()
-    if not user_configured:
+    if not user_configured and Setting.create_user_configuration(username):
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User '" + username + "' settings is missing!"}, status=400)
     setting = Setting.objects.get(user=user)
