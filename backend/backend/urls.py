@@ -9,7 +9,7 @@ from ninja.security import django_auth
 from anomaly_detection.api import router as anomaly_detection_router
 from backend.settings import NINJA_AUTH_ENABLED as NINJA_AUTH_ENABLED
 from ripe_interface.api import anomaly_router as anomaly_router
-from ripe_interface.api import asn_settings_router as asn_settings_router
+from ripe_interface.api import settings_router as settings_router
 from feedback.api import router as feedback_router
 
 
@@ -36,7 +36,7 @@ elif not NINJA_AUTH_ENABLED:
 
 api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=NINJA_AUTH_ENABLED)
 api.add_router("/anomalies", anomaly_router, auth=auth_configuration())
-api.add_router("/settings", asn_settings_router, auth=auth_configuration())
+api.add_router("/settings", settings_router, auth=auth_configuration())
 api.add_router("/feedback", feedback_router, auth=auth_configuration())
 # api.add_router("/ai/", anomaly_detection_router, auth=auth_configuration())
 

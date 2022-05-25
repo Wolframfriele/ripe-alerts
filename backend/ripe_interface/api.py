@@ -11,7 +11,7 @@ from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, Autono
 from ripe_interface.ripe_requests import RipeRequests
 
 anomaly_router = Router()
-asn_settings_router = Router()
+settings_router = Router()
 """Tags are used by Swagger to group endpoints."""
 ANOMALIES_TAG = "Anomalies"
 ASN_SETTINGS_TAG = "Settings"
@@ -57,7 +57,7 @@ def list_anomalies(request):
     return anomalies
 
 
-@asn_settings_router.get("/", response=AutonomousSystemSetting2, tags=[ASN_SETTINGS_TAG])
+@settings_router.get("/", response=AutonomousSystemSetting2, tags=[ASN_SETTINGS_TAG])
 def get_autonomous_system_setting(request):
     """Retrieve the current ASN configuration of the user. """
     system = AutonomousSystem.get_asn_by_username("admin")
@@ -68,7 +68,7 @@ def get_autonomous_system_setting(request):
                          "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=200)
 
 
-@asn_settings_router.put("/{as_number}", response=AutonomousSystemSetting, tags=[ASN_SETTINGS_TAG])
+@settings_router.put("/{as_number}", response=AutonomousSystemSetting, tags=[ASN_SETTINGS_TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
@@ -76,13 +76,13 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     username = get_username(request)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
-                             "message": asn_name + " does not exist!"}, status=404)
+                             "message": asn_name + " does not exist!"}, status=400)
 
     anchors = RipeRequests.get_anchors(asn.value)
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": "There were no anchors found in " + asn_name},
-                            status=404)
+                            status=400)
 
     asn_location = RipeRequests.get_company_name(asn.value)
     user_exists = User.objects.filter(username=username).exists()

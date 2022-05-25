@@ -43,7 +43,7 @@ class APITestSetAutonomousSystemSetting(TestCase):
         self.assertEqual(host, None)
         self.assertIn("ASN", message)
         self.assertIn("does not exist!", message)
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 400)
 
 
 class APITestGetAutonomousSystemSettingSuccess(TestCase):
