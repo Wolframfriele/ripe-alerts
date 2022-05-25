@@ -11,7 +11,8 @@ from anomaly_detection_reworked.measurement_result_stream import MeasurementResu
 
 @receiver(server_shutdown_event)
 def stop_anomaly_detection(sender, **kwargs):
-    print("Request finished!")
+    pass
+    # print("Request finished!")
 
 
 def start_anomaly_detection():
@@ -44,4 +45,5 @@ class AnomalyDetectionConfig(AppConfig):
 
     @receiver(server_shutdown_event)
     def lala(sender, **kwargs):
-        print("lalalala")
+        pass
+        # print("lalalala")

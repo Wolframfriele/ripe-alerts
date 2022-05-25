@@ -12,9 +12,11 @@ from database.models import AutonomousSystem, Setting, MeasurementCollection, An
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.requests import RipeRequests
 
-router = Router()
+anomaly_router = Router()
+asn_settings_router = Router()
 """Tags are used by Swagger to group endpoints."""
-TAG = "RIPE Interface"
+ANOMALIES_TAG = "Anomalies"
+ASN_SETTINGS_TAG = "Settings"
 
 
 def get_username(request):
@@ -25,7 +27,7 @@ def get_username(request):
         return default_user
 
 
-@router.get("/generate-fake-anomalies", tags=[TAG])
+@anomaly_router.get("/generate-fake-anomalies", tags=[ANOMALIES_TAG])
 def generate_fake_anomalies(request):
     """This endpoint is for testing purposes only! It adds fake anomalies to the database"""
     asn = ASNumber()
@@ -45,7 +47,7 @@ def generate_fake_anomalies(request):
     return JsonResponse({"message": "Success!"}, status=200)
 
 
-@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])
+@anomaly_router.get("/", response=List[AnomalyOut], tags=[ANOMALIES_TAG])
 @paginate(PageNumberPagination)
 def list_anomalies(request):
     """Retrieves all anomalies by user from the database.  """
@@ -57,7 +59,7 @@ def list_anomalies(request):
     return anomalies
 
 
-@router.get("/", response=AutonomousSystemSetting2, tags=[TAG])
+@asn_settings_router.get("/", response=AutonomousSystemSetting2, tags=[ASN_SETTINGS_TAG])
 def get_autonomous_system_setting(request):
     """Retrieve the current ASN configuration of the user. """
     system = AutonomousSystem.get_asn_by_username("admin")
@@ -68,7 +70,7 @@ def get_autonomous_system_setting(request):
                          "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=200)
 
 
-@router.put("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
+@asn_settings_router.put("/{as_number}", response=AutonomousSystemSetting, tags=[ASN_SETTINGS_TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
@@ -99,11 +101,8 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
-    # monitor_manager = MonitorManager()
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
-            monitor_mesh = measurement.save_to_database(system=autonomous_system)
-            # monitor_manager.create_monitors(monitor_mesh)
-            # break
+            measurement.save_to_database(system=autonomous_system)
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)
