@@ -44,14 +44,14 @@ class APITestListAnomalies(TestCase):
         anomaly.pk = None
         anomaly.save()  # Duplicate the anomaly again (3rd anomaly)
 
-    def test_response_valid(self):
+    def test_response_success(self):
         """ Before verifying the anomalies, first check whether we got:
             the correct http status code, monitoring_possible set to true and a 'success' message."""
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json_response['monitoring_possible'], True)
         self.assertEqual(self.json_response['message'], "Success!")
 
-    def test_list_anomalies(self):
+    def test_list_anomalies_success(self):
         """ A valid JSON Response has been returned, next up check if the 3 anomalies we inserted have been retrieved
             correctly. """
         self.client = Client()

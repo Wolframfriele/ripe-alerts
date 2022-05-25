@@ -5,12 +5,10 @@ from django.http import JsonResponse
 from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
-from ninja.security import django_auth
 
-from anomaly_detection.monitor_manager import MonitorManager
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
-from ripe_interface.requests import RipeRequests
+from ripe_interface.ripe_requests import RipeRequests
 
 anomaly_router = Router()
 asn_settings_router = Router()
