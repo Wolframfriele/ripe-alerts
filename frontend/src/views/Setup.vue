@@ -47,37 +47,6 @@
 					</q-popup-proxy>
 				</q-btn>
 			</q-card-section>
-
-			<!-- <q-separator inset />
-
-			<q-card-section>
-				<InfoButton
-					info="Email will be used as the place where alerts will be sent."
-				/>
-				<h2>Email</h2>
-				<p>Change the email where you want to receive alerts.</p>
-				<q-input
-					ref="emailField"
-					v-model="email"
-					filled
-					type="email"
-					label="Email"
-					@keyup.enter="addEmail()"
-					:rules="[
-						val => !!val || 'Email is missing',
-						isValidEmail || 'Email is not valid'
-					]"
-					lazy-rules
-				>
-				</q-input>
-				<q-btn color="primary" label="Save" @click="submit()">
-					<q-popup-proxy v-if="alert">
-						<q-banner>
-							All fields need to be filled before submitting.
-						</q-banner>
-					</q-popup-proxy>
-				</q-btn>
-			</q-card-section> -->
 		</div>
 	</q-card>
 </template>
@@ -109,21 +78,19 @@ export default {
 			axios({
 				method: "get",
 				url: "settings"
-			}).catch((error) => {
-				if (error) {
-					console.log(error);
-          this.asNumber = ""
-          this.isMonitorable = false
-          this.hostname = ""
-          this.asHasBeenSetup = false
-				}
 			}).then(response => {
-        console.log(response)
 				if (response.data.monitoring_possible) {
 					this.asHasBeenSetup = true;
 					this.asNumber = response.data.autonomous_system.slice(3);
 					this.isMonitorable  = response.data.monitoring_possible
 					this.hostname = response.data.host
+				}
+			}).catch((error) => {
+				if (error) {
+					this.asNumber = ""
+					this.hostname = ""
+					this.isMonitorable = false
+					this.asHasBeenSetup = false
 				}
 			});
 		},
@@ -137,6 +104,11 @@ export default {
 				axios({
 					method: "put",
 					url: `settings/${this.asNumber}`,
+				}).then(response => {
+					if (response.data.monitoring_possible) {
+						this.errorMessage = ""
+						this.get_asn()
+					}
 				}).catch((error) => {
 					if (error.response.data.monitoring_possible == false) {
 						console.log("Monitoring not possible")
@@ -144,30 +116,9 @@ export default {
 						this.isMonitorable  = false
 						this.errorMessage = error.response.data.message
 					}
-				}).then(response => {
-					if (response.data.monitoring_possible) {
-						this.errorMessage = ""
-						this.get_asn()
-					}
 				})
 			}
 		},
-		// addEmail() {
-		// 	if (this.isValidEmail(this.email)) {
-		// 		this.emails = this.email;
-		// 		this.step = 3;
-		// 	}
-		// },
-		// removeEmail(item) {
-		// 	const idx = this.emails.indexOf(item);
-		// 	if (idx > -1) {
-		// 		this.emails.splice(idx, 1);
-		// 	}
-		// },
-		// isValidEmail(val) {
-		// 	const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
-		// 	return emailPattern.test(val);
-		// },
 	}
 };
 </script>
