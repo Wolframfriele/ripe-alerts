@@ -138,19 +138,19 @@ export default {
 		positiveFeedback(row) {
 			axios({
 				method: "put",
-				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=true`,
+				url: `feedback/anomaly_id=${row.id}&user_feedback=true`,
 			}).then(this.get_alerts());
 		},
 		negativeFeedback(row) {
 			axios({
 				method: "put",
-				url: `feedback/feedback?anomaly_id=${row.id}&user_feedback=false`,
+				url: `feedback/anomaly_id=${row.id}&user_feedback=false`,
 			}).then(this.get_alerts());
 		},
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "asn/anomaly"
+				url: "anomalies"
 			}).then(response => {
 				this.data = response.data.items;
 				// console.log(this.data)

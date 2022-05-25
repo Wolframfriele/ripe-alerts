@@ -22,6 +22,15 @@ class Setting(models.Model):
     def __str__(self):
         return 'User Setting (' + str(self.id) + ') - username: ' + str(self.user.get_username())
 
+    @staticmethod
+    def get_user_settings(username: str):
+        if not User.objects.filter(username=username).exists():
+            return None
+        user = User.objects.get(username=username)
+        if not Setting.objects.filter(user=user).exists():
+            Setting.objects.create(user=user)
+        return Setting.objects.get(user=user)
+
 
 class Notification(models.Model):
     # id = models.AutoField(primary_key=True)
@@ -148,7 +157,7 @@ class MeasurementPoint(models.Model):
     hops_total = models.PositiveSmallIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return 'Measurement Point (' + str(self.id) + ')' #' - probe: ' + str(self.probe.id)
+        return 'Measurement Point (' + str(self.id) + ')'  # ' - probe: ' + str(self.probe.id)
 
     class Meta:
         verbose_name_plural = "Measurement Points"

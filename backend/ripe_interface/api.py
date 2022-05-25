@@ -91,11 +91,10 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
                              "message:": "User '" + username + "' does not exist!"}, status=400)
 
     user = User.objects.get(username=username)
-    user_configured = Setting.objects.filter(user=user).exists()
-    if not user_configured and Setting.create_user_configuration(username):
+    setting = Setting.get_user_settings(username)
+    if setting is None:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User '" + username + "' settings is missing!"}, status=400)
-    setting = Setting.objects.get(user=user)
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)

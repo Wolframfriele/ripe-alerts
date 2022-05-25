@@ -108,12 +108,17 @@ export default {
 		get_asn() {
 			axios({
 				method: "get",
-				url: "asn"
+				url: "settings"
 			}).catch((error) => {
 				if (error) {
 					console.log(error);
+          this.asNumber = ""
+          this.isMonitorable = false
+          this.hostname = ""
+          this.asHasBeenSetup = false
 				}
 			}).then(response => {
+        console.log(response)
 				if (response.data.monitoring_possible) {
 					this.asHasBeenSetup = true;
 					this.asNumber = response.data.autonomous_system.slice(3);
@@ -131,7 +136,7 @@ export default {
 				this.alert = false;
 				axios({
 					method: "put",
-					url: `asn/${this.asNumber}`,
+					url: `settings/${this.asNumber}`,
 				}).catch((error) => {
 					if (error.response.data.monitoring_possible == false) {
 						console.log("Monitoring not possible")

@@ -27,7 +27,7 @@ class AnomalyDetectionConfig(AppConfig):
     def ready(self):
         """ We first have to run multiple checks before starting up the anomaly detection module.
             First part of code is used to prevent Django for starting Anomaly Detection twice!
-            Second part of code disables the anomaly detection module if we're running tests.
+            Second part of code disables the anomaly detection module if we're running tests or migrating.
             Third part of code checks for a given start-up argument in order for the threads to work correctly."""
         import os
         run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE')
@@ -38,7 +38,7 @@ class AnomalyDetectionConfig(AppConfig):
         import sys
         if sys.argv is None:
             return
-        if 'test' in sys.argv:  # If we are unit testing, do not start up anomaly detection.
+        if 'test' or 'migrate' in sys.argv:  # If we are unit testing or migrating the database, do not start up anomaly detection.
             return
         for argument in sys.argv:
             if argument == '--noreload':

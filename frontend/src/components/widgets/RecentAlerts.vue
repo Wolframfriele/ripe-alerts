@@ -52,7 +52,7 @@ export default {
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "asn/anomaly"
+				url: "anomalies"
 			}).then(response => {
 				this.data = response.data.items;
 				console.log(this.data)
