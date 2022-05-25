@@ -33,7 +33,7 @@ def generate_fake_anomalies(request):
     response = set_autonomous_system_setting(request=None, asn=asn)
     if not response.status_code == 200:
         return JsonResponse({"message": response.get('message')}, status=response.status_code)
-    user = User.objects.get(username="admin")
+    user = User.objects.get(username=get_username(request))
     setting = Setting.objects.get(user=user)
     system = AutonomousSystem.objects.get(setting_id=setting.id)
     method = DetectionMethod.objects.create(type="ipv6 traceroute", description="a1 algorithm")

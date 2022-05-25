@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 from django.utils import timezone
 
 from database.models import Setting, AutonomousSystem, DetectionMethod, Anomaly, MeasurementType, Feedback
-from ripe_interface.api import set_autonomous_system_setting
+from ripe_interface.api import set_autonomous_system_setting, generate_fake_anomalies
 from ripe_interface.api_schemas import ASNumber
 
 
@@ -77,3 +77,22 @@ class APITestListAnomalies(TestCase):
             self.assertEqual(anomaly['prediction_value'], self.prediction_value)
             self.assertEqual(anomaly['asn'], self.asn.value)
             self.assertEqual(anomaly['feedback'], _feedback)
+
+
+class APITestGenerateFakeAnomalies(TestCase):
+    """ Test module for GET /api/anomalies/generate-fake-anomalies endpoint. """
+
+    def setUp(self):
+        """ Create a user and configuration file and use the generate-fake-anomalies endpoint. """
+        user = User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
+        Setting.objects.create(user=user)
+        self.assertEqual(Anomaly.objects.all().count(), 0)
+        self.response = generate_fake_anomalies(request=None)
+
+    def test_response_success(self):
+        """ Verify whether we got the http status codes and if there is at least 1 anomaly present in the database. """
+        json_response = json.loads(self.response.content)
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(json_response['message'], 'Success!')
+        self.assertGreater(Anomaly.objects.all().count(), 0)
+
