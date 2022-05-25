@@ -52,7 +52,7 @@ class APITestSetAutonomousSystemSetting(TestCase):
         Setting.objects.create(user=user)
 
     def test_set_autonomous_system_setting_valid(self):
-        response = self.client.put('/api/asn/' + str(self.valid_asn))
+        response = self.client.put('/api/settings/' + str(self.valid_asn))
         result = response.json()
         monitoring_possible = result.get('monitoring_possible')
         host_is_empty = not bool(result.get('host'))
@@ -63,7 +63,7 @@ class APITestSetAutonomousSystemSetting(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_set_autonomous_system_setting_invalid(self):
-        response = self.client.put('/api/asn/' + str(self.invalid_asn))
+        response = self.client.put('/api/settings/' + str(self.invalid_asn))
         result = response.json()
         monitoring_possible = result.get('monitoring_possible')
         host = result.get('host')
@@ -117,7 +117,7 @@ class APITestListAnomalies(TestCase):
 
     def test_list_anomalies(self):
         self.client = Client()
-        response = self.client.get("/api/asn/anomaly")
+        response = self.client.get("/api/anomalies/")
         result = response.json()
         self.assertEqual(result.get('count'), 3)
         anomalies = result.get('items')
