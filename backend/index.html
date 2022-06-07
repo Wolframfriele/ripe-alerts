@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui.css">    
+    <link rel="shortcut icon" href="https://ninja.rest-framework.com/favicon.png">
+    <title>RIPE Alerts API</title>
+</head>
+<body>
+    <div id="swagger-ui">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui-bundle.js"></script>
+    <script>
+        const ui = SwaggerUIBundle({
+            url: '/api/openapi.json',
+            dom_id: '#swagger-ui',
+            presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
+            ],
+            layout: "BaseLayout",
+        
+            requestInterceptor: (req) => {
+				req.headers['X-CSRFToken'] = "3AF19A0IBq8gUZUiaGlzvO095OOGtJI9ayhRI48VxXFeXCXxle6IwpyzL6bV09u5"
+				return req;
+			},
+        
+            deepLinking: true
+        })
+    </script>
+</body>
+</html>

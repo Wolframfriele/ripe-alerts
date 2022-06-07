@@ -1,4 +1,5 @@
 import os
+import sys
 import importlib
 from django.forms.models import model_to_dict
 from database.models import MeasurementCollection
@@ -7,13 +8,10 @@ from .monitors import Monitor
 
 
 class MonitorManager:
+    monitors = dict()
     #Get all plugin and check if excisting measurementcollections needs to be monitored 
     def __init__(self):
         self.measurement_collection = MeasurementCollection.objects.all()
-        self.monitors = dict()
-
-        print("Monitor Manager started.")
-        print(self.monitors)
         
         plugins = os.listdir('anomaly_detection/detection_methods')
         plugin_list = []
@@ -29,24 +27,24 @@ class MonitorManager:
             if isinstance(plugin, MonitorStrategy):
                 for measurement in self.measurement_collection:
                     if measurement.type == plugin.measurement_type():
-                        self.monitors[measurement.id] = Monitor(measurement, plugin)
+                        self.monitors[measurement.measurement_id] = Monitor(measurement, plugin)
             else:
                 raise TypeError("Plugin does not follow MonitorStrategy")
 
         for monitor in self.monitors.values():
+            print(f"{monitor} Started!")
             monitor.start()
 
     #Check if plugin matches measurementcollection type and start the streaming API monitor
     def create_monitors(self, measurements: list):
-        for plugin in self._plugins:
-            measurement_list = []
-            measurement_list.append(measurements)
-            for measurement in measurement_list:
-                configuration_in_system = self.monitors.get(measurement.id) is None
-                plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
-                if configuration_in_system and plugin_type_is_measurement_type:
-                    self.monitors[measurement.id] = Monitor(measurement, plugin)
-                    self.monitors[measurement.id].start()
+            for plugin in self._plugins:
+                for measurement in measurements:
+                    configuration_in_system = self.monitors.get(measurement.measurement_id) is None
+                    plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
+                    if configuration_in_system and plugin_type_is_measurement_type:
+                        self.monitors.append(measurement.measurement_id)
+                        self.monitors[measurement.measurement_id] = Monitor(measurement, plugin)
+                        self.monitors[measurement.measurement_id].start()
 
 
     def restart_monitor(self, monitor_id):

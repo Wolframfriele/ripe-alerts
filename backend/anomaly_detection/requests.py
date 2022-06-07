@@ -26,9 +26,17 @@ class ProbeRequest:
                 country = item['country']
                 as_number = item['as_v4']
         
-        return {
-            "city": city,
-            "country": country,
-            "as_number": as_number
-        }
+        try:
+            return {
+                "city": city,
+                "country": country,
+                "as_number": as_number
+            }
+        except UnboundLocalError:
+            return {
+                "city": None,
+                "country": None,
+                "as_number": None
+            }
+        
 

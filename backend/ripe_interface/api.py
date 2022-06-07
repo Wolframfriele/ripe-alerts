@@ -7,6 +7,7 @@ from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
 from ninja.security import django_auth
+import threading
 
 from anomaly_detection.monitor_manager import MonitorManager
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, Tag
@@ -107,8 +108,11 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
             measurement.save_to_database(system=autonomous_system)
 
     mesh_tag = Tag.objects.get(name="mesh")
-    measurements = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
-    for measurement in measurements:
-        MonitorManager().create_monitors(measurement)
+    measurements_list = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
+    thread = threading.Thread(target=MonitorManager.create_monitors(measurements_list), daemon=True)
+    print("test")
+    thread.start()
+    print("Starting new thread!")
+    
     
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

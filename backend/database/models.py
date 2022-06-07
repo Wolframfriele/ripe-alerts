@@ -132,9 +132,9 @@ class Probe(models.Model):
     id = models.AutoField(primary_key=True)
     probe = models.PositiveIntegerField(null=False, blank=False)
     measurement = models.ForeignKey(MeasurementCollection, on_delete=models.CASCADE, null=False, blank=False)
-    as_number = models.PositiveIntegerField(null=False, blank=False)
-    country = models.TextField(null=False, blank=True)
-    city = models.TextField(null=False, blank=True)
+    as_number = models.PositiveIntegerField(null=True, blank=False)
+    country = models.TextField(null=True, blank=True)
+    city = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return 'Probe (' + str(self.probe) + ') - location: ' + self.city
