@@ -6,18 +6,29 @@ from django.dispatch import receiver
 
 # from django.core.signals import my_signal_handler
 from anomaly_detection_reworked import server_shutdown_event
+from anomaly_detection_reworked.anomaly_detection import AnomalyDetection
+from anomaly_detection_reworked.detection_methods import entry_point_delay
+# from anomaly_detection_reworked.anomaly_detection import anchor_down
+from anomaly_detection_reworked.detection_methods.entry_point_delay import EntryPointDelay
 from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
 
+anomaly_detection = AnomalyDetection()
+
+aa = EntryPointDelay
+anomaly_detection.add_detection_method(EntryPointDelay)
+# anomaly_detection.add_detection_method(anchor_down)
+# anomaly_detection.add_detection_method(route_change)
 
 @receiver(server_shutdown_event)
 def stop_anomaly_detection(sender, **kwargs):
-    pass
-    # print("Request finished!")
+    print("Stopping Anomaly Detection!")
+    anomaly_detection.stop()
 
 
 def start_anomaly_detection():
-    # threading.Thread(target=MeasurementResultStream).start()
     print("Started Anomaly Detection!")
+    print(type(entry_point_delay))
+    anomaly_detection.start()
 
 
 class AnomalyDetectionConfig(AppConfig):
@@ -25,30 +36,22 @@ class AnomalyDetectionConfig(AppConfig):
     name = 'anomaly_detection_reworked'
 
     def ready(self):
-        """ We first have to run multiple checks before starting up the anomaly detection module.
+        """ When you use 'python manage.py runserver' Django starts two processes, one for the actual development server
+            and other to reload your application when the code changes. Because of this, this method is called twice.
+        Read: https://stackoverflow.com/questions/33814615/how-to-avoid-appconfig-ready-method-running-twice-in-django
+            We have to run multiple checks before starting up the anomaly detection app.
             First part of code is used to prevent Django for starting Anomaly Detection twice!
-            Second part of code disables the anomaly detection module if we're running tests or migrating.
-            Third part of code checks for a given start-up argument in order for the threads to work correctly."""
+            Second part of code disables the anomaly detection app if we're running tests or migrating.
+            """
         import os
         run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE')
         if run_once is not None:
             return
-        os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+        os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'  # Implement Locking
 
         import sys
-        if sys.argv is None:
+        if 'migrate' in sys.argv:  # If we are migrating the database, do not start up anomaly detection.
             return
-        if 'test' or 'migrate' in sys.argv:  # If we are unit testing or migrating the database, do not start up anomaly detection.
+        elif 'test' in sys.argv:  # If we are running tests, do not start up anomaly detection
             return
-        for argument in sys.argv:
-            if argument == '--noreload':
-                start_anomaly_detection() # --noreload option has to given in order for threads to work correctly.
-                return
-        print("Anomaly Detection disabled.")
-        print("To enable this, please use the --noreload option at "
-              "startup.")
-
-    @receiver(server_shutdown_event)
-    def lala(sender, **kwargs):
-        pass
-        # print("lalalala")
+        start_anomaly_detection()
