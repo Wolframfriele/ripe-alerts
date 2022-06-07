@@ -9,15 +9,21 @@ from anomaly_detection_reworked import server_shutdown_event
 from anomaly_detection_reworked.anomaly_detection import AnomalyDetection
 from anomaly_detection_reworked.detection_methods import entry_point_delay
 # from anomaly_detection_reworked.anomaly_detection import anchor_down
+from anomaly_detection_reworked.detection_methods.delay_from_country import DelayFromCountry
 from anomaly_detection_reworked.detection_methods.entry_point_delay import EntryPointDelay
+from anomaly_detection_reworked.detection_methods.anchor_down import AnchorDown
+from anomaly_detection_reworked.detection_methods.neighbor_network_delay import NeighborNetworkDelay
+from anomaly_detection_reworked.detection_methods.route_change import RouteChange
 from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
 
 anomaly_detection = AnomalyDetection()
 
-aa = EntryPointDelay
 anomaly_detection.add_detection_method(EntryPointDelay)
-# anomaly_detection.add_detection_method(anchor_down)
-# anomaly_detection.add_detection_method(route_change)
+anomaly_detection.add_detection_method(AnchorDown)
+anomaly_detection.add_detection_method(RouteChange)
+anomaly_detection.add_detection_method(NeighborNetworkDelay)
+anomaly_detection.add_detection_method(DelayFromCountry)
+
 
 @receiver(server_shutdown_event)
 def stop_anomaly_detection(sender, **kwargs):
@@ -27,7 +33,6 @@ def stop_anomaly_detection(sender, **kwargs):
 
 def start_anomaly_detection():
     print("Started Anomaly Detection!")
-    print(type(entry_point_delay))
     anomaly_detection.start()
 
 
