@@ -4,9 +4,9 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 class EntryPointDelay(DetectionMethod):
 
-    def on_result_response(self, data):
+    def on_result_response(self, data: dict):
+        print(data)
         pass
-        # print(data)
 
     def on_startup_event(self):
         pass

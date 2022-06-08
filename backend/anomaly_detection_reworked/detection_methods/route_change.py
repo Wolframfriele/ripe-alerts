@@ -4,7 +4,7 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 class RouteChange(DetectionMethod):
 
-    def on_result_response(self, data):
+    def on_result_response(self, data: dict):
         pass
 
     def on_startup_event(self):
