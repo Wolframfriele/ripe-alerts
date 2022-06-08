@@ -3,6 +3,9 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class DelayFromCountry(DetectionMethod):
+    """
+    This Detection Method (algorithm) has not been finished. However, all methods work as supposed to.
+    """
 
     def on_result_response(self, data: dict):
         pass

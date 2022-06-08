@@ -3,9 +3,12 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class EntryPointDelay(DetectionMethod):
+    """
+    This Detection Method (algorithm) has not been finished. However, all methods work as supposed to.
+    """
 
     def on_result_response(self, data: dict):
-        print(data)
+        print(len(data.keys()))
         pass
 
     def on_startup_event(self):

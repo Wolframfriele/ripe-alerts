@@ -3,9 +3,12 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class AnchorDown(DetectionMethod):
+    """
+    This Detection Method (algorithm) has not been finished. However, all methods work as supposed to.
+    """
 
     def on_result_response(self, data: dict):
-        print("Anchor Down: " + str(data))
+        pass
 
     def on_startup_event(self):
         # print("Anchor Down loaded")
