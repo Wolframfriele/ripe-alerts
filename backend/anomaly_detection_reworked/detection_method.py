@@ -7,10 +7,10 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class DetectionMethod(ABC):
-    """ Interface for creating an algorithm to find anomalies in RIPE ATLAS Streaming API. """
+    """ Interface for creating an algorithm to find anomalies in the data from RIPE ATLAS Streaming API. """
 
     @abstractmethod
-    def on_result_response(self, data: dict) -> None:
+    def on_result_response(self, data: dict):
         """
         Method that will be called every time we receive a new result from the RIPE Streaming API.
         Data: dictionary
@@ -18,7 +18,7 @@ class DetectionMethod(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def on_startup_event(self) -> None:
+    def on_startup_event(self):
         """
         Method that will be called once the detection method has been loaded.
         """
