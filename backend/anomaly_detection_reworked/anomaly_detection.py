@@ -30,8 +30,3 @@ class AnomalyDetection:
         thread.start()
         for detection_method in self.methods.values():
             detection_method.on_startup_event()
-
-    def stop(self):
-
-        pass
-        # self.thread.t
