@@ -10,6 +10,12 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 class MeasurementResultStream:
 
     def __init__(self, detection_methods: List[DetectionMethod]):
+        """
+        Initialize this instance before connecting to the RIPE ATLAS Streaming API.
+        First, retrieve measurements IDs from database.
+        Second, pre-generate Detection Method data for later use.
+        Third, bind functions to the event logger and lastly connect to the Streaming API.
+        """
         self.measurement_id_to_measurement_type: dict[int, MeasurementType] = {}  # Int represents a Measurement ID.
         self.measurement_type_to_detection_method: dict[MeasurementType, List[DetectionMethod]] = {}
         self.detection_methods = detection_methods
@@ -21,7 +27,7 @@ class MeasurementResultStream:
             print("Start-up canceled. At least one measurement ID is required to start up the Streaming API.")
             return
 
-        # Create a Dictionary (Key: Measurement ID and Value: Measurement Type).
+        # Generate a Dictionary. (Key: Measurement ID and Value: Measurement Type).
         list_id_type = list(measurement_collections.values_list('measurement_id', 'type'))
         self.measurement_id_to_measurement_type = {x[0]: MeasurementType.convert(x[1]) for x in list_id_type}
 
@@ -33,15 +39,8 @@ class MeasurementResultStream:
                     methods_list.append(method)
                 self.measurement_type_to_detection_method[msm_type] = methods_list
 
-        for x in self.measurement_type_to_detection_method.values():
-            for y in x:
-                print(y)
-        print("Values: " + str(len(self.measurement_type_to_detection_method.values())))
-        print("Keys: " + str(len(self.measurement_type_to_detection_method.keys())))
-
         self.stream = AtlasStream()
         self.logger = EventLogger()
-
         self.stream.connect()
         # Bind functions we want to run with every result message received
         self.stream.socketIO.on("connect", self.logger.on_connect)
