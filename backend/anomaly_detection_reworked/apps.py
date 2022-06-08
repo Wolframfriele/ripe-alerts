@@ -17,12 +17,11 @@ from anomaly_detection_reworked.detection_methods.route_change import RouteChang
 from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
 
 anomaly_detection = AnomalyDetection()
-
-anomaly_detection.add_detection_method(EntryPointDelay)
-anomaly_detection.add_detection_method(AnchorDown)
-anomaly_detection.add_detection_method(RouteChange)
-anomaly_detection.add_detection_method(NeighborNetworkDelay)
-anomaly_detection.add_detection_method(DelayFromCountry)
+anomaly_detection.add_detection_method(EntryPointDelay())
+anomaly_detection.add_detection_method(AnchorDown())
+anomaly_detection.add_detection_method(RouteChange())
+anomaly_detection.add_detection_method(NeighborNetworkDelay())
+anomaly_detection.add_detection_method(DelayFromCountry())
 
 
 @receiver(server_shutdown_event)

@@ -1,7 +1,13 @@
+import enum
+
+
 from abc import ABC, abstractmethod
+
+from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class DetectionMethod(ABC):
+    """ Interface for creating an algorithm to find anomalies in RIPE ATLAS Streaming API. """
 
     @abstractmethod
     def on_result_response(self, data) -> None:
@@ -12,8 +18,19 @@ class DetectionMethod(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def on_detection_method_loaded(self) -> None:
+    def on_startup_event(self) -> None:
         """
-        Method that will be called once the detection method is loaded.
+        Method that will be called once the detection method has been loaded.
         """
         raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def get_measurement_type(self) -> MeasurementType:
+        """
+        Property which will be used to select corresponding Measurement IDs.
+        """
+        raise ValueError()
+
+
+

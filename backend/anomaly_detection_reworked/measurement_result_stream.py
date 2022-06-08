@@ -1,70 +1,49 @@
+from typing import List
+
 from ripe.atlas.cousteau import AtlasStream
 
-
-def on_reconnect(*args):
-    print("got in on_reconnect")
-    print(args)
-    raise ConnectionError("Reconnection")
+from anomaly_detection_reworked.event_logger import EventLogger
 
 
 class MeasurementResultStream:
 
-    def __init__(self):
-        self.stream = AtlasStream()
-        self.stream.connect()
-        # Bind function we want to run with every result message received
-        self.stream.socketIO.on("connect", self.on_connect)
-        self.stream.socketIO.on("disconnect", self.on_disconnect)
-        self.stream.socketIO.on("reconnect", on_reconnect)
-        self.stream.socketIO.on("error", self.on_error)
-        self.stream.socketIO.on("close", self.on_close)
-        self.stream.socketIO.on("connect_error", self.on_connect_error)
-        self.stream.socketIO.on("atlas_error", self.on_atlas_error)
-        self.stream.socketIO.on("atlas_unsubscribed", self.on_atlas_unsubscribe)
-        # Subscribe to new stream
-        self.stream.bind_channel("atlas_result", self.on_result_response)
+    def __init__(self, measurement_ids: List[int]):
+        try:
+            if len(measurement_ids) == 0:
+                raise ValueError("At least one measurement ID is required to start up the Streaming API.")
+            self.stream = AtlasStream()
+            self.stream.connect()
+            self.logger = EventLogger()
+            # Bind function we want to run with every result message received
+            self.stream.socketIO.on("connect", self.logger.on_connect)
+            self.stream.socketIO.on("disconnect", self.logger.on_disconnect)
+            self.stream.socketIO.on("reconnect", self.logger.on_reconnect)
+            self.stream.socketIO.on("error", self.logger.on_error)
+            self.stream.socketIO.on("close", self.logger.on_close)
+            self.stream.socketIO.on("connect_error", self.logger.on_connect_error)
+            self.stream.socketIO.on("atlas_error", self.logger.on_atlas_error)
+            self.stream.socketIO.on("atlas_unsubscribed", self.logger.on_atlas_unsubscribe)
+            self.stream.bind_channel("atlas_result", self.on_result_response)
 
-        stream_parameters = {"msm": 9181642}
-        self.stream.start_stream(stream_type="result", **stream_parameters)
-        self.stream.timeout(seconds=None)  # Run forever
-
-    def on_error(self, *args):
-        print(args)
-        raise ConnectionError("Error")
-
-    def on_connect(self):
-        print("Connected with the RIPE Atlas Streaming API")
-
-    def on_close(self, *args):
-        print("got in on_close")
-        print(args)
-        raise ConnectionError("Closed")
-
-    def on_disconnect(self, *args):
-        print("Disconnected with the RIPE Atlas Streaming API")
-        pass
-
-    def on_connect_error(*args):
-        print("got in on_connect_error")
-        print(args)
-        # raise ConnectionError("Connection Error")
-
-    def on_atlas_error(*args):
-        print("got in on_atlas_error")
-        print(args)
-
-    def on_atlas_unsubscribe(*args):
-        print("got in on_atlas_unsubscribe")
-        print(args)
-        # raise ConnectionError("Unsubscribed")
+            # Subscribe to new stream
+            stream_parameters = {"msm": measurement_ids[0]}
+            self.stream.start_stream(stream_type="result", **stream_parameters)
+            for measurement_id in measurement_ids[1:]:
+                stream_parameters = {"msm": measurement_id}
+                self.stream.subscribe(stream_type="result", **stream_parameters)
+            # stream_parameters = {"msm": 3534345}
+            # self.stream.subscribe(stream_type="result", **stream_parameters)
+            self.stream.timeout(seconds=None)  # Run forever
+        except KeyboardInterrupt:
+            self.logger.on_disconnect(None)
 
     def on_result_response(*args):
         """
         Function that will be called every time we receive a new result.
         Args is a tuple, so you should use args[0] to access the real message.
         """
-        print(args[0])
+        msm_id = args[1]['msm_id']
 
-    #
-    # def start(self):
-    #     self.stream.connect()
+        # print(args[1])
+        print(args[1])
+        # pass
