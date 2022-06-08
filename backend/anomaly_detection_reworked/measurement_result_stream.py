@@ -9,15 +9,38 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 class MeasurementResultStream:
 
-    def __init__(self, measurement_ids: List[int], detection_methods: DetectionMethod):
+    def __init__(self, detection_methods: List[DetectionMethod]):
         self.measurement_id_to_measurement_type: dict[int, MeasurementType] = {}  # Int represents a Measurement ID.
         self.measurement_type_to_detection_method: dict[MeasurementType, List[DetectionMethod]] = {}
+        self.detection_methods = detection_methods
 
-        if len(measurement_ids) == 0:
-            raise ValueError("At least one measurement ID is required to start up the Streaming API.")
+        from database.models import MeasurementCollection
+        measurement_collections = MeasurementCollection.objects.all()  # Retrieve measurements from database.
+        self.measurement_ids = list(measurement_collections.values_list('measurement_id', flat=True))
+        if len(self.measurement_ids) == 0:
+            print("Start-up canceled. At least one measurement ID is required to start up the Streaming API.")
+            return
+
+        # Create a Dictionary (Key: Measurement ID and Value: Measurement Type).
+        list_id_type = list(measurement_collections.values_list('measurement_id', 'type'))
+        self.measurement_id_to_measurement_type = {x[0]: MeasurementType.convert(x[1]) for x in list_id_type}
+
+        # Precalculate a Dictionary for later use. (Key: Measurement Type and Value: Array of Detection Methods).
+        for msm_type in MeasurementType:
+            methods_list: list = []
+            for method in self.detection_methods:
+                if method.get_measurement_type == msm_type:
+                    methods_list.append(method)
+                self.measurement_type_to_detection_method[msm_type] = methods_list
+
+        for x in self.measurement_type_to_detection_method.values():
+            for y in x:
+                print(y)
+        print("Values: " + str(len(self.measurement_type_to_detection_method.values())))
+        print("Keys: " + str(len(self.measurement_type_to_detection_method.keys())))
+
         self.stream = AtlasStream()
         self.logger = EventLogger()
-        self.detection_methods = detection_methods
 
         self.stream.connect()
         # Bind functions we want to run with every result message received
@@ -30,12 +53,12 @@ class MeasurementResultStream:
         self.stream.socketIO.on("atlas_error", self.logger.on_atlas_error)
         self.stream.socketIO.on("atlas_unsubscribed", self.logger.on_atlas_unsubscribe)
         self.stream.bind_channel("atlas_result", self.on_result_response)
-
         try:
             # Start the stream, and add one measurement ID (we can't start with multiple IDs)
-            stream_parameters = {"msm": measurement_ids[0]}
+            stream_parameters = {"msm": self.measurement_ids[0]}
             self.stream.start_stream(stream_type="result", **stream_parameters)
-            for measurement_id in measurement_ids[1:]:  # Subscribe to stream with other IDs, and skip the first one.
+            # Subscribe to stream with other IDs, and skip the first one.
+            for measurement_id in self.measurement_ids[1:]:
                 stream_parameters = {"msm": measurement_id}
                 self.stream.subscribe(stream_type="result", **stream_parameters)
 
@@ -49,7 +72,6 @@ class MeasurementResultStream:
         Args is a tuple, so you should use args[0] to access the real message.
         """
         result = args[0]
-        print(len(args))
         msm_id = result['msm_id']
         detection_methods = self.get_corresponding_detection_methods(msm_id)
         for method in detection_methods:
@@ -59,14 +81,11 @@ class MeasurementResultStream:
         """
         Method that will retrieve the corresponding Detection Methods based of the Measurement ID.
         Each Measurement ID has a Measurement Type.
-        Each Detection Method has a Measurement Type. By using a dictionary I am able to solve this.
+        Each Detection Method has a Measurement Type.
         Measurement ID <-> MeasurementType <-> Detection Method.
+        Since the detection methods and measurement IDs won't change at this point, I precalculated
+        all the detection methods by MeasurementType in a dictionary, so I won't need a for-loop.
         """
         measurement_type: MeasurementType = self.measurement_id_to_measurement_type[measurement_id]
         methods: List[DetectionMethod] = self.measurement_type_to_detection_method[measurement_type]
         return methods
-
-    # def get_detection_methods_containing_msm_type(self, measurement_type: MeasurementType) -> List[DetectionMethod]:
-    #     pass
-        # for method in detection_methods:
-        #     if method

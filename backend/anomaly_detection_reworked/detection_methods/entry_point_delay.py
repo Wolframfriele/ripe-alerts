@@ -6,6 +6,7 @@ class EntryPointDelay(DetectionMethod):
 
     def on_result_response(self, data):
         pass
+        # print(data)
 
     def on_startup_event(self):
         pass
