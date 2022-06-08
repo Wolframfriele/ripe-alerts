@@ -8,7 +8,8 @@ class DelayFromCountry(DetectionMethod):
         pass
 
     def on_startup_event(self):
-        pass
+        from database.models import MeasurementCollection  # CRUD functions are fully supported!
+        measurement_collections_count = MeasurementCollection.objects.all().count()
 
     @property
     def get_measurement_type(self) -> MeasurementType:
