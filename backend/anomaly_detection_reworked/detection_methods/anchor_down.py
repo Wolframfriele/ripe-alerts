@@ -8,7 +8,7 @@ class AnchorDown(DetectionMethod):
         print("Anchor Down: " + str(data))
 
     def on_startup_event(self):
-        print("Anchor Down loaded")
+        # print("Anchor Down loaded")
         pass
 
     @property
