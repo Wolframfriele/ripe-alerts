@@ -123,7 +123,11 @@ class MeasurementCollection(models.Model):
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.description + ' (' + str(self.id) + ')'
+        text_split = self.description.split(":")
+        if not len(text_split) == 2:
+            return self.description
+        description = text_split[0] + " (" + str(self.measurement_id) + "):" + text_split[1]
+        return description  # This description also contains the Measurement ID.
 
     class Meta:
         verbose_name_plural = "Measurement Collections"
