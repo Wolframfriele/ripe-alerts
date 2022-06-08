@@ -11,5 +11,5 @@ class AnchorDown(DetectionMethod):
 
     @property
     def get_measurement_type(self) -> MeasurementType:
-        pass
+        return MeasurementType.ANCHORING
 

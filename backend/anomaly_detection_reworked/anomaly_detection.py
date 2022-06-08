@@ -9,7 +9,7 @@ class AnomalyDetection:
 
     def __init__(self):
         self.methods: dict[str, DetectionMethod] = {}
-        self.thread = threading.Thread(target=MeasurementResultStream, args=([3534345, 9181644, 9181642],), daemon=True)
+        # self.thread = threading.Thread(target=MeasurementResultStream, args=([3534345, 9181644, 9181642],), daemon=True)
 
     def add_detection_method(self, method: DetectionMethod):
         """ Adds the detection method to the list.
@@ -23,7 +23,15 @@ class AnomalyDetection:
 
     def start(self):
         """ Starts the anomaly detection and connects to the Streaming API. """
-        self.thread.start()
+        from database.models import MeasurementCollection
+        measurements = MeasurementCollection.objects.all()
+        print(type(measurements))
+
+        # for measurement in measurements:
+
+        thread = threading.Thread(target=MeasurementResultStream,
+                                  args=([3534345, 9181644, 9181642], self.methods.values(),), daemon=True)
+        # thread.start()
         for detection_method in self.methods.values():
             detection_method.on_startup_event()
 
@@ -31,4 +39,3 @@ class AnomalyDetection:
 
         pass
         # self.thread.t
-
