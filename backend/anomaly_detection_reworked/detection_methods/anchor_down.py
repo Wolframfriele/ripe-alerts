@@ -3,6 +3,7 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class AnchorDown(DetectionMethod):
+
     def on_result_response(self, data):
         pass
 

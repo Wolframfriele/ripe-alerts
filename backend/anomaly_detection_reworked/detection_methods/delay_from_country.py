@@ -3,12 +3,13 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 
 class DelayFromCountry(DetectionMethod):
-    def on_result_response(self, data) -> None:
+
+    def on_result_response(self, data):
+        pass
+
+    def on_startup_event(self):
         pass
 
     @property
     def get_measurement_type(self) -> MeasurementType:
-        pass
-
-    def on_startup_event(self) -> None:
-        pass
+        return MeasurementType.HTTP
