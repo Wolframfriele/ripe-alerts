@@ -8,7 +8,6 @@ class EntryPointDelay(DetectionMethod):
     """
 
     def on_result_response(self, data: dict):
-        print(len(data.keys()))
         pass
 
     def on_startup_event(self):

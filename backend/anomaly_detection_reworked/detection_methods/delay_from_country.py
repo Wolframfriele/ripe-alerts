@@ -16,4 +16,4 @@ class DelayFromCountry(DetectionMethod):
 
     @property
     def get_measurement_type(self) -> MeasurementType:
-        return MeasurementType.HTTP
+        return MeasurementType.PING
