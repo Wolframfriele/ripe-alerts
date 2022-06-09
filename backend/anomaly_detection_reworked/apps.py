@@ -39,5 +39,10 @@ class AnomalyDetectionConfig(AppConfig):
             return
         elif 'test' in sys.argv:  # If we are running tests, do not start up anomaly detection
             return
+        from django.db import connection
+        setting_table_exists = "database_setting" in connection.introspection.table_names()
+        if not setting_table_exists:
+            print("Start-up canceled. Migration is needed before the Anomaly Detection can be started.")
+            return
         print("Started Anomaly Detection!")
         anomaly_detection.start()
