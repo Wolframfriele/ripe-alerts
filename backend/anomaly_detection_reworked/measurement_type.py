@@ -9,6 +9,8 @@ class MeasurementType(enum.Enum):
     SSL = 5
     NTP = 6
     ANCHORING = 7
+    WIFI = 8
+    BUILT_IN = 9
 
     @staticmethod
     def convert(enum_str: str):
@@ -27,6 +29,10 @@ class MeasurementType(enum.Enum):
             return MeasurementType.NTP
         elif enum_str == 'ANCHORING':
             return MeasurementType.ANCHORING
+        elif enum_str == 'WIFI':
+            return MeasurementType.WIFI
+        elif enum_str == 'BUILT_IN':
+            return MeasurementType.BUILT_IN
         else:
             raise ValueError("Enum incorrect, choose between: 'PING', TRACEROUTE', 'DNS', 'HTTP', 'SSL', "
                              "'NTP', 'ANCHORING'.")
