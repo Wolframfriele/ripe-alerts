@@ -180,7 +180,7 @@ We highly recommend to check out all the [Atlas API](https://beta-docs.atlas.rip
 
 Also, we are grateful for having [Emile Aben](https://github.com/emileaben) for guiding the development of this project.
 
-Copyright (c) 2022 by Floris, Wolfram, Maarten, Sybren and Koen
+Copyright (c) 2022 by Floris, Wolfram, Sybren and Koen
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
