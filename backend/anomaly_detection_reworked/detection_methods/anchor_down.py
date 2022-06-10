@@ -8,6 +8,12 @@ class AnchorDown(DetectionMethod):
     """
 
     def on_result_response(self, data: dict):
+        # LIST.
+        # GET MSM ID -> ASN -> ANCHORS ->
+        # GET ALL FQDN DOMAINS
+        # PING ALL DOMAINS EVERY 30 SECONDS
+        # IF NO RESPONSE -> CREATE AN ANOMALY
+        #
         pass
 
     def on_startup_event(self):
