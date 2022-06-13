@@ -1,16 +1,19 @@
 import os
 import sys
 import importlib
+from tkinter import N
 from django.forms.models import model_to_dict
 from database.models import MeasurementCollection
 from .monitor_strategy_base import MonitorStrategy
 from .monitors import Monitor
+import threading
 
 
 class MonitorManager:
-    monitors = dict()
+
     #Get all plugin and check if excisting measurementcollections needs to be monitored 
-    def __init__(self):
+    def __init__(self,  measurement_list=[]):
+        self.monitors = dict()
         self.measurement_collection = MeasurementCollection.objects.all()
         
         plugins = os.listdir('anomaly_detection/detection_methods')
@@ -42,10 +45,8 @@ class MonitorManager:
                     configuration_in_system = self.monitors.get(measurement.measurement_id) is None
                     plugin_type_is_measurement_type = measurement.type == plugin.measurement_type()
                     if configuration_in_system and plugin_type_is_measurement_type:
-                        self.monitors.append(measurement.measurement_id)
                         self.monitors[measurement.measurement_id] = Monitor(measurement, plugin)
                         self.monitors[measurement.measurement_id].start()
-
 
     def restart_monitor(self, monitor_id):
         pass

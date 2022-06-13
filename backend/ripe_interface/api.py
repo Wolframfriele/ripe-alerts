@@ -109,8 +109,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     mesh_tag = Tag.objects.get(name="mesh")
     measurements_list = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
-    thread = threading.Thread(target=MonitorManager.create_monitors(measurements_list), daemon=True)
-    print("test")
+    thread = threading.Thread(target=MonitorManager, args=(measurements_list,), daemon=True)
     thread.start()
     print("Starting new thread!")
     

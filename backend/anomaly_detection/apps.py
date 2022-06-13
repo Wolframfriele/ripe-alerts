@@ -24,10 +24,8 @@ class AnomalyDetectionConfig(AppConfig):
         
         print(sys.argv)
         if sys.argv is None:
-            print('none')
             return
-        if 'migrate' in sys.argv:  # If we are unit testing or migrating the database, do not start up the measurement monitoring.
-            print('test')
+        if 'migrate' in sys.argv:  # If we are migrating the database, do not start up the measurement monitoring.
             return
         if '--noreload' in sys.argv:
             from anomaly_detection.monitor_manager import MonitorManager
