@@ -1,30 +1,18 @@
 <template>
-	<q-card
-		flat
-		bordered
-		class="page-card"
-		v-for="as_num in ASNList"
-		:key="as_num"
-	>
-		<div class="wrapper">
-			<q-card-section>
-				<h1 class="card-title">AS{{ as_num }}</h1>
-				<q-table
-					title="Latest Alerts"
-					:rows="data"
-					:columns="columns"
-					row-key="timestamp"
-					dense
-					flat
-					:rows-per-page-options="[0]"
-					:pagination="pagination"
-					hide-header
-					hide-bottom
-				>
-				</q-table>
-			</q-card-section>
-		</div>
-	</q-card>
+	<q-card-section>
+		<q-table
+			:rows="data"
+			:columns="columns"
+			row-key="timestamp"
+			dense
+			flat
+			:rows-per-page-options="[5]"
+			:pagination="pagination"
+			hide-footer
+			hide-page
+		>
+		</q-table>
+	</q-card-section>
 </template>
 
 <script>
@@ -43,7 +31,7 @@ export default {
 					required: true,
 					label: "Timestamp",
 					align: "left",
-					field: row => row.datetime,
+					field: row => row.timestamp,
 					format: val => this.convertDate(val),
 					sortable: true
 				},
@@ -52,38 +40,27 @@ export default {
 					align: "left",
 					label: "Alert Description",
 					field: "description"
-				}
+				},
 			],
 			data: []
 		};
 	},
 	created() {
-		this.get_asn();
 		this.get_alerts();
 	},
 	methods: {
-		get_asn() {
-			axios({
-				method: "get",
-				url: "user/monitored-asns"
-			}).then(response => {
-				if (response.data.lenght == 0) {
-					this.$router.push({ name: "setup" });
-				} else {
-					this.ASNList = response.data;
-				}
-			});
-		},
 		get_alerts() {
 			axios({
 				method: "get",
-				url: "alerts/get_alerts"
+				url: "anomalies"
 			}).then(response => {
-				this.data = response.data;
+				this.data = response.data.items;
+				console.log(this.data)
 			});
 		},
 		convertDate(input) {
-			let date = new Date(input * 1000);
+			console.log(input)
+			let date = new Date(input);
 			let year = date.getFullYear();
 			let month = (date.getMonth() + 1).toString().padStart(2, "0");
 			let day = date
@@ -98,8 +75,8 @@ export default {
 				.getMinutes()
 				.toString()
 				.padStart(2, "0");
-			return `${hours}:${minutes} | ${year}-${month}-${day}`;
-		}
+			return `${year}-${month}-${day}  |  ${hours}:${minutes}`;
+		},
 	}
 };
 </script>

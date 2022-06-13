@@ -22,6 +22,15 @@ class Setting(models.Model):
     def __str__(self):
         return 'User Setting (' + str(self.id) + ') - username: ' + str(self.user.get_username())
 
+    @staticmethod
+    def get_user_settings(username: str):
+        if not User.objects.filter(username=username).exists():
+            return None
+        user = User.objects.get(username=username)
+        if not Setting.objects.filter(user=user).exists():
+            Setting.objects.create(user=user)
+        return Setting.objects.get(user=user)
+
 
 class Notification(models.Model):
     # id = models.AutoField(primary_key=True)
@@ -114,7 +123,11 @@ class MeasurementCollection(models.Model):
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.description + ' (' + str(self.id) + ')'
+        text_split = self.description.split(":")
+        if not len(text_split) == 2:
+            return self.description
+        description = text_split[0] + " (" + str(self.measurement_id) + "):" + text_split[1]
+        return description  # This description also contains the Measurement ID.
 
     class Meta:
         verbose_name_plural = "Measurement Collections"
@@ -148,7 +161,7 @@ class MeasurementPoint(models.Model):
     hops_total = models.PositiveSmallIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return 'Measurement Point (' + str(self.id) + ')' #' - probe: ' + str(self.probe.id)
+        return 'Measurement Point (' + str(self.id) + ')'  # ' - probe: ' + str(self.probe.id)
 
     class Meta:
         verbose_name_plural = "Measurement Points"
@@ -231,3 +244,14 @@ class Feedback(models.Model):
             return feedback.response
         else:
             return None
+
+    @staticmethod
+    def create_or_update(anomaly_id: int, response: bool):
+        feedback_exist = Feedback.objects.filter(anomaly_id=anomaly_id).exists()
+        if feedback_exist:
+            feedback = Feedback.objects.get(anomaly_id=anomaly_id)
+            feedback.response = response
+            feedback.save()
+        elif not feedback_exist:
+            feedback = Feedback.objects.create(anomaly_id=anomaly_id, response=response)
+            feedback.save()

@@ -6,17 +6,24 @@ from django.http import JsonResponse
 from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
+<<<<<<< HEAD
 from ninja.security import django_auth
 import threading
 
 from anomaly_detection.monitor_manager import MonitorManager
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, Tag
-from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
-from ripe_interface.requests import RipeRequests
+=======
 
-router = Router()
+from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
+>>>>>>> main
+from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
+from ripe_interface.ripe_requests import RipeRequests
+
+anomaly_router = Router()
+settings_router = Router()
 """Tags are used by Swagger to group endpoints."""
-TAG = "RIPE Interface"
+ANOMALIES_TAG = "Anomalies"
+ASN_SETTINGS_TAG = "Settings"
 
 
 def get_username(request):
@@ -27,7 +34,7 @@ def get_username(request):
         return default_user
 
 
-@router.get("/generate-fake-anomalies", tags=[TAG])
+@anomaly_router.get("/generate-fake-anomalies", tags=[ANOMALIES_TAG])
 def generate_fake_anomalies(request):
     """This endpoint is for testing purposes only! It adds fake anomalies to the database"""
     asn = ASNumber()
@@ -35,7 +42,7 @@ def generate_fake_anomalies(request):
     response = set_autonomous_system_setting(request=None, asn=asn)
     if not response.status_code == 200:
         return JsonResponse({"message": response.get('message')}, status=response.status_code)
-    user = User.objects.get(username="admin")
+    user = User.objects.get(username=get_username(request))
     setting = Setting.objects.get(user=user)
     system = AutonomousSystem.objects.get(setting_id=setting.id)
     method = DetectionMethod.objects.create(type="ipv6 traceroute", description="a1 algorithm")
@@ -47,7 +54,7 @@ def generate_fake_anomalies(request):
     return JsonResponse({"message": "Success!"}, status=200)
 
 
-@router.get("/anomaly", response=List[AnomalyOut], tags=[TAG])  # TODO for later: add authentication
+@anomaly_router.get("/", response=List[AnomalyOut], tags=[ANOMALIES_TAG])
 @paginate(PageNumberPagination)
 def list_anomalies(request):
     """Retrieves all anomalies by user from the database.  """
@@ -59,7 +66,7 @@ def list_anomalies(request):
     return anomalies
 
 
-@router.get("/", response=AutonomousSystemSetting2, tags=[TAG])
+@settings_router.get("/", response=AutonomousSystemSetting2, tags=[ASN_SETTINGS_TAG])
 def get_autonomous_system_setting(request):
     """Retrieve the current ASN configuration of the user. """
     system = AutonomousSystem.get_asn_by_username("admin")
@@ -70,7 +77,7 @@ def get_autonomous_system_setting(request):
                          "message": "Success!", "autonomous_system": "ASN" + str(system.number)}, status=200)
 
 
-@router.put("/{as_number}", response=AutonomousSystemSetting, tags=[TAG])
+@settings_router.put("/{as_number}", response=AutonomousSystemSetting, tags=[ASN_SETTINGS_TAG])
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
@@ -78,13 +85,13 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     username = get_username(request)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
-                             "message": asn_name + " does not exist!"}, status=404)
+                             "message": asn_name + " does not exist!"}, status=400)
 
     anchors = RipeRequests.get_anchors(asn.value)
     if len(anchors) == 0:
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": "There were no anchors found in " + asn_name},
-                            status=404)
+                            status=400)
 
     asn_location = RipeRequests.get_company_name(asn.value)
     user_exists = User.objects.filter(username=username).exists()
@@ -93,19 +100,22 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
                              "message:": "User '" + username + "' does not exist!"}, status=400)
 
     user = User.objects.get(username=username)
-    user_configured = Setting.objects.filter(user=user).exists()
-    if not user_configured:
+    setting = Setting.get_user_settings(username)
+    if setting is None:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User '" + username + "' settings is missing!"}, status=400)
-    setting = Setting.objects.get(user=user)
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
+<<<<<<< HEAD
     
+=======
+>>>>>>> main
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
             measurement.save_to_database(system=autonomous_system)
+<<<<<<< HEAD
 
     mesh_tag = Tag.objects.get(name="mesh")
     measurements_list = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
@@ -114,4 +124,6 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     print("Starting new thread!")
     
     
+=======
+>>>>>>> main
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

@@ -6,7 +6,11 @@
 		v-for="as_num in ASNList"
 		:key="as_num"
 	>
+<<<<<<< HEAD
 		<div class="wrapper">
+=======
+		<q-card class="col-5">
+>>>>>>> main
 			<q-card-section>
 				<h1 class="card-title">AS{{ as_num }}</h1>
 				<q-table

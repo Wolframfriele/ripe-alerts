@@ -45,7 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     'anomaly_detection'
+=======
+    'anomaly_detection_reworked'
+>>>>>>> main
 ]
 
 MIDDLEWARE = [
@@ -84,18 +88,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.environ.get('POSTGRES_NAME'),
-    #     'USER': os.environ.get('POSTGRES_USER'),
-    #     'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-    #     'HOST': 'db',
-    #     'PORT': 5432,
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 # Use sqlite3 for testing.
 import sys
@@ -171,7 +175,7 @@ LOGIN_REDIRECT_URL = "/home"
 
 # Django Ninja
 NINJA_PAGINATION_PER_PAGE = 5
-NINJA_AUTH_ENABLED = True
+NINJA_AUTH_ENABLED = False
 # Disable Authentication when testing.
 if 'test' in sys.argv:
     NINJA_AUTH_ENABLED = False

@@ -43,7 +43,14 @@ class AnchoringMeasurement:
         self.target = target
 
     def __str__(self):
-        return self.description
+        if ":" not in self.description:
+            return self.description
+
+        text_split = self.description.split(":")
+        if not len(text_split) == 2:
+            return self.description
+        t = text_split[0] + " (" + str(self.id) + "):" + text_split[1]
+        return t
 
     def save_to_database(self, system: AutonomousSystem):
         tags = Tag.get_tag_ids(self.tags)

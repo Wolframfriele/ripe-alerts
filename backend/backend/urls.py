@@ -8,7 +8,9 @@ from ninja.security import django_auth
 
 from anomaly_detection.api import router as anomaly_detection_router
 from backend.settings import NINJA_AUTH_ENABLED as NINJA_AUTH_ENABLED
-from ripe_interface.api import router as ripe_interface_router
+from ripe_interface.api import anomaly_router as anomaly_router
+from ripe_interface.api import settings_router as settings_router
+from feedback.api import router as feedback_router
 
 
 def api_redirect(request):
@@ -33,7 +35,9 @@ elif not NINJA_AUTH_ENABLED:
                   "<a href='/admin/'>Django administration panel</a>"
 
 api = NinjaAPI(title="RIPE Alerts API", version="0.1", description=description, csrf=NINJA_AUTH_ENABLED)
-api.add_router("/asn/", ripe_interface_router, auth=auth_configuration())
+api.add_router("/anomalies", anomaly_router, auth=auth_configuration())
+api.add_router("/settings", settings_router, auth=auth_configuration())
+api.add_router("/feedback", feedback_router, auth=auth_configuration())
 # api.add_router("/ai/", anomaly_detection_router, auth=auth_configuration())
 
 urlpatterns = [

@@ -45,6 +45,7 @@
 					</tbody>
 				</q-markup-table>
 			</q-card-section>
+<<<<<<< HEAD
 
 			<q-separator inset />
 
@@ -229,6 +230,8 @@
 					</q-step>
 				</q-stepper>
 			</q-card-section>
+=======
+>>>>>>> main
 		</div>
 	</q-card>
 </template>
@@ -265,11 +268,22 @@ export default {
 		get_asn() {
 			axios({
 				method: "get",
+<<<<<<< HEAD
 				url: "user/monitored-asns"
+=======
+				url: "settings"
+>>>>>>> main
 			}).then(response => {
 				if (response.data.length > 0) {
 					this.init_setup = true;
 					this.ASNList = response.data;
+				}
+			}).catch((error) => {
+				if (error) {
+					this.asNumber = ""
+					this.hostname = ""
+					this.isMonitorable = false
+					this.asHasBeenSetup = false
 				}
 			});
 		},
@@ -317,6 +331,7 @@ export default {
 			if (this.ASNList.length > 0 && this.email.length > 0) {
 				this.alert = false;
 				axios({
+<<<<<<< HEAD
 					method: "post",
 					url: "user/initial-setup",
 					data: {
@@ -326,6 +341,25 @@ export default {
 				}).then(this.$router.push({ name: "home" }));
 			}
 		}
+=======
+					method: "put",
+					url: `settings/${this.asNumber}`,
+				}).then(response => {
+					if (response.data.monitoring_possible) {
+						this.errorMessage = ""
+						this.get_asn()
+					}
+				}).catch((error) => {
+					if (error.response.data.monitoring_possible == false) {
+						console.log("Monitoring not possible")
+						this.hostname = ""
+						this.isMonitorable  = false
+						this.errorMessage = error.response.data.message
+					}
+				})
+			}
+		},
+>>>>>>> main
 	}
 };
 </script>
