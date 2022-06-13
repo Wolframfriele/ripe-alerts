@@ -107,15 +107,10 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     autonomous_system = AutonomousSystem.register_asn(setting=setting, system_number=asn.value, location=asn_location)
     MeasurementCollection.delete_all_by_asn(system=autonomous_system)
-<<<<<<< HEAD
-    
-=======
->>>>>>> main
     for anchor in anchors:
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
             measurement.save_to_database(system=autonomous_system)
-<<<<<<< HEAD
 
     mesh_tag = Tag.objects.get(name="mesh")
     measurements_list = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
@@ -124,6 +119,4 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     print("Starting new thread!")
     
     
-=======
->>>>>>> main
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

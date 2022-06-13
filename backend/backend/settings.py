@@ -45,11 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
-    'anomaly_detection'
-=======
     'anomaly_detection_reworked'
->>>>>>> main
 ]
 
 MIDDLEWARE = [

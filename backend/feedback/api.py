@@ -12,11 +12,7 @@ router = Router()
 TAG = "Feedback"
 
 
-<<<<<<< HEAD
-@router.put("/feedback", response=FeedbackOut, tags=[TAG])  # TODO: Create documentation
-=======
 @router.put("/", response=FeedbackOut, tags=[TAG])  # TODO: Create documentation
->>>>>>> main
 def save_feedback(request, data: FeedbackFormat = Query(...)):
     anomaly_exist = Anomaly.objects.filter(id=data.anomaly_id).exists()
     if not anomaly_exist:
