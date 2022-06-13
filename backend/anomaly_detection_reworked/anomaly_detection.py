@@ -20,8 +20,8 @@ class AnomalyDetection:
             raise ValueError("Provide a valid MeasurementType in get_measurement_type()")
         self.methods[method.__class__.__name__] = method
 
-    def remove_detection_method(self, method: Type[DetectionMethod]):
-        self.methods.pop(method.__name__)
+    def remove_detection_method(self, method: DetectionMethod):
+        self.methods.pop(method.__class__.__name__)
 
     def start(self):
         """ Starts the anomaly detection and connects to the Streaming API. """
