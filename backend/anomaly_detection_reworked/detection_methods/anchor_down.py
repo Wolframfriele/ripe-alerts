@@ -50,11 +50,17 @@ class AnchorDown(DetectionMethod):
                     if old_probe.last_connected != new_probe.last_connected:  # Connectivity update!
                         self.create_anomaly(msg="Anchor connectivity has been resumed.", ip_addresses=new_probe.address_v4)
                     elif new_probe.status.name == ConnectionStatus.DISCONNECTED:
-                        self.create_anomaly(msg="Anchor has been disconnected", ip_addresses=new_probe.address_v4)
+                        # If there already is an Anomaly containing the probe address past 24 hours.
+                        if not self.has_anomaly(msg="Anchor is offline.", ip_addresses=new_probe.address_v4):
+                            self.create_anomaly(msg="Anchor is offline.", ip_addresses=new_probe.address_v4)
                     elif new_probe.status.name == ConnectionStatus.NEVER_CONNECTED:
-                        self.create_anomaly(msg="Anchor never connected. ", ip_addresses=new_probe.address_v4)
+                        # To prevent duplicates messages.
+                        if not self.has_anomaly(msg="Anchor never connected.", ip_addresses=new_probe.address_v4):
+                            self.create_anomaly(msg="Anchor never connected.", ip_addresses=new_probe.address_v4)
                     elif new_probe.status.name == ConnectionStatus.ABANDONED:
-                        self.create_anomaly(msg="Anchor has been abandoned", ip_addresses=new_probe.address_v4)
+                        # To prevent duplicates messages.
+                        if not self.has_anomaly(msg="Anchor has been abandoned.", ip_addresses=new_probe.address_v4):
+                            self.create_anomaly(msg="Anchor has been abandoned.", ip_addresses=new_probe.address_v4)
 
     def start_analyzer(self):
         if not self.analyzer_started:
@@ -75,6 +81,19 @@ class AnchorDown(DetectionMethod):
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.PING
+
+    def has_anomaly(self, msg: str, ip_addresses: str) -> bool:
+        from django.utils import timezone
+        from database.models import Setting, AutonomousSystem, Anomaly, MeasurementType
+        from database.models import DetectionMethod as DetectionMethodDB
+
+        if msg == "Anchor has been abandoned.":
+            return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
+        elif msg == "Anchor never connected.":
+            return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
+        elif msg == "Anchor is offline.":
+            return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
+            return True # DO MAGIC HERE
 
     def create_anomaly(self, msg: str, ip_addresses: str):
         print("Anomaly found!")
