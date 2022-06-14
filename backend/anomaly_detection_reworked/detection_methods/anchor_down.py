@@ -1,5 +1,9 @@
+import datetime
+import enum
+import threading
 from typing import List
 
+import dateutil.parser
 import requests
 
 from anomaly_detection_reworked.detection_method import DetectionMethod
@@ -12,36 +16,36 @@ class AnchorDown(DetectionMethod):
     """
 
     def __init__(self):
-        self.measurement_ids = List[int]
+        self.measurement_ids: List[int] = []
+        self.autonomous_system_number: int = 0
+        self.analyzer_started: bool = False
 
     def on_result_response(self, data: dict):
         measurement_id = data['msm_id']
-        if measurement_id not in self.measurement_ids:
+        if measurement_id not in self.measurement_ids and not self.analyzer_started:
             self.measurement_ids.append(measurement_id)
-            print(type(measurement_id))
-            print("Added ID: " + str(measurement_id))
-        # LIST.
-        # GET MSM ID -> ASN -> ANCHORS ->
-        # GET ALL FQDN DOMAINS
-        # PING ALL DOMAINS EVERY 30 SECONDS
-        # IF NO RESPONSE -> CREATE AN ANOMALY
-        #
-        pass
+            self.autonomous_system_number = self.get_autonomous_system_number(measurement_id=measurement_id)
+            self.start_analyzer()
+
+    def analyzer(self, autonomous_system_number: int, event: threading.Event):
+        while not event.is_set():
+            # self.get_probe_metadata(self.autonomous_system_number)
+            print("Hi there for the " + str(autonomous_system_number) + " time!")
+            event.wait(2)
+
+    def start_analyzer(self):
+        if not self.analyzer_started:
+            event = threading.Event()
+            thread = threading.Thread(target=self.analyzer, args=(self.autonomous_system_number, event), daemon=True)
+            thread.start()
 
     def on_startup_event(self):
-        self.measurement_ids = []
         asn = self.get_autonomous_system_number(measurement_id=23103873)
-        meta_anchors = self.get_anchor_metadata(asn)
+        meta_anchors = self.get_probe_metadata(asn)
+        self.start_analyzer()
         for meta in meta_anchors:
-            print(meta.description)
-            print(meta.asn_v6)
-            print(meta.is_anchor)
-            print(meta.id)
-            print(meta.address_v4)
-            print(meta.country_code)
-            print(meta.prefix_v6)
-        print("Anchor Down loaded")
-        pass
+            print(str(meta.status.id) + " " + str(meta.status.name))
+        print("Anchor Down Detection Method loaded")
 
     @property
     def get_measurement_type(self) -> MeasurementType:
@@ -56,27 +60,57 @@ class AnchorDown(DetectionMethod):
         return int(response.get('target_asn'))
 
     @staticmethod
-    def get_anchor_metadata(target_asn: int):
+    def get_probe_metadata(target_asn: int):
         uri = 'https://atlas.ripe.net/api/v2/probes/'
         params = {"asn_v4": target_asn, "is_anchor": True}
         response = requests.get(uri, params=params).json()
         results = response.get('results')
-        meta_anchors = []
+        meta_probes: List[MetaProbe] = []
         for x in results:
-            print(x)
-            meta_anchor = MetaAnchor(**x)
-            meta_anchors.append(meta_anchor)
-        print(123132)
-        print(str(len(meta_anchors)))
-        return meta_anchors
-        # return int(response.get('count'))
+            meta_anchor = MetaProbe(**x)
+            meta_probes.append(meta_anchor)
+        return meta_probes
 
 
-class MetaAnchor:
+class ConnectionStatus(enum.Enum):
+    NEVER_CONNECTED = 0
+    CONNECTED = 1
+    DISCONNECTED = 2
+    ABANDONED = 3
+
+    @staticmethod
+    def convert(enum_str: str):
+        if enum_str == 'Never Connected':
+            return ConnectionStatus.NEVER_CONNECTED
+        elif enum_str == 'Connected':
+            return ConnectionStatus.CONNECTED
+        elif enum_str == 'Disconnected':
+            return ConnectionStatus.DISCONNECTED
+        elif enum_str == 'Abandoned':
+            return ConnectionStatus.ABANDONED
+
+
+class Status:
+
+    def __init__(self, id, name, since):
+        """ A parsed JSON object containing
+            id: The connection status ID for this probe (integer [0-3]),
+            name: The connection status as String [Never Connected, Connected, Disconnected, Abandoned],
+            since: The datetime of the last change in connection status."""
+        self.id = id
+        self.name = ConnectionStatus.convert(name)
+        self.since = dateutil.parser.isoparse(since)
+
+
+class MetaProbe:
 
     def __init__(self, address_v4, address_v6, asn_v4, asn_v6, country_code, description, first_connected, id, is_anchor
-                 , is_public, last_connected, prefix_v6, prefix_v4
-                 ):
+                 , is_public, last_connected, prefix_v6, prefix_v4, geometry, status, status_since, tags, total_uptime,
+                 type):
+        """
+        RIPE Atlas Probes Resource. Note: An Anchor is also a Probe. Probes however are not always Anchors.
+        For more: https://beta-docs.atlas.ripe.net/apis/metadata-reference/#probes
+        """
         self.address_v4 = address_v4
         self.address_v6 = address_v6
         self.asn_v4 = asn_v4
@@ -84,50 +118,15 @@ class MetaAnchor:
         self.country_code = country_code
         self.description = description
         self.first_connected = first_connected
+        self.geometry = geometry
         self.id = id
         self.is_anchor = is_anchor
         self.is_public = is_public
-        self.last_connected = last_connected
-        self.prefix_v6 = prefix_v6
+        self.last_connected = datetime.datetime.fromtimestamp(last_connected)
         self.prefix_v4 = prefix_v4
-        # self.geometry: dict = geometry
-        # # self.# {
-        # # self.#     type Point
-        # # self.#     coordinates: [
-        # # self.#         5.1205
-        # # self.#         52.0895
-        # # self.#     ]
-        # # self.# }
-        # self.status: dict
-        # # self.# {
-        # # self.#     id: 3
-        # # self.#     name: Abandoned
-        # # self.#     since: 2021-06-22T12:53:56Z
-        # # self.# }
-        # self.status_since: int
-        # # self.# 1624366436
-        # self.tags: dict
-        # # self.# [
-        # # self.#     {
-        # # self.#         name: system: Anchor
-        # # self.#         slug: system-anchor
-        # # self.#     }
-        # # self.#     {
-        # # self.#         name: system: IPv4 Capable
-        # # self.#         slug: system-ipv4-capable
-        # # self.#     }
-        # # self.#     {
-        # # self.#         name: system: IPv6 Capable
-        # # self.#         slug: system-ipv6-capable
-        # # self.#     }
-        # # self.#     {
-        # # self.#         name: system: DNS problem suspected
-        # # self.#         slug: system-dns-problem-suspected
-        # # self.#     }
-        # # self.#     {
-        # # self.#         name: system: V2 Soekris
-        # # self.#         slug: system-v2-soekris
-        # # self.#     }
-        # # self.# ]
-        # self.total_uptime: int
-        # self.type: str
+        self.prefix_v6 = prefix_v6
+        self.status = Status(**status)
+        self.status_since = datetime.datetime.fromtimestamp(status_since)
+        self.tags = tags
+        self.total_uptime = total_uptime
+        self.type = type
