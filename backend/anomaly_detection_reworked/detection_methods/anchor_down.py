@@ -16,9 +16,13 @@ class AnchorDown(DetectionMethod):
     """
 
     def __init__(self):
+        self.detection_method_name = "Anchor Down"
+        self.detection_method_id = None
+        self.probes = None
         self.measurement_ids: List[int] = []
         self.autonomous_system_number: int = 0
         self.analyzer_started: bool = False
+        self.interval = 5
 
     def on_result_response(self, data: dict):
         measurement_id = data['msm_id']
@@ -29,9 +33,28 @@ class AnchorDown(DetectionMethod):
 
     def analyzer(self, autonomous_system_number: int, event: threading.Event):
         while not event.is_set():
-            # self.get_probe_metadata(self.autonomous_system_number)
-            print("Hi there for the " + str(autonomous_system_number) + " time!")
-            event.wait(2)
+            event.wait(self.interval)
+            print("Hi there! " + str(autonomous_system_number))
+            if self.probes is None:
+                self.probes = self.get_probes_metadata(self.autonomous_system_number)
+                return
+            else:
+                old_probes = self.probes
+                new_probes = self.get_probes_metadata(self.autonomous_system_number)
+                if len(old_probes) != len(new_probes):
+                    print("Incorrect Integer Count")
+                    return
+                for (old_probe, new_probe) in zip(old_probes, new_probes):
+                    assert isinstance(old_probe, MetaProbe)
+                    assert isinstance(new_probe, MetaProbe)
+                    if old_probe.last_connected != new_probe.last_connected:  # Connectivity update!
+                        self.create_anomaly(msg="Anchor connectivity has been resumed.", ip_addresses=new_probe.address_v4)
+                    elif new_probe.status.name == ConnectionStatus.DISCONNECTED:
+                        self.create_anomaly(msg="Anchor has been disconnected", ip_addresses=new_probe.address_v4)
+                    elif new_probe.status.name == ConnectionStatus.NEVER_CONNECTED:
+                        self.create_anomaly(msg="Anchor never connected. ", ip_addresses=new_probe.address_v4)
+                    elif new_probe.status.name == ConnectionStatus.ABANDONED:
+                        self.create_anomaly(msg="Anchor has been abandoned", ip_addresses=new_probe.address_v4)
 
     def start_analyzer(self):
         if not self.analyzer_started:
@@ -40,16 +63,36 @@ class AnchorDown(DetectionMethod):
             thread.start()
 
     def on_startup_event(self):
-        asn = self.get_autonomous_system_number(measurement_id=23103873)
-        meta_anchors = self.get_probe_metadata(asn)
-        self.start_analyzer()
-        for meta in meta_anchors:
-            print(str(meta.status.id) + " " + str(meta.status.name))
-        print("Anchor Down Detection Method loaded")
+        from database.models import DetectionMethod as DetectionMethodDB
+        if not DetectionMethodDB.objects.filter(type=self.detection_method_name).exists():
+            detection_method = DetectionMethodDB.objects.create(type="Anchor Down",
+                                                                   description="Checks if the Anchor went offline "
+                                                                               "every " + str(
+                                                                                self.interval) + " seconds.")
+            detection_method.save()
+        print("Anchor Down Detection Method loaded successfully!")
 
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.PING
+
+    def create_anomaly(self, msg: str, ip_addresses: str):
+        print("Anomaly found!")
+        from django.utils import timezone
+        from database.models import Setting, AutonomousSystem, Anomaly, MeasurementType
+        from database.models import DetectionMethod as DetectionMethodDB
+        time = timezone.now()
+        prediction_value = False
+        setting = Setting.get_user_settings('admin')
+        method = DetectionMethodDB.objects.get(type=self.detection_method_name)
+        Anomaly.objects.create(time=time, ip_address=ip_addresses,
+                               autonomous_system=AutonomousSystem.objects.get(setting_id=setting.id),
+                               description=msg,
+                               measurement_type=MeasurementType.PING,
+                               detection_method=method,
+                               mean_increase=0,
+                               anomaly_score=4.0, prediction_value=prediction_value,
+                               asn=self.autonomous_system_number)
 
     @staticmethod
     def get_autonomous_system_number(measurement_id: int) -> int:
@@ -60,7 +103,7 @@ class AnchorDown(DetectionMethod):
         return int(response.get('target_asn'))
 
     @staticmethod
-    def get_probe_metadata(target_asn: int):
+    def get_probes_metadata(target_asn: int):
         uri = 'https://atlas.ripe.net/api/v2/probes/'
         params = {"asn_v4": target_asn, "is_anchor": True}
         response = requests.get(uri, params=params).json()
