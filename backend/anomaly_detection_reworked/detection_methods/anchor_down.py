@@ -76,11 +76,9 @@ class AnchorDown(DetectionMethod):
         from database.models import DetectionMethod as DetectionMethodDB
         if not DetectionMethodDB.objects.filter(type=self.detection_method_name).exists():
             detection_method = DetectionMethodDB.objects.create(type=self.detection_method_name,
-                                                                   description="Checks if the Anchor went offline "
-                                                                               "every " + str(
-                                                                                self.interval) + " seconds.")
+                                                                description="Checks if the Anchor went offline "
+                                                                            "every " + str(self.interval) + " seconds.")
             detection_method.save()
-        print("Anchor Down Detection Method loaded successfully!")
 
     @property
     def get_measurement_type(self) -> MeasurementType:
