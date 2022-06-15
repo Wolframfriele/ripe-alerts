@@ -41,7 +41,7 @@ class TestAnomalyDetectionApp(TestCase):
             We create a copy to prevent a RuntimeError: dictionary changed size during iteration.
         """
         methods_copy = list(self.anomaly_detection.methods.values()).copy()
-        self.assertNotEqual(len(methods_copy), 0)  # Detection Method List is not empty.
+        self.assertNotEqual(len(methods_copy), 0)  # Detection Method List must not be empty.
         for method in methods_copy:
             self.anomaly_detection.remove_detection_method(method)
             self.assertEqual(True, bool(method not in self.anomaly_detection.methods.values()))
