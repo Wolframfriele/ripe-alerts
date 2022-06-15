@@ -1,6 +1,3 @@
-import threading
-
-from django.contrib.auth.models import User
 from django.test import TestCase
 
 from anomaly_detection_reworked.anomaly_detection import AnomalyDetection
@@ -9,10 +6,6 @@ from anomaly_detection_reworked.detection_methods.delay_from_country import Dela
 from anomaly_detection_reworked.detection_methods.entry_point_delay import EntryPointDelay
 from anomaly_detection_reworked.detection_methods.neighbor_network_delay import NeighborNetworkDelay
 from anomaly_detection_reworked.detection_methods.route_change import RouteChange
-from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
-from database.models import Setting
-from ripe_interface.api import set_autonomous_system_setting
-from ripe_interface.api_schemas import ASNumber
 
 
 class TestAnomalyDetectionApp(TestCase):
