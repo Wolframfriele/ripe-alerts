@@ -2,7 +2,7 @@ import datetime
 import enum
 import threading
 from typing import List
-
+from django.utils import timezone
 import dateutil.parser
 import requests
 
@@ -12,7 +12,8 @@ from anomaly_detection_reworked.measurement_type import MeasurementType
 
 class AnchorDown(DetectionMethod):
     """
-    This Detection Method (algorithm) has not been finished. However, all methods work as supposed to.
+    Anchor Down Detection Method (algorithm) used to find anomalies.
+    It checks every 15 seconds if the Anchor/Probe went offline .
     """
 
     def __init__(self):
@@ -22,9 +23,11 @@ class AnchorDown(DetectionMethod):
         self.measurement_ids: List[int] = []
         self.autonomous_system_number: int = 0
         self.analyzer_started: bool = False
-        self.interval = 5
+        self.interval = 30
 
     def on_result_response(self, data: dict):
+        """ Method that will be called every time we receive a new result from the RIPE Streaming API.
+            We retrieve the measurement ID and Autonomous System Number that belongs to it and start the analyzer. """
         measurement_id = data['msm_id']
         if measurement_id not in self.measurement_ids and not self.analyzer_started:
             self.measurement_ids.append(measurement_id)
@@ -32,25 +35,21 @@ class AnchorDown(DetectionMethod):
             self.start_analyzer()
 
     def analyzer(self, autonomous_system_number: int, event: threading.Event):
+        """ The Analyzer Method analyzes all incoming data to conclude if there was an anomaly or not.
+            This Method is called every (self.interval) seconds. """
         while not event.is_set():
             event.wait(self.interval)
-            print("Hi there! " + str(autonomous_system_number))
             if self.probes is None:
                 self.probes = self.get_probes_metadata(self.autonomous_system_number)
                 return
             else:
                 old_probes = self.probes
                 new_probes = self.get_probes_metadata(self.autonomous_system_number)
-                if len(old_probes) != len(new_probes):
-                    print("Incorrect Integer Count")
-                    return
                 for (old_probe, new_probe) in zip(old_probes, new_probes):
                     assert isinstance(old_probe, MetaProbe)
                     assert isinstance(new_probe, MetaProbe)
-                    if old_probe.last_connected != new_probe.last_connected:  # Connectivity update!
-                        self.create_anomaly(msg="Anchor connectivity has been resumed.", ip_addresses=new_probe.address_v4)
-                    elif new_probe.status.name == ConnectionStatus.DISCONNECTED:
-                        # If there already is an Anomaly containing the probe address past 24 hours.
+                    if new_probe.status.name == ConnectionStatus.DISCONNECTED:
+                        # If there isn't already an Anomaly containing the probe address past 24 hours. Don't show.
                         if not self.has_anomaly(msg="Anchor is offline.", ip_addresses=new_probe.address_v4):
                             self.create_anomaly(msg="Anchor is offline.", ip_addresses=new_probe.address_v4)
                     elif new_probe.status.name == ConnectionStatus.NEVER_CONNECTED:
@@ -61,17 +60,22 @@ class AnchorDown(DetectionMethod):
                         # To prevent duplicates messages.
                         if not self.has_anomaly(msg="Anchor has been abandoned.", ip_addresses=new_probe.address_v4):
                             self.create_anomaly(msg="Anchor has been abandoned.", ip_addresses=new_probe.address_v4)
+                self.probes = new_probes
 
     def start_analyzer(self):
+        """ To start the analyzer and have it called in an interval, we'll need a thread. In our case,
+            running one instance is enough. """
         if not self.analyzer_started:
             event = threading.Event()
             thread = threading.Thread(target=self.analyzer, args=(self.autonomous_system_number, event), daemon=True)
             thread.start()
 
     def on_startup_event(self):
+        """ Method that will be called once the detection method has been loaded.
+            Create an Anchor Down Detection Method and save it to the database. """
         from database.models import DetectionMethod as DetectionMethodDB
         if not DetectionMethodDB.objects.filter(type=self.detection_method_name).exists():
-            detection_method = DetectionMethodDB.objects.create(type="Anchor Down",
+            detection_method = DetectionMethodDB.objects.create(type=self.detection_method_name,
                                                                    description="Checks if the Anchor went offline "
                                                                                "every " + str(
                                                                                 self.interval) + " seconds.")
@@ -80,24 +84,22 @@ class AnchorDown(DetectionMethod):
 
     @property
     def get_measurement_type(self) -> MeasurementType:
+        """ Property which will be used to select corresponding Measurement IDs. """
         return MeasurementType.PING
 
     def has_anomaly(self, msg: str, ip_addresses: str) -> bool:
-        from django.utils import timezone
-        from database.models import Setting, AutonomousSystem, Anomaly, MeasurementType
-        from database.models import DetectionMethod as DetectionMethodDB
-
-        if msg == "Anchor has been abandoned.":
-            return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
-        elif msg == "Anchor never connected.":
+        """ Every N seconds, we check if the Anchor went offline. To prevent duplicate messages, we first check if
+            there already exists an anomaly like it in the database. And return it to the user. """
+        from database.models import Anomaly
+        if msg == "Anchor has been abandoned." or msg == "Anchor never connected.":
             return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
         elif msg == "Anchor is offline.":
-            return Anomaly.objects.filter(description=msg, ip_address=ip_addresses).exists()
-            return True # DO MAGIC HERE
+            past_24_hours = timezone.now() - datetime.timedelta(days=1)
+            return Anomaly.objects.filter(description=msg,
+                                          ip_address=ip_addresses, time__gte=past_24_hours).exists()
 
     def create_anomaly(self, msg: str, ip_addresses: str):
-        print("Anomaly found!")
-        from django.utils import timezone
+        """ This method is used to create anomalies to save to the database. """
         from database.models import Setting, AutonomousSystem, Anomaly, MeasurementType
         from database.models import DetectionMethod as DetectionMethodDB
         time = timezone.now()
@@ -123,6 +125,7 @@ class AnchorDown(DetectionMethod):
 
     @staticmethod
     def get_probes_metadata(target_asn: int):
+        """ Makes a GET request to RIPE ATLAS to get the latest info of our Anchor. """
         uri = 'https://atlas.ripe.net/api/v2/probes/'
         params = {"asn_v4": target_asn, "is_anchor": True}
         response = requests.get(uri, params=params).json()
@@ -135,6 +138,7 @@ class AnchorDown(DetectionMethod):
 
 
 class ConnectionStatus(enum.Enum):
+    """ Enum which is used in the Status Class. """
     NEVER_CONNECTED = 0
     CONNECTED = 1
     DISCONNECTED = 2
