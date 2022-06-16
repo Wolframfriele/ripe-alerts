@@ -6,16 +6,11 @@ from django.http import JsonResponse
 from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
-<<<<<<< HEAD
 from ninja.security import django_auth
 import threading
 
 from anomaly_detection.monitor_manager import MonitorManager
 from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, Tag
-=======
-
-from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
->>>>>>> main
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.ripe_requests import RipeRequests
 

@@ -23,7 +23,7 @@
 				>
 				</q-table>
 			</q-card-section>
-		</div>
+		</q-card>
 	</q-card>
 </template>
 
