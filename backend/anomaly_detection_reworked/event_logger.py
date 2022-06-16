@@ -1,9 +1,7 @@
 class EventLogger:
 
     def on_reconnect(*args):
-        print(args)
         print("Reconnecting to RIPE Atlas Streaming API")
-        raise ConnectionError("Reconnection")
 
     def on_error(self, *args):
         print(args)
@@ -32,5 +30,3 @@ class EventLogger:
 
     def on_atlas_unsubscribe(*args):
         print("Unsubscribed to channel")
-        print(args)
-        # raise ConnectionError("Unsubscribed")

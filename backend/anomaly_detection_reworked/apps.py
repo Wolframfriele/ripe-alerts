@@ -2,7 +2,6 @@ from django.apps import AppConfig
 
 from anomaly_detection_reworked.anomaly_detection import AnomalyDetection
 from anomaly_detection_reworked.detection_methods.anchor_down import AnchorDown
-# from anomaly_detection_reworked.anomaly_detection import anchor_down
 from anomaly_detection_reworked.detection_methods.delay_from_country import DelayFromCountry
 from anomaly_detection_reworked.detection_methods.entry_point_delay import EntryPointDelay
 from anomaly_detection_reworked.detection_methods.neighbor_network_delay import NeighborNetworkDelay
