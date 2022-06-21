@@ -18,32 +18,32 @@ router = Router()
 NOTIFICATION_TAG = "Notification"
 
 @router.post("/config", response=ConfigOut, tags=[NOTIFICATION_TAG])
-def save_config(request, data: ConfigFormat):
+def save_config(request, data: ConfigFormat = Query(...)):
     """Update the configuration of a plugin"""
     name = data.name
     config = data.config
     if name and config:
         station.save_plugin_config(name, config)
-        return JsonResponse(None, status=204)
-    return JsonResponse("Invalid parameters", status=400)
+        return JsonResponse({"message":f"The plugin {name} has been succesfully saved!"}, status=204)
+    return JsonResponse({"message":"Invalid parameters"}, status=400)
 
 @router.get("/config", tags=[NOTIFICATION_TAG])
-def get_config(request, data: ConfigFormatGet):
+def get_config(request, data: ConfigFormatGet = Query(...)):
     """Get the configuration of a plugin"""
     name = data.plugin
     if not name:
-        return JsonResponse("Missing parameter", status=400)
+        return JsonResponse({"message":"Missing parameter"}, status=400)
     if name == "all":
         return JsonResponse(station.get_all_plugins_config(), status=200, content_type="application/json")
     return JsonResponse(station.get_plugin_config(name), status=200, content_type="application/json")
 
 @router.post("/", tags=[NOTIFICATION_TAG])
-def send_alert(request, data: AlertFormat):
+def send_alert(request, data: AlertFormat = Query(...)):
     alert = data.alert
     if not alert:
-        return JsonResponse("Missing parameter", status=400)
+        return JsonResponse({"message":"Missing parameter"}, status=400)
     station.broadcast(alert)
-    return JsonResponse(None, status=204)
+    return JsonResponse({"message":"Succesfully send the alert!"}, status=204)
 
 
 # class PluginConfigSystem(APIView):

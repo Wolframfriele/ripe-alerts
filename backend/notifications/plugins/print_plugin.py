@@ -3,7 +3,7 @@ import typing
 
 
 class PrintPlugin(plugin.PluginInterface):
-    NAME = "Print alert plugin"
+    NAME = "print_plugin"
     DESCRIPTION = "This plugin outputs to STDOUT"
     DEFAULT_CONFIG = {"Text": "Hello world!"}
 
