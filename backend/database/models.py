@@ -35,7 +35,7 @@ class Setting(models.Model):
 class Notification(models.Model):
     # id = models.AutoField(primary_key=True)
     setting = models.ForeignKey(Setting, null=False, blank=False, on_delete=models.CASCADE)
-    name = models.CharField(null=False, blank=False, max_length=30)
+    name = models.CharField(null=False, blank=False, max_length=30, unique=True)
     config = models.JSONField(null=False, blank=False)
 
     def __str__(self):

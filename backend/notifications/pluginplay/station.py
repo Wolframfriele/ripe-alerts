@@ -100,7 +100,7 @@ class Station:
         -------
         A dictionary containing the name, description and config of the given plugin
         """
-
+        print(name)
         if config := self._database_interface.get_plugin_config(name):
             return {
                 "name": name,

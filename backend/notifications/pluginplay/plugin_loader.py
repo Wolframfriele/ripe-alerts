@@ -57,8 +57,7 @@ class PluginLoader:
         -------
         A instance of the given plugin, or an exception in the case of an invalid configuration
         """
-        print(1)
-        print(plugin_file)
+        
         #plugin = importlib.import_module(f"{self._plugin_dir}.{plugin_file}", ".")
         plugin = importlib.import_module(f"notifications.plugins.{plugin_file}", ".")
         for key, value in plugin.__dict__.items():
