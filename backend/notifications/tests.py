@@ -31,7 +31,7 @@ class AlertApiTest(TestCase):
 
 
     def test_response_valid(self):
-        self.assertEqual(self.response.status_code, 204)
+        self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json_response['message'], "Succesfully send the alert!")
 
     def test_response_invalid(self):
@@ -59,7 +59,7 @@ class ConfigSaveTest(TestCase):
         self.bad_json_response = json.loads(self.bad_response.content)
 
     def test_response_valid(self):
-        self.assertEqual(self.response.status_code, 204)
+        self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json_response['message'], "The plugin has been succesfully saved!")
         self.assertTrue(Notification.objects.filter(name="Webhook").exists())
 
@@ -95,13 +95,10 @@ class ConfigGetTest(TestCase):
 
     def test_get_one(self):
         self.assertEqual(self.response.status_code, 200)
-        print(len(self.json_response))
-      
 
     def test_get_all(self):
         self.assertEqual(self.response_all.status_code, 200)
-        print(len(self.json_response_all))
-
+        
     def test_response_invalid(self):
         self.assertEqual(self.bad_response.status_code, 400)
         self.assertEqual(self.bad_json_response['message'], "Missing parameter!")

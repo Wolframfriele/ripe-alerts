@@ -23,5 +23,7 @@ class WebhookPlugin(plugin.PluginInterface):
 
     def receiver(self, message: str) -> None:
         config = json.loads(self.config_data)
-        data = { 'Alert': 'There was a anomaly found in your network' }
-        requests.post(config['url'], data=json.dumps(data), headers={'Content-Type': 'application/json'})
+        if not message:
+            print("No message avaliable!")
+        else:
+            requests.post(config['url'], data=json.dumps(message), headers={'Content-Type': 'application/json'})
