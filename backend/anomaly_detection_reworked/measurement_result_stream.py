@@ -23,7 +23,7 @@ class MeasurementResultStream:
         from database.models import MeasurementCollection
         measurement_collections = MeasurementCollection.objects.all()  # Retrieve measurements from database.
         self.measurement_ids = list(measurement_collections.values_list('measurement_id', flat=True))
-        if len(self.measurement_ids) == 0:
+        if not self.measurement_ids:
             print("Start-up canceled. At least one measurement ID is required to start up the Streaming API.")
             return
 
@@ -33,11 +33,11 @@ class MeasurementResultStream:
 
         # Precalculate a Dictionary for later use. (Key: Measurement Type and Value: Array of Detection Methods).
         for msm_type in MeasurementType:
-            methods_list: list = []
-            for method in self.detection_methods:
-                if method.get_measurement_type == msm_type:
-                    methods_list.append(method)
-                self.measurement_type_to_detection_method[msm_type] = methods_list
+            methods_list = [
+                method for method in self.detection_methods
+                if method.get_measurement_type == msm_type
+            ]
+            self.measurement_type_to_detection_method[msm_type] = methods_list
 
         self.stream = AtlasStream()
         self.logger = EventLogger()

@@ -5,16 +5,14 @@ from django.middleware.csrf import CsrfViewMiddleware
 from django.views.decorators.csrf import csrf_protect
 from ninja import Router
 
-router = Router()
 TAG = "Authentication"
+DEFAULT_USER = 'admin'
+
+router = Router()
 
 
 def get_username(request):
-    default_user = 'admin'
-    if hasattr(request, 'auth'):
-        return str(request.auth)
-    else:
-        return default_user
+    return str(getattr(request, "auth", DEFAULT_USER))
 
 
 def ip_whitelist(request):
@@ -40,5 +38,4 @@ def login_user(request):
     user = authenticate(request, username='admin', password='password')
     if user is not None:
         return JsonResponse({"message": "Yes, it works!"}, status=200)
-    else:
-        return JsonResponse({"message": "Nope, it didn't work."}, status=200)
+    return JsonResponse({"message": "Nope, it didn't work."}, status=200)

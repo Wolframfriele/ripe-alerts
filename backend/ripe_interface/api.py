@@ -14,19 +14,17 @@ from database.models import AutonomousSystem, Setting, MeasurementCollection, An
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.ripe_requests import RipeRequests
 
-anomaly_router = Router()
-settings_router = Router()
-"""Tags are used by Swagger to group endpoints."""
+# Tags are used by Swagger to group endpoints.
 ANOMALIES_TAG = "Anomalies"
 ASN_SETTINGS_TAG = "Settings"
+DEFAULT_USER = 'admin'
+
+anomaly_router = Router()
+settings_router = Router()
 
 
 def get_username(request):
-    default_user = 'admin'
-    if hasattr(request, 'auth'):
-        return str(request.auth)
-    else:
-        return default_user
+    return getattr(request, "auth", DEFAULT_USER)
 
 
 @anomaly_router.get("/generate-fake-anomalies", tags=[ANOMALIES_TAG])
@@ -56,9 +54,7 @@ def list_anomalies(request):
     username = get_username(request)
     system = AutonomousSystem.get_asn_by_username(username=username)
     anomalies = Anomaly.objects.filter(autonomous_system=system)
-    if anomalies is None:
-        return []
-    return anomalies
+    return anomalies or []
 
 
 @settings_router.get("/", response=AutonomousSystemSetting2, tags=[ASN_SETTINGS_TAG])
@@ -76,14 +72,14 @@ def get_autonomous_system_setting(request):
 def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     """To monitor a specific Autonomous System, we'll first need a valid Autonomous
     System Number (ASN). This endpoint validates and saves the ASN configuration in the database.  """
-    asn_name = "ASN" + str(asn.value)
+    asn_name = f"ASN{asn.value}"
     username = get_username(request)
     if not RipeRequests.autonomous_system_exist(asn.value):
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": asn_name + " does not exist!"}, status=400)
 
     anchors = RipeRequests.get_anchors(asn.value)
-    if len(anchors) == 0:
+    if not anchors:
         return JsonResponse({"monitoring_possible": False, "host": None,
                              "message": "There were no anchors found in " + asn_name},
                             status=400)
@@ -96,7 +92,7 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
 
     user = User.objects.get(username=username)
     setting = Setting.get_user_settings(username)
-    if setting is None:
+    if not setting:
         return JsonResponse({"monitoring_possible": False, "host": asn_location,
                              "message:": "User '" + username + "' settings is missing!"}, status=400)
 
@@ -112,6 +108,5 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
     thread = threading.Thread(target=MonitorManager, args=(measurements_list,), daemon=True)
     thread.start()
     print("Starting new thread!")
-    
-    
+
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

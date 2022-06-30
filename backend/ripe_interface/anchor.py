@@ -1,7 +1,7 @@
 from database.models import MeasurementCollection, AutonomousSystem, Tag
 
 
-class Anchor:
+class Anchor:  # TODO: use `dataclasses.dataclass` please
     def __init__(self, id, type, fqdn, probe, is_ipv4_only, ip_v4, as_v4, ip_v4_gateway, ip_v4_netmask, ip_v6, as_v6,
                  ip_v6_gateway, ip_v6_prefix, city, country, company, nic_handle, geometry, tlsa_record, is_disabled,
                  date_live, hardware_version):
@@ -29,8 +29,7 @@ class Anchor:
         self.hardware_version = hardware_version
 
     def __str__(self) -> str:
-        return "Anchor (id: " + str(self.id) + " | asn: " + str(self.as_v4) \
-               + " | ip: " + self.ip_v4 + " | city: " + self.city + ")"
+        return f"Anchor (id: {self.id} | asn: {self.as_v4} | ip: {self.ip_v4} | city: {self.city})"
 
 
 class AnchoringMeasurement:
@@ -47,10 +46,11 @@ class AnchoringMeasurement:
             return self.description
 
         text_split = self.description.split(":")
-        if not len(text_split) == 2:
+        if len(text_split) != 2:
             return self.description
+
         t = text_split[0] + " (" + str(self.id) + "):" + text_split[1]
-        return t
+        return f"{text_split[0]} ({self.id}): {text_split[1]}"
 
     def save_to_database(self, system: AutonomousSystem):
         tags = Tag.get_tag_ids(self.tags)
@@ -59,4 +59,3 @@ class AnchoringMeasurement:
             description=self.description)
         measurement_collection.tags.set(tags)
         measurement_collection.save()
-
