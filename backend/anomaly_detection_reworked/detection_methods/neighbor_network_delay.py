@@ -16,3 +16,10 @@ class NeighborNetworkDelay(DetectionMethod):
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.TRACEROUTE
+
+    @property
+    def describe(self) -> tuple:
+        return {
+            "type": "Neighbor Network Delay",
+            "Description": "The neighbor network delay detector checks for large increase in the entire neighboring network."
+        }

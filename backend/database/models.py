@@ -185,7 +185,7 @@ class DetectionMethod(models.Model):
     description = models.TextField(null=False, blank=False)
 
     def __str__(self):
-        return 'Detection Method (' + str(self.id) + ')'
+        return f'Detection Method ({str(self.id)}) {self.type}'
 
     class Meta:
         verbose_name_plural = "Detection Methods"
@@ -209,7 +209,7 @@ class Anomaly(models.Model):
     time = models.DateTimeField(null=False, blank=False)
     ip_address = models.TextField(null=False, blank=False)
     autonomous_system = models.ForeignKey('AutonomousSystem', on_delete=models.CASCADE, null=False, blank=False)
-    description = models.TextField(null=False, blank=False)
+    description = models.TextField(null=True, blank=False)
     measurement_type = models.CharField(MeasurementType, choices=MeasurementType.choices, default=None, max_length=10,
                                         blank=False, null=False)
     detection_method = models.ForeignKey(DetectionMethod, on_delete=models.CASCADE, null=False, blank=False)

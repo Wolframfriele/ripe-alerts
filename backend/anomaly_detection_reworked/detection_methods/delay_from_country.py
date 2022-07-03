@@ -17,3 +17,10 @@ class DelayFromCountry(DetectionMethod):
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.PING
+
+    @property
+    def describe(self) -> tuple:
+        return {
+            "type": "Delay from Country",
+            "Description": "This detection method looks at PING measurements and looks for anomalies in average round trip time from countries"
+        }

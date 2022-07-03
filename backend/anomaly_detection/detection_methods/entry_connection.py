@@ -17,6 +17,7 @@ from ..monitor_strategy_base import MonitorStrategy
 from ..format import ProbeMeasurement, Hops
 from ..monitors import DataManager
 from database.models import MeasurementCollection
+from anomaly_object import AnomalyObject
 
 
 class DetectionMethod(MonitorStrategy):
@@ -26,6 +27,13 @@ class DetectionMethod(MonitorStrategy):
 
     def measurement_type(self) -> str:
         return 'traceroute'
+
+    def detection_type(self) -> str:
+        return 'Entry Delay Detector'
+
+    def detection_description(self) -> str:
+        return 'The entry delay detector finds the hop where packets enter into your own AS, \
+            it then uses a sliding window to detect unexpected increases in round trip time.'
 
     def collect_initial_dataset(self, measurement_id: str) -> None:
         """
@@ -40,7 +48,7 @@ class DetectionMethod(MonitorStrategy):
         print(f"collecting initial dataset for measurement: {measurement_id}")
         yesterday = int(datetime.now().timestamp()) - 24 * 60 * 60
         result_time = yesterday
-        
+
         while True:
             try:
                 f = urlopen(
@@ -49,12 +57,14 @@ class DetectionMethod(MonitorStrategy):
                 for measurement_data in parser:
                     result = self.preprocess(measurement_data)
                     result_time = result[0]['created']
-                    
+
                     probe_mesh = ProbeMeasurement(**result[0])
                     print(probe_mesh)
                     hops = result[1]
-                    measurement = MeasurementCollection.objects.get(measurement_id=measurement_id)
-                    measurementpoint_id = DataManager.store(self, probe_mesh, measurement.id)
+                    measurement = MeasurementCollection.objects.get(
+                        measurement_id=measurement_id)
+                    measurementpoint_id = DataManager.store(
+                        self, probe_mesh, measurement.id)
 
                     for hop in hops:
                         hop = Hops(**hop)
@@ -87,7 +97,7 @@ class DetectionMethod(MonitorStrategy):
         hops = self.clean_hops(measurement_result.hops)
         entry_rtt, entry_ip, entry_as = self.find_network_entry_hop(
             hops, user_ip)
-        
+
         return {
             'probe_id': measurement_result.probe_id,
             'created': measurement_result.created,
@@ -206,7 +216,7 @@ class DetectionMethod(MonitorStrategy):
 
         return df_outlier
 
-    def filter(self, df_outlier: pd.DataFrame):
+    def filter(self, df_outlier: pd.DataFrame) -> list[AnomalyObject]:
         """
         Filters through anomalies and returns the alerts.
 
@@ -228,37 +238,43 @@ class DetectionMethod(MonitorStrategy):
             probes_in_as = len(single_as_df['probe_id'].unique())
 
             if probes_in_as > 4:
-                as_anomalies = single_as_df.groupby(pd.Grouper(freq="20T", closed='right', convention='end'))["level_shift"].agg("sum")
+                as_anomalies = single_as_df.groupby(pd.Grouper(
+                    freq="20T", closed='right', convention='end'))["level_shift"].agg("sum")
                 try:
                     as_anomalies.plot()
                 except:
                     pass
-                score = round((as_anomalies[-LOOKBACK] / probes_in_as) * 100, 2)
+                score = round(
+                    (as_anomalies[-LOOKBACK] / probes_in_as) * 100, 2)
                 alert_time = as_anomalies.index[-LOOKBACK]
 
                 print(f'Score in {as_num}: {score} at {alert_time}')
                 if score > MIN_ANOMALY_SCORE:
-                    ip_adresses = single_as_df[single_as_df['level_shift'] == True]['entry_ip'].unique().tolist()
-                    unique_probes = single_as_df['probe_id'].unique() 
+                    ip_adresses = single_as_df[single_as_df['level_shift'] == True]['entry_ip'].unique(
+                    ).tolist()
+                    unique_probes = single_as_df['probe_id'].unique()
                     changes_in_rtt = []
                     for probe_id in unique_probes:
                         single_probe = single_as_df[single_as_df["probe_id"] == probe_id]
                         if len(single_probe) > 4:
-                            mean_probe_rtt = single_probe['entry_rtt'][:-LOOKBACK - 1].median()
+                            mean_probe_rtt = single_probe['entry_rtt'][:-
+                                                                       LOOKBACK - 1].median()
                             current_probe_rtt = single_probe['entry_rtt'][-LOOKBACK]
                             change_in_rtt = current_probe_rtt - mean_probe_rtt
                             changes_in_rtt.append(change_in_rtt)
 
-                            mean_value_change = sum(changes_in_rtt) / len(changes_in_rtt)
+                            mean_value_change = sum(
+                                changes_in_rtt) / len(changes_in_rtt)
 
-                    print(f'Anomaly at {alert_time.strftime("%d/%m/%Y, %H:%M:%S")} in AS{as_num}. Problem with {as_anomalies[-LOOKBACK]} probes. Percentage of AS: {score}')
-                    anomalies.append({
-                        'time': alert_time,
-                        'ip-adresses': ip_adresses,
-                        'as-number': as_num,
-                        'detection-methon': 'entry_connection',
-                        'anomaly-score': score,
-                        'probes-through-as': probes_in_as,
-                        'mean-value-change': mean_value_change,
-                    })
+                    print(
+                        f'Anomaly at {alert_time.strftime("%d/%m/%Y, %H:%M:%S")} in AS{as_num}. Problem with {as_anomalies[-LOOKBACK]} probes. Percentage of AS: {score}')
+                    anomalies.append(AnomalyObject(
+                        time=alert_time,
+                        ip_address=ip_adresses,
+                        autonomous_system=as_num,
+                        measurement_type='traceroute',
+                        detection_method='entry_connection',
+                        mean_increase=mean_value_change,
+                        anomaly_score=score
+                    ))
         return anomalies

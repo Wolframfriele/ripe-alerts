@@ -17,3 +17,10 @@ class AnchorDown(DetectionMethod):
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.PING
+
+    @property
+    def describe(self) -> dict:
+        return {
+            "type": "Anchor Down",
+            "Description": "This detector finds an anomaly if the anchor suddenly goes down."
+        }

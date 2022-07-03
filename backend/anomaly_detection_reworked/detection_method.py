@@ -10,6 +10,14 @@ class DetectionMethod(ABC):
     """ Interface for creating an algorithm to find anomalies in the data from RIPE ATLAS Streaming API. """
 
     @abstractmethod
+    def describe(self) -> dict:
+        """
+        Method used to describe the detection method so that it can be stored in the database.
+        Returns information (tuple): (type, description)
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def on_result_response(self, data: dict):
         """
         Method that will be called every time we receive a new result from the RIPE Streaming API.

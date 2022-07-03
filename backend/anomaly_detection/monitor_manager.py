@@ -1,7 +1,7 @@
 import os
 import importlib
 from django.forms.models import model_to_dict
-from database.models import MeasurementCollection
+from database.models import MeasurementCollection, DetectionMethod
 from .monitor_strategy_base import MonitorStrategy
 from .monitors import Monitor
 
@@ -27,6 +27,10 @@ class MonitorManager:
 
         for plugin in self._plugins:
             if isinstance(plugin, MonitorStrategy):
+                DetectionMethod.objects.create(
+                    type=plugin.detection_type(),
+                    description=plugin.detection_description()
+                )
                 for measurement in self.measurement_collection:
                     if measurement.type == plugin.measurement_type():
                         self.monitors[measurement.id] = Monitor(measurement, plugin)

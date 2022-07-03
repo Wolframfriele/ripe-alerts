@@ -16,3 +16,10 @@ class RouteChange(DetectionMethod):
     @property
     def get_measurement_type(self) -> MeasurementType:
         return MeasurementType.TRACEROUTE
+
+    @property
+    def describe(self) -> tuple:
+        return {
+            "type": "Route Change",
+            "Description": "Looks for route changes from neighboring connections that are not expected in comparison to baseline behaviour."
+        }

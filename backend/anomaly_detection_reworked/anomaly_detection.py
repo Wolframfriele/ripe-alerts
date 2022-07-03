@@ -1,9 +1,12 @@
+from pydoc import describe
 import threading
 from typing import Type
 
 from anomaly_detection_reworked.detection_method import DetectionMethod
 from anomaly_detection_reworked.measurement_result_stream import MeasurementResultStream
 from anomaly_detection_reworked.measurement_type import MeasurementType
+
+# from database.models import DetectionMethod as DetectionMethodModel
 
 
 class AnomalyDetection:
@@ -30,3 +33,11 @@ class AnomalyDetection:
         thread.start()
         for detection_method in self.methods.values():
             detection_method.on_startup_event()
+
+    # def add_detection_methods_to_db(self) -> None:
+    #     for method in self.methods:
+    #         if not DetectionMethodModel.objects.exists(type=method.desribe["type"]):
+    #             DetectionMethodModel.objects.create(
+    #                 type=method.describe()["type"],
+    #                 description=method.describe()["description"]
+    #             )

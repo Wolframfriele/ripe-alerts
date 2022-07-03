@@ -53,3 +53,4 @@ adtk
 ijson
 itsdangerous
 py-radix
+xgboost
