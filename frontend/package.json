@@ -10,7 +10,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.25.0",
-    "core-js": "^3.6.5",
+    "core-js": "^3.21.1",
     "quasar": "^2.0.0",
     "vue": "3.2.20",
     "vue-router": "4"
