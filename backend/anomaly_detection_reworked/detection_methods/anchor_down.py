@@ -85,6 +85,13 @@ class AnchorDown(DetectionMethod):
         """ Property which will be used to select corresponding Measurement IDs. """
         return MeasurementType.PING
 
+    @property
+    def describe(self) -> tuple:
+        return {
+            "type": "Anchor Down",
+            "Description": "The detector checks if the anchors of the user have suddenly gone down."
+        }
+
     def has_anomaly(self, msg: str, ip_addresses: str) -> bool:
         """ Every N seconds, we check if the Anchor went offline. To prevent duplicate messages, we first check if
             there already exists an anomaly like it in the database. And return it to the user. """

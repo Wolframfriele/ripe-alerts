@@ -19,6 +19,7 @@ from ..format import HopFormat, ProbeMeasurement
 from ..monitors import DataManager
 from database.models import MeasurementCollection
 from time import perf_counter
+from anomaly_detection.anomaly_object import AnomalyObject
 
 
 class DetectionMethod(MonitorStrategy):
