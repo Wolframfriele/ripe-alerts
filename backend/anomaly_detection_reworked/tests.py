@@ -17,7 +17,7 @@ class TestAnomalyObject(TestCase):
     def setUp(self) -> None:
         """Set up a user with autonomous system number to be able to test models, and add detection methods to database"""
         user = User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
-        setting = Setting.objects.create(user=user)
+        Setting.objects.create(user=user)
         self.asn = ASNumber()
         self.asn.value = 3333
         set_autonomous_system_setting(request=None, asn=self.asn)
@@ -32,10 +32,8 @@ class TestAnomalyObject(TestCase):
         self.detection_method = DetecionMethodModel.objects.get(id=1)
 
         self.time = timezone.now()
-        self.time_formatted = str(self.time.year) + "-" + str(self.time.month) + "-" + str(self.time.day) + \
-                              " " + str(self.time.hour) + ":" + str(self.time.minute) + ":" + str(self.time.second)
         self.anomaly_1 = AnomalyObject(
-            time=self.time_formatted,
+            time=self.time,
             ip_address="198.1.2.68",
             measurement_type="traceroute",
             detection_method=self.detection_method,
@@ -51,6 +49,7 @@ class TestAnomalyObject(TestCase):
             "anomaly_score": 30,
             "asn": "1103"
         }, index=[0])
+        self.expected_df = self.expected_df.astype({'ip_address': 'category', 'measurement_type': 'category', 'detection_method': 'category', 'asn': 'category'})
         return super().setUp()
 
     def test_get_df(self):
