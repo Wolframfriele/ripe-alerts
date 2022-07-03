@@ -11,7 +11,7 @@
 					icon="menu"
 				/>
 				<q-toolbar-title>
-					Ripe Alerts
+					Ripe Alerter
 				</q-toolbar-title>
 
 				<div>v 0.1</div>
@@ -40,10 +40,10 @@
 				</q-item>
 				<q-item clickable tag="a" :to="{ name: 'setup' }">
 					<q-item-section avatar>
-						<q-icon name="settings" />
+						<q-icon name="settings_suggest" />
 					</q-item-section>
 					<q-item-section>
-						<q-item-label>Settings</q-item-label>
+						<q-item-label>Setup Monitoring</q-item-label>
 					</q-item-section>
 				</q-item>
 				<q-separator />
@@ -87,7 +87,7 @@ export default {
 		};
 	},
 	created () {
-		document.title = "Ripe Alerts"
+		document.title = "Ripe Alerter"
 	}
 };
 </script>

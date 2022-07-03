@@ -1,6 +1,7 @@
 """
 Plugin File for the Entry Connection detection method. 
 """
+from http.client import IncompleteRead
 import time
 import ijson
 import numpy as np
@@ -14,10 +15,10 @@ from adtk.data import validate_series
 from ..as_tools import ASLookUp
 from datetime import datetime, timedelta
 from ..monitor_strategy_base import MonitorStrategy
-from ..format import ProbeMeasurement, Hops
+from ..format import HopFormat, ProbeMeasurement
 from ..monitors import DataManager
 from database.models import MeasurementCollection
-from anomaly_object import AnomalyObject
+from time import perf_counter
 
 
 class DetectionMethod(MonitorStrategy):
@@ -54,22 +55,29 @@ class DetectionMethod(MonitorStrategy):
                 f = urlopen(
                     f"https://atlas.ripe.net/api/v2/measurements/{measurement_id}/results?start={result_time}")
                 parser = ijson.items(f, 'item')
-                for measurement_data in parser:
-                    result = self.preprocess(measurement_data)
-                    result_time = result[0]['created']
+                try:
+                    for measurement_data in parser:
+                        result = self.preprocess(measurement_data)
+                        result_time = result[0]['created']
+                        
+                        total_time = perf_counter()
+                        probe_mesh = ProbeMeasurement(**result[0])
+                        hops = result[1]
+                        
+                        measurement = MeasurementCollection.objects.get(measurement_id=measurement_id)
 
-                    probe_mesh = ProbeMeasurement(**result[0])
-                    print(probe_mesh)
-                    hops = result[1]
-                    measurement = MeasurementCollection.objects.get(
-                        measurement_id=measurement_id)
-                    measurementpoint_id = DataManager.store(
-                        self, probe_mesh, measurement.id)
-
-                    for hop in hops:
-                        hop = Hops(**hop)
-                        DataManager.store_hops(self, hop, measurementpoint_id)
-
+                        hop_total = len(hops)
+                        measurementpoint_id = DataManager.store(self, probe_mesh, measurement.id, hop_total)
+                        
+                        
+                        start_store = perf_counter()
+                        for hop in hops:
+                            hop = HopFormat(**hop)
+                            DataManager.store_hops(self, hop, measurementpoint_id)
+                        print(f"Save Hop - {perf_counter() - start_store}")
+                        print(f"Save total time - {perf_counter() - total_time}")
+                except IncompleteRead:
+                    print("The recived data was incomplete.")
                 break
             except ChunkedEncodingError:
                 print("Oh no we lost connection, but we will try again")

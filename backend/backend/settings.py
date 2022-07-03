@@ -28,8 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "backend",
     "127.0.0.1",
-    "localhost",
-    "0.0.0.0"
+    "localhost"
 ]
 # ALLOWED_HOSTS = ['*']
 
@@ -46,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'anomaly_detection_reworked'
+    'anomaly_detection_reworked',
+    'notifications'
 ]
 
 MIDDLEWARE = [

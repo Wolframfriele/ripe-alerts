@@ -9,13 +9,11 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
-    "apexcharts": "^3.35.0",
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
     "quasar": "^2.0.0",
     "vue": "3.2.20",
-    "vue-router": "4",
-    "vue3-apexcharts": "^1.4.1"
+    "vue-router": "4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

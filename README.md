@@ -93,21 +93,37 @@ Open folder 'ripe-alerts' → Delete folder 'data'
 ```bash
   docker compose build
 ```
-5. Start the application, by using the command:
+5. Initialize the database. Open the terminal, and run the following command: 
 ```bash
-  docker compose up
+  docker compose run --name database --rm db
 ```
-6. Open Docker.
-7. Go to the backend-container, and open the Command Line Interface (CLI).
-8. Migrate the database, by using the command:
+Wait, until it says: 
+```bash
+  PostgreSQL init process complete; ready for start up.
+```
+6. Close the container (CTRL+C). 
+7. Start the application, by using the command:
+```bash
+  docker-compose up
+```
+8. Open Docker.
+9. Go to the backend-container, and open the Command Line Interface (CLI).
+10. Migrate the database, by using the command:
 ```bash
   python manage.py migrate
 ```
-9. Then, synchronize the database, by using the command:
+11. To manage access to the database we need a superuser. So let's create one! <br/>
+To create a superuser, use the command:
 ```bash
-  python manage.py migrate --run-syncdb
+  python manage.py createsuperuser
 ```
-10. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+12. Go to the anomaly-container, and open the Command Line Interface (CLI).
+13. Migrate the database, by using the command:
+```bash
+  python manage.py migrate
+```
+14. Congratulations! You're done! You can access the site at [http://localhost:8080/](http://localhost:8080/).
+
 
 <!-- HOW TO USE THE DATABASE? -->
 ### How to use the database?
@@ -139,7 +155,7 @@ To check out live examples and docs, visit [our wiki.](https://github.com/Wolfra
 
 - [x] Anomaly detection
 - [x] Base API
-- [x] Improve Docker installation
+- [ ] Improve Docker installation
 - [ ] Add additional alerting methods like Webhooks, API
 - [ ] Personalize alerts by giving feedback to anomalies
 - [ ] Better API documentation

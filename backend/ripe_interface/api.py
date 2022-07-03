@@ -1,3 +1,4 @@
+from ctypes.wintypes import tagSIZE
 from typing import List
 
 from django.contrib.auth.models import User
@@ -5,8 +6,11 @@ from django.http import JsonResponse
 from django.utils import timezone
 from ninja import Router, Path
 from ninja.pagination import paginate, PageNumberPagination
+from ninja.security import django_auth
+import threading
 
-from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod
+from anomaly_detection.monitor_manager import MonitorManager
+from database.models import AutonomousSystem, Setting, MeasurementCollection, Anomaly, MeasurementType, DetectionMethod, Tag
 from ripe_interface.api_schemas import AutonomousSystemSetting, ASNumber, AutonomousSystemSetting2, AnomalyOut
 from ripe_interface.ripe_requests import RipeRequests
 
@@ -102,4 +106,12 @@ def set_autonomous_system_setting(request, asn: ASNumber = Path(...)):
         measurements = RipeRequests.get_anchoring_measurements(anchor.ip_v4)
         for measurement in measurements:
             measurement.save_to_database(system=autonomous_system)
+
+    mesh_tag = Tag.objects.get(name="mesh")
+    measurements_list = MeasurementCollection.objects.filter(autonomous_system=autonomous_system, type="traceroute", tags=mesh_tag.id)
+    thread = threading.Thread(target=MonitorManager, args=(measurements_list,), daemon=True)
+    thread.start()
+    print("Starting new thread!")
+    
+    
     return JsonResponse({"monitoring_possible": True, "host": asn_location, "message": "Success!"}, status=200)

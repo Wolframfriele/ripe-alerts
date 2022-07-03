@@ -43,6 +43,10 @@ class DetectionMethod(ABC):
     def __str__(self) -> str:
         return "Class: " + str(self.__class__.__name__) + " " + str(self.get_measurement_type)
 
-
-
-
+    def __eq__(self, other: object) -> bool:
+        """
+        Method that is used to compare two Detection Method by their values.
+        @param other: The other Detection Method instance which will be compared to.
+        @return: True if the instance is of the same class and contains the same measurement type.
+        """
+        return isinstance(other, self.__class__) and self.get_measurement_type == other.get_measurement_type
