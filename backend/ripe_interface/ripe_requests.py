@@ -31,14 +31,8 @@ class RipeRequests:
         params = {"as_v4": str(as_number)}
         response = requests.get(url=ANCHORS_URL, params=params).json()
         results = response.get('results')  # There are multiple anchors.
-        if not results:
-            return []
-        else:
-            anchor_array = []
-            for x in results:
-                anchor = Anchor(**x)
-                anchor_array.append(anchor)
-        return anchor_array
+
+        return [Anchor(**x) for x in results]
 
     @staticmethod
     def autonomous_system_exist(as_number: int) -> bool:
@@ -46,7 +40,7 @@ class RipeRequests:
         params = {"asn_v4": str(as_number)}
         response = requests.get(url=PROBES_URL, params=params).json()
         probes_amount = response.get('count')
-        return not probes_amount == 0
+        return probes_amount != 0
 
     @staticmethod
     def get_anchoring_measurements(target_address: str) -> list[AnchoringMeasurement]:
@@ -63,19 +57,13 @@ class RipeRequests:
         }
         response = requests.get(MEASUREMENTS_URL, params=params).json()
         results = response.get('results')
-        measurements = []
-        for x in results:
-            anchor_measurement = AnchoringMeasurement(**x)
-            measurements.append(anchor_measurement)
-        return measurements
+        return [AnchoringMeasurement(**x) for x in results]
 
     @staticmethod
     def get_company_name(as_number: int) -> str:
         """ Returns the company name of an autonomous system. """
-        company: str = ""
         params = {"resource": str(as_number)}
         response = requests.get(url=RIPE_STATS_ASN, params=params).json()
         results = response.get('data')
-        if results['holder']:
-            company = results['holder']
-        return company
+
+        return results["holder"] or ""

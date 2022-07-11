@@ -54,8 +54,7 @@ class AnomalyOut(Schema):
 
     @staticmethod
     def resolve_timestamp(obj):
-        return str(obj.time.year) + "-" + str(obj.time.month) + "-" + str(obj.time.day) + \
-               " " + str(obj.time.hour) + ":" + str(obj.time.minute) + ":" + str(obj.time.second)
+        return f"{obj.time.year}-{obj.time.month}-{obj.time.day} {obj.time.hour}:{obj.time.minute}:{obj.time.second}"
 
     @staticmethod
     def resolve_ip_addresses(obj):

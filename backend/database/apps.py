@@ -14,12 +14,12 @@ class DatabaseConfig(AppConfig):
         setting_table_exists = "database_setting" in connection.introspection.table_names()
         if not auth_user_table_exist:  # Migrate before you create the user!
             return
-        else:
-            admin_exist = User.objects.filter(username="admin").exists()
-            if not admin_exist:
-                user = User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
-                print("Superuser 'admin' created!")
-            elif admin_exist and setting_table_exists:
-                user = User.objects.get(username="admin")
-                if not Setting.objects.filter(user=user).exists():
-                    Setting.objects.create(user=user)
+
+        admin_exist = User.objects.filter(username="admin").exists()
+        if not admin_exist:
+            user = User.objects.create_superuser(username="admin", email="admin@ripe.net", password="password")
+            print("Superuser 'admin' created!")
+        elif setting_table_exists:
+            user = User.objects.get(username="admin")
+            if not Setting.objects.filter(user=user).exists():
+                Setting.objects.create(user=user)

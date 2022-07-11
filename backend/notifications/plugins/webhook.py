@@ -16,10 +16,7 @@ class WebhookPlugin(plugin.PluginInterface):
             data = '{"url":"http://localhost:8000"}'
             self.config_data = json.loads(data)
         else:
-            try:
-                self.config_data = config.config
-            except AttributeError:
-                self.config_data = config
+            self.config_data = getattr(config, "config", config)
 
     def receiver(self, message: str) -> None:
         config = json.loads(self.config_data)

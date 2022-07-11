@@ -1,14 +1,11 @@
 import json
-from django.conf import settings
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-
-from database.models import Setting, Notification
+from database.models import Notification, Setting
+from .api import get_config, save_config, send_alert, setup
 from .api_schema import AlertFormat, ConfigFormat, ConfigFormatGet
-from .api import send_alert, setup, save_config, get_config
-
-
 
 
 class AlertApiTest(TestCase):
@@ -37,6 +34,7 @@ class AlertApiTest(TestCase):
     def test_response_invalid(self):
         self.assertEqual(self.bad_response.status_code, 400)
         self.assertEqual(self.bad_json_response['message'], "Missing parameter!")
+
 
 class ConfigSaveTest(TestCase):
     """ Test for the saving of the config """
@@ -67,6 +65,7 @@ class ConfigSaveTest(TestCase):
         self.assertEqual(self.bad_response.status_code, 400)
         self.assertEqual(self.bad_json_response['message'], "Invalid parameters!")
         self.assertFalse(Notification.objects.filter(name="test").exists())
+
 
 class ConfigGetTest(TestCase):
     """ Test for getting the saves from the database """

@@ -25,7 +25,7 @@ class Setting(models.Model):
     @staticmethod
     def get_user_settings(username: str):
         if not User.objects.filter(username=username).exists():
-            return None
+            return
         user = User.objects.get(username=username)
         if not Setting.objects.filter(user=user).exists():
             Setting.objects.create(user=user)
@@ -124,7 +124,7 @@ class MeasurementCollection(models.Model):
 
     def __str__(self):
         text_split = self.description.split(":")
-        if not len(text_split) == 2:
+        if len(text_split) != 2:
             return self.description
         description = text_split[0] + " (" + str(self.measurement_id) + "):" + text_split[1]
         return description  # This description also contains the Measurement ID.
@@ -242,8 +242,7 @@ class Feedback(models.Model):
         if feedback_exist:
             feedback = Feedback.objects.get(anomaly_id=anomaly_id)
             return feedback.response
-        else:
-            return None
+        return None
 
     @staticmethod
     def create_or_update(anomaly_id: int, response: bool):
@@ -252,6 +251,6 @@ class Feedback(models.Model):
             feedback = Feedback.objects.get(anomaly_id=anomaly_id)
             feedback.response = response
             feedback.save()
-        elif not feedback_exist:
+        else:
             feedback = Feedback.objects.create(anomaly_id=anomaly_id, response=response)
             feedback.save()

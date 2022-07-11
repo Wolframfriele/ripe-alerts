@@ -21,8 +21,6 @@ def api_redirect(request):
 def auth_configuration():
     if NINJA_AUTH_ENABLED:
         return django_auth
-    elif not NINJA_AUTH_ENABLED:
-        return None
 
 
 description = ""
